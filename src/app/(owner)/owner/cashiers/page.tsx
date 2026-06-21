@@ -10,6 +10,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { formatDateTime } from "@/lib/utils";
 import {
+  createCashier,
   listActivityLogs,
   listCashiers,
   setCashierActive,
@@ -24,7 +25,9 @@ export default function CashiersPage() {
   const [editing, setEditing] = React.useState<CashierItem | null>(null);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [isActive, setIsActive] = React.useState(true);
+  const [formError, setFormError] = React.useState<string | null>(null);
   const [toast, setToast] = React.useState<string | null>(null);
 
   const reload = React.useCallback(() => {
@@ -37,26 +40,47 @@ export default function CashiersPage() {
     setEditing(null);
     setName("");
     setEmail("");
+    setPassword("");
     setIsActive(true);
+    setFormError(null);
     setOpen(true);
   }
   function openEdit(c: CashierItem) {
     setEditing(c);
     setName(c.name);
     setEmail(c.email);
+    setPassword("");
     setIsActive(c.isActive);
+    setFormError(null);
     setOpen(true);
   }
   async function save() {
     if (!name.trim() || !email.trim()) return;
-    await upsertCashier({
-      id: editing?.id,
-      name: name.trim(),
-      email: email.trim(),
-      isActive,
-    });
-    setOpen(false);
-    reload();
+    setFormError(null);
+    try {
+      if (editing) {
+        await upsertCashier({
+          id: editing.id,
+          name: name.trim(),
+          email: email.trim(),
+          isActive,
+        });
+      } else {
+        if (!password.trim()) {
+          setFormError("Password wajib untuk kasir baru.");
+          return;
+        }
+        await createCashier({
+          name: name.trim(),
+          email: email.trim(),
+          password: password.trim(),
+        });
+      }
+      setOpen(false);
+      reload();
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Gagal menyimpan kasir.");
+    }
   }
   async function toggleActive(c: CashierItem) {
     setCashiers((prev) =>
@@ -194,6 +218,11 @@ export default function CashiersPage() {
         }
       >
         <div className="space-y-4">
+          {formError && (
+            <div className="rounded-card bg-error/10 px-3 py-2 text-sm text-error">
+              {formError}
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-sm font-semibold text-black/80">
               Nama
@@ -215,6 +244,24 @@ export default function CashiersPage() {
               className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
             />
           </div>
+          {!editing && (
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-black/80">
+                Password
+              </label>
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                autoComplete="new-password"
+                placeholder="Min. 6 karakter"
+                className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
+              />
+              <p className="mt-1 text-xs text-black/45">
+                Kredensial login kasir dibuat di Supabase Auth.
+              </p>
+            </div>
+          )}
           <div className="flex items-center justify-between rounded-card bg-background p-3">
             <span className="text-sm font-semibold text-black/80">
               Akun Aktif

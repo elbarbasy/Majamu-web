@@ -76,11 +76,11 @@
 1. ✅ ~~Alihkan modul Owner dari `owner-store` (in-memory) ke Supabase~~ — **selesai** (Supabase-first + fallback dev store).
 2. Implementasi Route Handler `/api/*` secara nyata — **payments** (`/api/payments`, `/api/payments/callback`) **sudah nyata**; sisanya masih placeholder 501 (operasi data via client services).
 3. ✅ ~~Integrasi Midtrans (`/api/payments/callback`) & Fonnte (WhatsApp)~~ — **selesai** (`lib/midtrans.ts`, `lib/midtrans-client.ts`, `lib/fonnte.ts` + 2 route + wiring checkout; aktif saat env terisi).
-4. Generate nomor struk/antrian via `next_daily_sequence()` (atomik) menggantikan generator klien.
+4. ✅ ~~Generate nomor struk/antrian via `next_daily_sequence()` (atomik)~~ — **selesai** (RPC `SECURITY DEFINER` + grant; dipakai di `orders.service.createOrder`, fallback acak bila RPC tak tersedia).
 5. ✅ ~~Validasi nomor meja terhadap tabel `tables` saat scan QR~~ — **selesai** (`tables.service`).
 6. ✅ ~~Refleksikan `store_settings.store_status` (toko tutup) ke sisi pelanggan~~ — **selesai** (`settings.service`).
 7. ✅ ~~**Laporan**: agregasi penuh dari Supabase~~ — **selesai** (totalSales, jumlah pesanan, metode bayar, produk terlaris, deret waktu dihitung dari `orders`/`order_items`; fallback estimasi bila tanpa Supabase).
-8. Pembuatan akun Kasir penuh via Supabase Auth admin (kini owner menulis profil di tabel `users`).
+8. ✅ ~~Pembuatan akun Kasir penuh via Supabase Auth admin~~ — **selesai** (`POST /api/cashiers`: `auth.admin.createUser` + profil `users`, rollback bila gagal; form owner punya field password).
 
 > Build/typecheck belum dapat dijalankan di sandbox (mode `INTEGRATIONS_ONLY`, registry npm 403).
 > Perbaikan disusun agar lolos lint `next build` (tanpa import ganda/tak terpakai pada file yang diubah).

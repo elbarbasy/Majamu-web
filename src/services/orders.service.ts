@@ -92,13 +92,26 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
 
   try {
     const supabase = createClient();
+
+    // Nomor urut harian ATOMIK via RPC (mencegah tabrakan nomor).
+    let seqNum = seq;
+    const { data: seqData, error: seqError } =
+      await supabase.rpc("next_daily_sequence");
+    if (!seqError && typeof seqData === "number") seqNum = seqData;
+
+    const finalReceipt = `MJM-${todayStamp()}-${pad(seqNum, 4)}`;
+    const finalDisplay =
+      input.orderType === "dine_in" && input.tableNumber != null
+        ? `Meja ${input.tableNumber}`
+        : `A-${pad(seqNum, 3)}`;
+
     const { data: order, error } = await supabase
       .from("orders")
       .insert({
         status_url: statusUrl,
-        receipt_number: receiptNumber,
+        receipt_number: finalReceipt,
         order_type: input.orderType,
-        display_number: displayNumber,
+        display_number: finalDisplay,
         customer_name: input.customerName || null,
         whatsapp: input.whatsapp,
         notes: input.notes || null,
@@ -136,7 +149,12 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
       .from("order_status_history")
       .insert({ order_id: orderId, status: "menunggu_bayar" });
 
-    return { ...base, orderId };
+    return {
+      ...base,
+      orderId,
+      receiptNumber: finalReceipt,
+      displayNumber: finalDisplay,
+    };
   } catch (err) {
     console.warn("[orders.service] fallback order lokal:", err);
     return { ...base, orderId: `local-${randomToken(8)}` };

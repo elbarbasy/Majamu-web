@@ -945,6 +945,44 @@ export async function setCashierActive(
   return true;
 }
 
+/**
+ * Buat akun Kasir penuh (Auth + profil) via API server (service role).
+ * Di dev (tanpa Supabase) → buat profil in-memory (password diabaikan).
+ */
+export async function createCashier(input: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<CashierItem> {
+  const supabase = getClient();
+  if (!supabase) {
+    return upsertCashier({
+      name: input.name,
+      email: input.email,
+      isActive: true,
+    });
+  }
+  const res = await fetch("/api/cashiers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (res.ok) {
+    const data = (await res.json()) as CashierItem;
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      isActive: data.isActive ?? true,
+    };
+  }
+  const errData = (await res.json().catch(() => ({}))) as {
+    message?: string;
+    error?: string;
+  };
+  throw new Error(errData.message || errData.error || "Gagal membuat kasir");
+}
+
 export async function listActivityLogs(): Promise<ActivityLogItem[]> {
   const supabase = getClient();
   if (!supabase) {

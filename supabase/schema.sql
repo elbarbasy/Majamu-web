@@ -189,6 +189,8 @@ create table daily_sequences (
 create or replace function next_daily_sequence()
 returns integer
 language plpgsql
+security definer
+set search_path = public
 as $$
 declare
   v integer;
@@ -201,6 +203,9 @@ begin
   return v;
 end;
 $$;
+
+-- Izinkan pelanggan (anon) & pengguna login memanggil RPC nomor urut harian.
+grant execute on function next_daily_sequence() to anon, authenticated;
 
 -- =========================================================
 -- ROW LEVEL SECURITY (#9)
