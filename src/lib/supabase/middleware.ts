@@ -6,8 +6,10 @@
  * dijelajahi. Bila terkonfigurasi, pengguna tanpa sesi yang mengakses
  * /owner atau /pos diarahkan ke /login (PRD: login owner & kasir).
  */
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+
+import type { Database } from "@/types/database";
 
 const PROTECTED_PREFIXES = ["/owner", "/pos"];
 
@@ -20,12 +22,14 @@ export async function updateSession(request: NextRequest) {
   // Supabase belum dikonfigurasi → lewati (dev).
   if (!url || !anonKey) return response;
 
-  const supabase = createServerClient(url, anonKey, {
+  const supabase = createServerClient<Database>(url, anonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(
+        cookiesToSet: { name: string; value: string; options?: CookieOptions }[]
+      ) {
         cookiesToSet.forEach(({ name, value, options }) => {
           request.cookies.set(name, value);
           response.cookies.set(name, value, options);
