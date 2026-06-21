@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-primary: #7a5230;
+  --brand-secondary: #d8b98a;
+  --brand-accent: #7fa36b;
+  --brand-background: #f8f5ef;
+  --brand-surface: #ffffff;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--brand-background);
+  color: #2a2118;
+  font-family: Inter, Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@layer utilities {
+  /* Filter chips: single row horizontal scroll, no wrap (CUSTOMER_UI.md) */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Minimum touch target 44x44 (DESIGN_SYSTEM.md) */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
