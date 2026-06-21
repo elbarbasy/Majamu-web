@@ -23,7 +23,7 @@
 
 ### Pembayaran (PRD)
 - ✅ Pilihan Tunai / QRIS / Midtrans pada checkout
-- ⏳ Integrasi nyata Midtrans (`/api/payments/callback`) & Fonnte WhatsApp — placeholder; di luar inti UI MVP
+- ✅ **Integrasi Midtrans Snap** (`/api/payments`) + **webhook** (`/api/payments/callback`) + **Fonnte WhatsApp** saat pembayaran lunas (aktif bila env terisi; checkout fallback aman tanpa env)
 
 ## 2. Route
 
@@ -74,8 +74,8 @@
 ## 7. Sisa pekerjaan (didokumentasikan, di luar audit UI ini)
 
 1. ✅ ~~Alihkan modul Owner dari `owner-store` (in-memory) ke Supabase~~ — **selesai** (Supabase-first + fallback dev store).
-2. Implementasi Route Handler `/api/*` secara nyata (kini 501) bila diperlukan akses server/eksternal.
-3. Integrasi Midtrans (`/api/payments/callback`) & Fonnte (WhatsApp) — `lib/midtrans.ts`, `lib/fonnte.ts` masih placeholder.
+2. Implementasi Route Handler `/api/*` secara nyata — **payments** (`/api/payments`, `/api/payments/callback`) **sudah nyata**; sisanya masih placeholder 501 (operasi data via client services).
+3. ✅ ~~Integrasi Midtrans (`/api/payments/callback`) & Fonnte (WhatsApp)~~ — **selesai** (`lib/midtrans.ts`, `lib/midtrans-client.ts`, `lib/fonnte.ts` + 2 route + wiring checkout; aktif saat env terisi).
 4. Generate nomor struk/antrian via `next_daily_sequence()` (atomik) menggantikan generator klien.
 5. ✅ ~~Validasi nomor meja terhadap tabel `tables` saat scan QR~~ — **selesai** (`tables.service`).
 6. ✅ ~~Refleksikan `store_settings.store_status` (toko tutup) ke sisi pelanggan~~ — **selesai** (`settings.service`).

@@ -13,6 +13,7 @@ import { PAYMENT_METHODS, sweetnessLabel } from "@/constants";
 import { cn, formatCurrency } from "@/lib/utils";
 import { getTableContext } from "@/lib/table-context";
 import { saveOrder } from "@/lib/order-cache";
+import { midtransClientConfigured, payWithSnap } from "@/lib/midtrans-client";
 import { createOrder } from "@/services/orders.service";
 import { useActiveOrderStore } from "@/stores/active-order-store";
 import { useCartStore } from "@/stores/cart-store";
@@ -108,6 +109,29 @@ export default function CheckoutPage() {
           .join(", "),
       });
       clearCart();
+
+      // Pembayaran Midtrans (opsional): hanya jika metode midtrans, order
+      // tersimpan di server (bukan lokal/dev), dan client key tersedia.
+      if (
+        values.paymentMethod === "midtrans" &&
+        midtransClientConfigured() &&
+        !order.orderId.startsWith("local-")
+      ) {
+        try {
+          const res = await fetch("/api/payments", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: order.orderId }),
+          });
+          if (res.ok) {
+            const { token } = (await res.json()) as { token?: string };
+            if (token) await payWithSnap(token);
+          }
+        } catch {
+          /* lanjut ke struk meski popup gagal */
+        }
+      }
+
       router.replace(`/receipt/${order.receiptNumber}`);
     } catch {
       setSubmitting(false);

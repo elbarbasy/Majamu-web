@@ -18,7 +18,7 @@ export async function signIn(
   email: string,
   password: string
 ): Promise<SignInResult> {
-  let supabase;
+  let supabase: ReturnType<typeof createClient>;
   try {
     supabase = createClient();
   } catch {
