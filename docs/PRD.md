@@ -3,6 +3,9 @@
 ## Overview
 Majamu adalah platform pemesanan makanan dan minuman berbasis QR Code. Pelanggan melakukan scan QR di meja, memilih menu, melakukan checkout, dan pesanan langsung masuk ke dashboard kasir secara realtime.
 
+> Catatan istilah (#7): "kategori" / "filter kategori" pada dokumen ini setara dengan
+> **filter chip** (`filter_chips`). Tidak ada tabel `categories` terpisah.
+
 ## Objectives
 - Mengurangi antrean pemesanan.
 - Mempercepat proses pelayanan.
