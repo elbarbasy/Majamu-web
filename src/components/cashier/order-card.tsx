@@ -5,7 +5,7 @@ import { MessageSquareText, Utensils } from "lucide-react";
 import { OrderTimer } from "@/components/cashier/order-timer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CASHIER_ACTION, orderTypeLabel, sweetnessLabel } from "@/constants";
+import { CASHIER_ACTION, orderTypeLabel, statusLabel, sweetnessLabel } from "@/constants";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { CashierOrder, OrderStatus } from "@/types";
 
@@ -49,6 +49,11 @@ export function OrderCard({ order, now, onAdvance, busy }: OrderCardProps) {
               {order.customerName}
             </p>
           )}
+          <span className="mt-1.5 inline-flex">
+            <Badge variant={STATUS_BADGE[order.status]}>
+              {statusLabel(order.status)}
+            </Badge>
+          </span>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
           <OrderTimer createdAt={order.createdAt} now={now} />

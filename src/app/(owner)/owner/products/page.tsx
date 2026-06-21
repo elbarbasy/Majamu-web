@@ -35,6 +35,9 @@ export default function ProductsPage() {
   const [chips, setChips] = React.useState<string[]>([]);
   const [allIngredients, setAllIngredients] = React.useState<string[]>([]);
   const [query, setQuery] = React.useState("");
+  const [chipFilter, setChipFilter] = React.useState("Semua");
+  const [page, setPage] = React.useState(1);
+  const PAGE_SIZE = 8;
 
   const [open, setOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<OwnerProduct | null>(null);
@@ -97,9 +100,26 @@ export default function ProductsPage() {
       : [...list, value];
   }
 
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(query.trim().toLowerCase())
+  const filtered = products.filter((p) => {
+    const matchQuery = p.name
+      .toLowerCase()
+      .includes(query.trim().toLowerCase());
+    const matchChip =
+      chipFilter === "Semua" || p.filterChips.includes(chipFilter);
+    return matchQuery && matchChip;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
   );
+
+  // Reset ke halaman 1 saat filter/pencarian berubah.
+  React.useEffect(() => {
+    setPage(1);
+  }, [query, chipFilter]);
 
   return (
     <div>
@@ -115,14 +135,28 @@ export default function ProductsPage() {
       />
 
       <SectionCard>
-        <div className="mb-4 flex items-center gap-2 rounded-btn border border-black/15 px-3">
-          <Search className="h-4 w-4 text-black/40" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari produk…"
-            className="h-10 w-full bg-transparent text-sm outline-none"
-          />
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex flex-1 items-center gap-2 rounded-btn border border-black/15 px-3">
+            <Search className="h-4 w-4 text-black/40" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cari produk…"
+              className="h-10 w-full bg-transparent text-sm outline-none"
+            />
+          </div>
+          <select
+            value={chipFilter}
+            onChange={(e) => setChipFilter(e.target.value)}
+            className="h-10 rounded-btn border border-black/15 bg-surface px-3 text-sm outline-none focus:border-primary sm:w-56"
+          >
+            <option value="Semua">Semua Filter</option>
+            {chips.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="overflow-x-auto">
@@ -137,7 +171,7 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
-              {filtered.map((p) => (
+              {paged.map((p) => (
                 <tr key={p.id}>
                   <td className="py-3">
                     <p className="font-semibold text-black/85">{p.name}</p>
@@ -210,6 +244,34 @@ export default function ProductsPage() {
             </p>
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-between border-t border-black/5 pt-4">
+            <span className="text-xs text-black/50">
+              Menampilkan {paged.length} dari {filtered.length} produk
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="rounded-btn border border-black/15 px-3 py-1.5 text-sm font-medium text-black/70 disabled:opacity-40"
+              >
+                Sebelumnya
+              </button>
+              <span className="px-2 text-sm font-semibold text-black/70">
+                {currentPage} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="rounded-btn border border-black/15 px-3 py-1.5 text-sm font-medium text-black/70 disabled:opacity-40"
+              >
+                Berikutnya
+              </button>
+            </div>
+          </div>
+        )}
       </SectionCard>
 
       <Dialog
