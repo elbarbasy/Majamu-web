@@ -1,5 +1,16 @@
 -- Majamu MVP Schema
 
+create table users (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text unique not null,
+  password_hash text not null,
+  role text not null check (role in ('owner','cashier')),
+  is_active boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 create table customers (
   id uuid primary key default gen_random_uuid(),
   name text not null,
