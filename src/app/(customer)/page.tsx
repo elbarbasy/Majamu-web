@@ -1,20 +1,21 @@
 "use client";
 
 import * as React from "react";
+import { Info } from "lucide-react";
 
-import { FilterChips } from "@/components/customer/filter-chips";
+import { CategoryChips } from "@/components/customer/category-chips";
+import { HeroCarousel } from "@/components/customer/hero-carousel";
 import { ProductGrid } from "@/components/customer/product-grid";
-import { PromoBanner } from "@/components/customer/promo-banner";
-import { QuizCard } from "@/components/customer/quiz-card";
+import { QuizRecommendationCard } from "@/components/customer/quiz-recommendation-card";
 import { FILTER_ALL, FILTER_RECOMMENDED } from "@/constants";
 import { getBanners, getProducts } from "@/services/products.service";
 import { getStoreStatus } from "@/services/settings.service";
 import type { Banner, Product } from "@/types";
 
 /**
- * Homepage Customer (WIREFRAMES.md / CUSTOMER_UI.md):
- * Header (layout) -> Banner -> Filter Chips -> Quiz Card (inline) ->
- * Produk Populer -> Semua Produk -> Floating Cart Bar (layout).
+ * Homepage Customer — wellness premium.
+ * Hero → Kategori → Quiz Card → Produk Populer → Semua Produk.
+ * Semua data & logika lama dipertahankan.
  */
 export default function CustomerHomePage() {
   const [products, setProducts] = React.useState<Product[]>([]);
@@ -52,25 +53,31 @@ export default function CustomerHomePage() {
   const showPopular = activeFilter === FILTER_ALL && popular.length > 0;
 
   return (
-    <div>
+    <div className="pb-2">
       {storeClosed && (
-        <div className="mx-4 mt-3 rounded-card bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
-          Maaf, toko sedang tutup saat ini. Anda tetap dapat melihat menu.
+        <div className="mx-4 mt-3 flex items-start gap-2 rounded-card border border-warning/30 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
+          <Info className="mt-0.5 h-4 w-4 shrink-0" />
+          Toko sedang tutup. Anda tetap dapat melihat menu kami.
         </div>
       )}
 
-      <PromoBanner banners={banners} />
+      <HeroCarousel banners={banners} />
 
-      <FilterChips active={activeFilter} onSelect={setActiveFilter} />
+      <CategoryChips active={activeFilter} onSelect={setActiveFilter} />
 
-      <QuizCard />
+      <QuizRecommendationCard />
 
       {showPopular && (
-        <ProductGrid title="Produk Populer" products={popular} />
+        <ProductGrid
+          title="Produk Populer"
+          subtitle="Paling diminati"
+          products={popular}
+        />
       )}
 
       <ProductGrid
         title={activeFilter === FILTER_ALL ? "Semua Produk" : activeFilter}
+        subtitle={`${filtered.length} produk`}
         products={filtered}
         loading={loading}
       />

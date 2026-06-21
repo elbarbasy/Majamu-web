@@ -1,9 +1,9 @@
 "use client";
 
-import { InfoPanel } from "@/components/customer/info-panel";
 import { ProductDetailSheet } from "@/components/customer/product-detail-sheet";
 import { QuizSheet } from "@/components/customer/quiz-sheet";
 import { SearchSheet } from "@/components/customer/search-sheet";
+import { SideDrawer } from "@/components/customer/side-drawer";
 
 /**
  * Kumpulan overlay Customer yang dirender sekali di layout agar dapat dibuka
@@ -12,7 +12,7 @@ import { SearchSheet } from "@/components/customer/search-sheet";
 export function CustomerOverlays() {
   return (
     <>
-      <InfoPanel />
+      <SideDrawer />
       <SearchSheet />
       <QuizSheet />
       <ProductDetailSheet />

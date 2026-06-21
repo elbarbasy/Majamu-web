@@ -2,41 +2,56 @@
 
 import { Leaf } from "lucide-react";
 
-import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard } from "@/components/customer/product-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Product } from "@/types";
 
 interface ProductGridProps {
   products: Product[];
   loading?: boolean;
   title?: string;
+  subtitle?: string;
 }
 
-/** Grid Produk (WIREFRAMES.md). 2 kolom mobile-first. */
-export function ProductGrid({ products, loading, title }: ProductGridProps) {
+/** Grid produk — 2 kolom mobile, gap konsisten, judul seksi rapi. */
+export function ProductGrid({
+  products,
+  loading,
+  title,
+  subtitle,
+}: ProductGridProps) {
   return (
-    <section className="px-4 py-2">
+    <section className="px-4 py-3">
       {title && (
-        <h2 className="mb-3 text-base font-bold text-primary">{title}</h2>
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-base font-extrabold text-ink">{title}</h2>
+          {subtitle && (
+            <span className="text-xs font-medium text-muted">{subtitle}</span>
+          )}
+        </div>
       )}
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="overflow-hidden rounded-card bg-surface">
+            <div
+              key={i}
+              className="overflow-hidden rounded-card border border-line bg-surface"
+            >
               <Skeleton className="aspect-square w-full" />
               <div className="space-y-2 p-3">
+                <Skeleton className="h-3 w-16" />
                 <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-8 w-full" />
               </div>
             </div>
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-card bg-surface py-12 text-center">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-card border border-line bg-surface py-14 text-center">
           <Leaf className="h-10 w-10 text-secondary" />
-          <p className="text-sm font-medium text-black/60">
-            Belum ada produk untuk filter ini.
+          <p className="text-sm font-medium text-muted">
+            Belum ada produk untuk kategori ini.
           </p>
         </div>
       ) : (

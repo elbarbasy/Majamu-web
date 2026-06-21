@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Leaf, RotateCcw } from "lucide-react";
 import Image from "next/image";
+import { ArrowLeft, ArrowRight, Check, Leaf, RotateCcw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
@@ -17,9 +17,10 @@ import type { Product } from "@/types";
 const SESSION_KEY = "majamu-quiz-result";
 
 /**
- * Quiz Rekomendasi sebagai FULL-SCREEN Bottom Sheet (aturan wajib).
- * 4 pertanyaan situasional, progress bar, hasil 2-3 produk, satu "Paling Cocok",
- * dapat diulang. Hasil disimpan di sessionStorage (CUSTOMER_UI.md).
+ * Quiz Rekomendasi — full-screen sheet, UX terstruktur:
+ * progress bar hijau + persentase, step indicator, card pertanyaan,
+ * jawaban berupa selectable card (active hijau), tombol Back/Next fixed.
+ * Logika rekomendasi & sessionStorage tidak diubah.
  */
 export function QuizSheet() {
   const open = useUiStore((s) => s.quizOpen);
@@ -32,7 +33,6 @@ export function QuizSheet() {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [results, setResults] = React.useState<Product[] | null>(null);
 
-  // Muat produk sekali saat dibuka & pulihkan hasil dari sessionStorage.
   React.useEffect(() => {
     if (!open) return;
     getProducts().then(setProducts);
@@ -53,36 +53,37 @@ export function QuizSheet() {
 
   const total = QUIZ_QUESTIONS.length;
   const current = QUIZ_QUESTIONS[step];
-  const progress = results
-    ? 100
-    : Math.round(((step) / total) * 100);
+  const selected = answers[step];
+  const percent = results ? 100 : Math.round(((step + 1) / total) * 100);
 
-  function selectOption(chip: string) {
-    const nextAnswers = [...answers.slice(0, step), chip];
-    setAnswers(nextAnswers);
-    if (step + 1 < total) {
-      setStep(step + 1);
-    } else {
-      computeResults(nextAnswers);
-    }
+  function choose(chip: string) {
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[step] = chip;
+      return next;
+    });
+  }
+
+  function next() {
+    if (!selected) return;
+    if (step + 1 < total) setStep(step + 1);
+    else computeResults(answers);
+  }
+
+  function back() {
+    if (step > 0) setStep(step - 1);
   }
 
   function computeResults(selectedChips: string[]) {
     const weight = new Map<string, number>();
     selectedChips.forEach((c) => weight.set(c, (weight.get(c) ?? 0) + 1));
-
     const scored = products
       .filter((p) => p.stockStatus !== "out_of_stock")
-      .map((p) => {
-        const score = p.filterChips.reduce(
-          (sum, c) => sum + (weight.get(c) ?? 0),
-          0
-        );
-        return { product: p, score };
-      })
+      .map((p) => ({
+        product: p,
+        score: p.filterChips.reduce((s, c) => s + (weight.get(c) ?? 0), 0),
+      }))
       .sort((a, b) => b.score - a.score);
-
-    // Ambil 2-3 produk teratas dengan skor > 0; jika kurang, lengkapi dari sisa.
     let picked = scored.filter((s) => s.score > 0).slice(0, 3).map((s) => s.product);
     if (picked.length < 2) {
       const fill = scored
@@ -91,7 +92,6 @@ export function QuizSheet() {
         .slice(0, 2 - picked.length);
       picked = [...picked, ...fill];
     }
-
     setResults(picked);
     try {
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(picked.map((p) => p.id)));
@@ -117,55 +117,103 @@ export function QuizSheet() {
       onClose={close}
       fullScreen
       title="Quiz Rekomendasi"
+      footer={
+        results ? (
+          <div className="flex gap-2">
+            <Button variant="outline" block onClick={restart}>
+              <RotateCcw className="h-4 w-4" />
+              Ulangi
+            </Button>
+            <Button block onClick={close}>
+              Selesai
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={back}
+              disabled={step === 0}
+              className="px-5"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Kembali
+            </Button>
+            <Button block onClick={next} disabled={!selected}>
+              {step + 1 < total ? "Lanjut" : "Lihat Hasil"}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )
+      }
     >
-      {/* Progress bar */}
-      <div className="mb-5 mt-1">
-        <div className="h-2 w-full overflow-hidden rounded-full bg-black/10">
+      {/* Progress */}
+      <div className="mb-6 mt-1">
+        <div className="mb-2 flex items-center justify-between text-xs font-semibold">
+          <span className="text-muted">
+            {results ? "Selesai" : `Langkah ${step + 1} dari ${total}`}
+          </span>
+          <span className="text-accent">{percent}%</span>
+        </div>
+        <div className="h-2 w-full overflow-hidden rounded-full bg-line">
           <div
-            className="h-full rounded-full bg-accent transition-all"
-            style={{ width: `${progress}%` }}
+            className="h-full rounded-full bg-accent transition-all duration-300"
+            style={{ width: `${percent}%` }}
           />
         </div>
-        {!results && (
-          <p className="mt-2 text-xs text-black/50">
-            Pertanyaan {step + 1} dari {total}
-          </p>
-        )}
       </div>
 
       {!results ? (
-        <div>
-          <h3 className="mb-4 text-lg font-bold text-black/90">
-            {current.question}
-          </h3>
+        <div className="animate-fade-in">
+          {/* Card pertanyaan */}
+          <div className="mb-4 rounded-card border border-line bg-surface p-5 shadow-soft-sm">
+            <span className="mb-2 inline-flex items-center gap-1 rounded-full bg-accent/12 px-2.5 py-1 text-[11px] font-bold text-accent">
+              <Leaf className="h-3 w-3" /> Pertanyaan {step + 1}
+            </span>
+            <h3 className="text-lg font-extrabold leading-snug text-ink">
+              {current.question}
+            </h3>
+          </div>
+
+          {/* Jawaban selectable */}
           <div className="flex flex-col gap-3">
             {current.options.map((opt) => {
-              const active = answers[step] === opt.chip;
+              const active = selected === opt.chip;
               return (
                 <button
                   key={opt.label}
-                  onClick={() => selectOption(opt.chip)}
+                  onClick={() => choose(opt.chip)}
                   className={cn(
-                    "rounded-card border p-4 text-left text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-card border p-4 text-left text-sm font-semibold transition-all active:scale-[0.99]",
                     active
-                      ? "border-accent bg-accent/10 text-accent"
-                      : "border-black/10 bg-surface text-black/80 hover:border-accent/40"
+                      ? "border-accent bg-accent/10 text-accent shadow-soft-sm"
+                      : "border-line bg-surface text-ink hover:border-accent/50 hover:bg-accent/5"
                   )}
                 >
-                  {opt.label}
+                  <span
+                    className={cn(
+                      "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                      active
+                        ? "border-accent bg-accent text-accent-foreground"
+                        : "border-line"
+                    )}
+                  >
+                    {active && <Check className="h-3.5 w-3.5" />}
+                  </span>
+                  <span className="flex-1">{opt.label}</span>
                 </button>
               );
             })}
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="animate-fade-in space-y-4">
           <div className="text-center">
-            <h3 className="text-lg font-bold text-primary">
+            <h3 className="text-xl font-extrabold text-primary">
               Rekomendasi untukmu
             </h3>
-            <p className="text-sm text-black/60">
-              Berikut jamu yang paling sesuai dengan kebutuhanmu.
+            <p className="text-sm text-muted">
+              Ramuan yang paling sesuai dengan kebutuhanmu.
             </p>
           </div>
 
@@ -174,8 +222,8 @@ export function QuizSheet() {
               <div
                 key={p.id}
                 className={cn(
-                  "flex gap-3 rounded-card border bg-surface p-3",
-                  idx === 0 ? "border-accent" : "border-black/10"
+                  "flex gap-3 rounded-card border bg-surface p-3 shadow-soft-sm",
+                  idx === 0 ? "border-accent" : "border-line"
                 )}
               >
                 <button
@@ -183,7 +231,7 @@ export function QuizSheet() {
                     openDetail(p.id);
                     close();
                   }}
-                  className="relative h-20 w-20 shrink-0 overflow-hidden rounded-card bg-secondary/20"
+                  className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-secondary/15"
                 >
                   {p.photoUrl ? (
                     <Image
@@ -201,14 +249,12 @@ export function QuizSheet() {
                 </button>
                 <div className="flex min-w-0 flex-1 flex-col">
                   {idx === 0 && (
-                    <span className="mb-1">
+                    <span className="mb-1 w-fit">
                       <Badge variant="accent">Paling Cocok</Badge>
                     </span>
                   )}
-                  <p className="truncate text-sm font-semibold text-black/85">
-                    {p.name}
-                  </p>
-                  <p className="text-sm font-bold text-primary">
+                  <p className="clamp-1 text-sm font-bold text-ink">{p.name}</p>
+                  <p className="text-sm font-extrabold text-primary">
                     {formatCurrency(p.price)}
                   </p>
                   <div className="mt-auto flex gap-2 pt-2">
@@ -240,11 +286,6 @@ export function QuizSheet() {
               </div>
             ))}
           </div>
-
-          <Button block variant="ghost" onClick={restart}>
-            <RotateCcw className="h-4 w-4" />
-            Ulangi Quiz
-          </Button>
         </div>
       )}
     </BottomSheet>
