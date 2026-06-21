@@ -9,6 +9,21 @@ Majamu adalah platform pemesanan makanan dan minuman berbasis QR Code. Pelanggan
 - Memudahkan owner memantau penjualan.
 - Menyediakan pengalaman pemesanan digital.
 
+## Authentication
+
+### Owner
+- Login menggunakan email dan password.
+- Akun owner dibuat saat setup awal aplikasi.
+
+### Kasir
+- Login menggunakan email dan password.
+- Akun kasir hanya dapat dibuat oleh owner.
+- Owner dapat mengaktifkan atau menonaktifkan akun kasir.
+
+### Pelanggan
+- Tidak wajib login.
+- Identitas pelanggan menggunakan nama dan nomor WhatsApp.
+
 ## Roles
 ### Pelanggan
 - Scan QR meja
@@ -32,6 +47,7 @@ Majamu adalah platform pemesanan makanan dan minuman berbasis QR Code. Pelanggan
 - Kelola kategori
 - Kelola banner
 - Kelola QR meja
+- Kelola akun kasir
 - Laporan penjualan
 - Pengaturan toko
 
