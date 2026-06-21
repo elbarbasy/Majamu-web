@@ -35,6 +35,7 @@ src/
 
 ```text
 src/app/
+├── (auth)/
 ├── (customer)/
 ├── (cashier)/
 ├── (owner)/
@@ -47,6 +48,15 @@ src/app/
 
 ---
 
+## Auth Module (#4)
+
+```text
+(auth)
+└── login/page.tsx        # /login (redirect by role)
+```
+
+---
+
 ## Customer Module
 
 ```text
@@ -54,11 +64,16 @@ src/app/
 ├── page.tsx
 ├── table/[tableNumber]/page.tsx
 ├── quiz/page.tsx
+├── product/[productId]/page.tsx
 ├── cart/page.tsx
 ├── checkout/page.tsx
+├── receipt/[receiptNumber]/page.tsx
 ├── history/page.tsx
 └── order/[statusUrl]/page.tsx
 ```
+
+> Detail produk & quiz dirender sebagai bottom sheet di UI; route tetap ada
+> untuk deep-link/share (#3).
 
 ---
 

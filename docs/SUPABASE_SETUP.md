@@ -27,12 +27,15 @@ supabase/seed.sql
 
 ## 3. Authentication Setup
 
-Majamu menggunakan login email dan password hanya untuk:
+Majamu menggunakan **Supabase Auth (Email/Password)** untuk:
 
 - Owner
 - Kasir
 
 Pelanggan tidak memiliki akun.
+
+> Kredensial disimpan di `auth.users` (Supabase Auth). Tabel `public.users`
+> hanya menyimpan profil (name, role, is_active) yang tertaut via `auth_user_id` (#11).
 
 ### Auth Provider
 - Email Password
@@ -99,27 +102,38 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 ## 7. Row Level Security (RLS)
 
-### Public Access
+> RLS diaktifkan untuk SEMUA tabel di `schema.sql`. Helper `current_user_role()`
+> membaca peran dari tabel `users` berdasarkan `auth.uid()`.
+
+### Public Read-Only (#9)
 
 - products
 - filter_chips
+- product_filter_chips
+- product_ingredients
+- ingredients
 - banners
+- tables
+- store_settings
 
-Read Only
+### Customer (tanpa login)
 
-### Customer
-
-- create orders
-- create order_items
+- insert orders
+- insert order_items
+- insert payments
+- read orders / order_items / order_status_history (tracking via status_url / receipt_number)
 
 ### Cashier
 
 - update order status
-- create shift notes
+- insert order_status_history
+- manage shift notes
 
 ### Owner
 
-- full access
+- full access: products, filter_chips, ingredients, banners, tables, users,
+  cash_entries, store_settings
+- read activity_logs
 
 ---
 
@@ -132,6 +146,10 @@ Seed data minimum:
 - Banner Awal
 - Meja 1-20
 - Owner Account
+
+> Owner Account: buat user lewat Supabase Auth terlebih dahulu, lalu jalankan
+> insert profil ke tabel `users` dengan `auth_user_id` user tersebut
+> (lihat komentar di `supabase/seed.sql`).
 
 ---
 
