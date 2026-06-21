@@ -39,9 +39,12 @@
 | products, filter_chips, banners, ingredients, product_filter_chips, product_ingredients | ✅ | `products.service` (customer) |
 | orders, order_items, payments, order_status_history | ✅ | checkout + cashier board |
 | shift_notes | ✅ | cashier.service |
-| users | 🔧 | kini dipakai login (`auth.service` baca role) |
-| store_settings, cash_entries, activity_logs, tables | ⏳ | Modul Owner masih memakai dev store in-memory (`owner-store`); siap dialihkan ke Supabase (pola sama seperti products/cashier service). Tipe sudah selaras schema |
-| daily_sequences / `next_daily_sequence()` | ⏳ | Nomor struk/antrian kini di-generate sisi klien; produksi sebaiknya pakai RPC ini |
+| users | ✅ | login (`auth.service`) + daftar/CRUD kasir (`owner.service`) |
+| store_settings | ✅ | owner read/update; **status toko kini direfleksikan ke pelanggan** (`settings.service`) |
+| cash_entries, activity_logs | ✅ | modul Owner kini Supabase-first (fallback dev store) |
+| tables | ✅ | owner CRUD + **validasi nomor meja saat scan QR** (`tables.service`) |
+| products/filter_chips/ingredients/banners (Owner) | ✅ | Supabase-first + sinkronisasi join (product_filter_chips, product_ingredients) |
+| daily_sequences / `next_daily_sequence()` | ⏳ | Nomor struk/antrian masih di-generate sisi klien; produksi sebaiknya pakai RPC ini |
 
 ## 4. UI vs Wireframe (WIREFRAMES.md)
 
@@ -70,12 +73,14 @@
 
 ## 7. Sisa pekerjaan (didokumentasikan, di luar audit UI ini)
 
-1. Alihkan modul Owner dari `owner-store` (in-memory) ke Supabase.
+1. ✅ ~~Alihkan modul Owner dari `owner-store` (in-memory) ke Supabase~~ — **selesai** (Supabase-first + fallback dev store).
 2. Implementasi Route Handler `/api/*` secara nyata (kini 501) bila diperlukan akses server/eksternal.
 3. Integrasi Midtrans (`/api/payments/callback`) & Fonnte (WhatsApp) — `lib/midtrans.ts`, `lib/fonnte.ts` masih placeholder.
 4. Generate nomor struk/antrian via `next_daily_sequence()` (atomik) menggantikan generator klien.
-5. Validasi nomor meja terhadap tabel `tables` saat scan QR.
-6. Refleksikan `store_settings.store_status` (toko tutup) ke sisi pelanggan.
+5. ✅ ~~Validasi nomor meja terhadap tabel `tables` saat scan QR~~ — **selesai** (`tables.service`).
+6. ✅ ~~Refleksikan `store_settings.store_status` (toko tutup) ke sisi pelanggan~~ — **selesai** (`settings.service`).
+7. **Laporan**: agregasi penuh dari Supabase (dashboard sudah metrik nyata; halaman Laporan masih estimasi sample).
+8. Pembuatan akun Kasir penuh via Supabase Auth admin (kini owner menulis profil di tabel `users`).
 
 > Build/typecheck belum dapat dijalankan di sandbox (mode `INTEGRATIONS_ONLY`, registry npm 403).
 > Perbaikan disusun agar lolos lint `next build` (tanpa import ganda/tak terpakai pada file yang diubah).

@@ -8,6 +8,7 @@ import { PromoBanner } from "@/components/customer/promo-banner";
 import { QuizCard } from "@/components/customer/quiz-card";
 import { FILTER_ALL, FILTER_RECOMMENDED } from "@/constants";
 import { getBanners, getProducts } from "@/services/products.service";
+import { getStoreStatus } from "@/services/settings.service";
 import type { Banner, Product } from "@/types";
 
 /**
@@ -20,6 +21,7 @@ export default function CustomerHomePage() {
   const [banners, setBanners] = React.useState<Banner[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [activeFilter, setActiveFilter] = React.useState<string>(FILTER_ALL);
+  const [storeClosed, setStoreClosed] = React.useState(false);
 
   React.useEffect(() => {
     let active = true;
@@ -28,6 +30,9 @@ export default function CustomerHomePage() {
       setProducts(p);
       setBanners(b);
       setLoading(false);
+    });
+    getStoreStatus().then((s) => {
+      if (active) setStoreClosed(s === "closed");
     });
     return () => {
       active = false;
@@ -48,6 +53,12 @@ export default function CustomerHomePage() {
 
   return (
     <div>
+      {storeClosed && (
+        <div className="mx-4 mt-3 rounded-card bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
+          Maaf, toko sedang tutup saat ini. Anda tetap dapat melihat menu.
+        </div>
+      )}
+
       <PromoBanner banners={banners} />
 
       <FilterChips active={activeFilter} onSelect={setActiveFilter} />
