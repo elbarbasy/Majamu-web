@@ -3,14 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --brand-primary: #8b5e34;
-  --brand-secondary: #d9b382;
-  --brand-accent: #7daa65;
-  --brand-background: #faf7f2;
+  --brand-primary: #7a5230;
+  --brand-secondary: #d8b98a;
+  --brand-accent: #7fa36b;
+  --brand-background: #f8f5ef;
   --brand-surface: #ffffff;
-  --brand-ink: #2e2e2e;
-  --brand-muted: #6b7280;
-  --brand-line: #e5e7eb;
 }
 
 html,
@@ -20,7 +17,7 @@ body {
 
 body {
   background-color: var(--brand-background);
-  color: var(--brand-ink);
+  color: #2a2118;
   font-family: Inter, Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -28,7 +25,7 @@ body {
 }
 
 @layer utilities {
-  /* Horizontal scroll tanpa scrollbar (kategori, hero) */
+  /* Filter chips: single row horizontal scroll, no wrap (CUSTOMER_UI.md) */
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -37,7 +34,7 @@ body {
     display: none;
   }
 
-  /* Target sentuh minimum */
+  /* Minimum touch target 44x44 (DESIGN_SYSTEM.md) */
   .touch-target {
     min-width: 44px;
     min-height: 44px;
@@ -46,21 +43,8 @@ body {
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-
-  /* Klem teks agar tidak overflow / overlap */
-  .clamp-1 {
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
 }
+
 
 /* Print: hanya struk yang tercetak rapi (RECEIPT_SYSTEM.md Download PDF) */
 @media print {

@@ -20,7 +20,7 @@ export function ActiveOrderBadge() {
   return (
     <Link
       href={`/order/${statusUrl}`}
-      className="flex items-center justify-between gap-3 rounded-card border border-accent/30 bg-accent/12 px-5 py-3 text-accent shadow-soft"
+      className="flex items-center justify-between gap-3 rounded-btn border border-accent/30 bg-accent/15 px-4 py-2.5 text-accent shadow"
     >
       <span className="flex items-center gap-2">
         <Clock className="h-5 w-5" />

@@ -20,7 +20,7 @@ export function FloatingCartBar() {
   return (
     <Link
       href="/cart"
-      className="flex items-center justify-between gap-3 rounded-card bg-primary px-5 py-3.5 text-primary-foreground shadow-soft-lg"
+      className="flex items-center justify-between gap-3 rounded-btn bg-primary px-4 py-3 text-primary-foreground shadow-lg"
     >
       <span className="flex items-center gap-2">
         <span className="relative">
