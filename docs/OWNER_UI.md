@@ -5,12 +5,16 @@
 - Laporan
 - Kas
 - Menu & Filter
+- QR Meja
+- Kasir
 - Pengaturan
 
 ## Dashboard
 - Omzet Hari Ini
-- Jumlah Pesanan
-- Produk Terlaris
+- Jumlah Pesanan Hari Ini
+- Produk Terlaris Hari Ini
+- Pesanan Aktif
+- Produk Stok Habis Hari Ini
 - Status Toko
 
 ## Laporan
@@ -18,19 +22,41 @@
 - Penjualan Mingguan
 - Penjualan Bulanan
 - Produk Terlaris
+- Metode Pembayaran
+- Export Excel
+- Export PDF
 
 ## Kas
-- Catatan Kas
+- Pemasukan
 - Pengeluaran
-- Selisih Kas
+- Rekap Harian
+- Rekap Bulanan
+- Riwayat Kas
 
 ## Menu & Filter
 - Kelola Produk
-- Kelola Filter
+- Kelola Filter Quiz
 - Kelola Banner
-- Kelola QR Meja
+- Atur Produk Populer
+- Toggle Stok Habis Hari Ini
+
+## QR Meja
+- Tambah Meja
+- Edit Meja
+- Generate QR
+- Download QR
+
+## Kasir
+- Tambah Kasir
+- Edit Kasir
+- Nonaktifkan Kasir
+- Reset Password
+- Log Aktivitas
 
 ## Pengaturan
-- Toko
-- Kasir
-- Sistem
+- Profil Toko
+- Jam Operasional
+- WhatsApp Toko
+- Metode Pembayaran
+- Status Toko
+- Pengaturan Sistem
