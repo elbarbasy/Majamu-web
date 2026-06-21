@@ -80,3 +80,77 @@ export const SAMPLE_BANNERS: Banner[] = [
   { id: "sample-banner-1", title: "Selamat Datang di Majamu", imageUrl: null },
   { id: "sample-banner-2", title: "Promo Jamu Hangat Hari Ini", imageUrl: null },
 ];
+
+
+/* ---- Sample Cashier orders (DEV FALLBACK board kasir) ---- */
+import type { CashierOrder } from "@/types";
+
+function minutesAgo(min: number): string {
+  return new Date(Date.now() - min * 60000).toISOString();
+}
+
+export const SAMPLE_CASHIER_ORDERS: CashierOrder[] = [
+  {
+    id: "sample-ord-1",
+    statusUrl: "trk-sample-1",
+    displayNumber: "Meja 3",
+    orderType: "dine_in",
+    customerName: null,
+    whatsapp: "628111111111",
+    notes: "Tolong tidak terlalu panas.",
+    status: "menunggu_bayar",
+    totalPrice: 33000,
+    createdAt: minutesAgo(2),
+    items: [
+      { name: "Kunyit Asam Segar", quantity: 1, sweetnessLevel: "normal", price: 15000 },
+      { name: "Jahe Merah Madu", quantity: 1, sweetnessLevel: "less", price: 18000 },
+    ],
+  },
+  {
+    id: "sample-ord-2",
+    statusUrl: "trk-sample-2",
+    displayNumber: "A-007",
+    orderType: "take_away",
+    customerName: "Sari",
+    whatsapp: "628222222222",
+    notes: null,
+    status: "diterima",
+    totalPrice: 30000,
+    createdAt: minutesAgo(5),
+    items: [
+      { name: "Beras Kencur Hangat", quantity: 2, sweetnessLevel: "normal", price: 15000 },
+    ],
+  },
+  {
+    id: "sample-ord-3",
+    statusUrl: "trk-sample-3",
+    displayNumber: "Meja 8",
+    orderType: "dine_in",
+    customerName: null,
+    whatsapp: "628333333333",
+    notes: "Satu tanpa gula ya.",
+    status: "diracik",
+    totalPrice: 42000,
+    createdAt: minutesAgo(9),
+    items: [
+      { name: "Wedang Uwuh Rempah", quantity: 1, sweetnessLevel: "no_sugar", price: 20000 },
+      { name: "Temulawak Sehat", quantity: 1, sweetnessLevel: "low", price: 16000 },
+      { name: "Kunyit Asam Segar", quantity: 1, sweetnessLevel: "normal", price: 15000 },
+    ],
+  },
+  {
+    id: "sample-ord-4",
+    statusUrl: "trk-sample-4",
+    displayNumber: "A-008",
+    orderType: "take_away",
+    customerName: "Budi",
+    whatsapp: "628444444444",
+    notes: null,
+    status: "siap_diambil",
+    totalPrice: 22000,
+    createdAt: minutesAgo(12),
+    items: [
+      { name: "Susu Jahe Jamu", quantity: 1, sweetnessLevel: "normal", price: 22000 },
+    ],
+  },
+];

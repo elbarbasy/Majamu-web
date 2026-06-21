@@ -121,3 +121,60 @@ export const STORE_INFO = {
     "Majamu menghadirkan jamu modern dengan bahan alami pilihan. Pesan langsung dari meja Anda dengan memindai QR.",
   whatsapp: "628000000000",
 };
+
+
+/* ============================================================
+ * CASHIER (CASHIER_UI.md)
+ * ============================================================ */
+
+/** Ambang urgensi waktu tunggu (store_settings.urgency_threshold_minutes default). */
+export const URGENCY_THRESHOLD_MINUTES = 7;
+
+/** Tab status board kasir: "Semua" + 4 status aktif (tanpa "Selesai"). */
+export const CASHIER_STATUS_TABS: { value: OrderStatus | "all"; label: string }[] =
+  [
+    { value: "all", label: "Semua" },
+    { value: "menunggu_bayar", label: "Menunggu Bayar" },
+    { value: "diterima", label: "Diterima" },
+    { value: "diracik", label: "Diracik" },
+    { value: "siap_diambil", label: "Siap Diambil" },
+  ];
+
+/**
+ * Aksi kasir per status: status berikutnya + label tombol (CASHIER_UI.md).
+ * menunggu_bayar -> Konfirmasi Terima Bayar -> diterima
+ * diterima       -> Mulai Racik             -> diracik
+ * diracik        -> Siap Diambil            -> siap_diambil
+ * siap_diambil   -> Selesai                 -> selesai
+ */
+export const CASHIER_ACTION: Partial<
+  Record<OrderStatus, { next: OrderStatus; label: string }>
+> = {
+  menunggu_bayar: { next: "diterima", label: "Konfirmasi Terima Bayar" },
+  diterima: { next: "diracik", label: "Mulai Racik" },
+  diracik: { next: "siap_diambil", label: "Siap Diambil" },
+  siap_diambil: { next: "selesai", label: "Selesai" },
+};
+
+/** Kategori Catatan Shift (CASHIER_UI.md). withNominal: butuh input nominal. */
+export const SHIFT_NOTE_CATEGORIES: {
+  value: string;
+  label: string;
+  withNominal: boolean;
+}[] = [
+  { value: "pengeluaran", label: "Pengeluaran", withNominal: true },
+  { value: "selisih_kurang", label: "Selisih Kas Kurang", withNominal: true },
+  { value: "selisih_lebih", label: "Selisih Kas Lebih", withNominal: true },
+  { value: "catatan_kas", label: "Catatan Kas", withNominal: false },
+  { value: "lainnya", label: "Lainnya", withNominal: false },
+];
+
+export function shiftCategoryLabel(value: string): string {
+  return SHIFT_NOTE_CATEGORIES.find((c) => c.value === value)?.label ?? value;
+}
+
+export function orderTypeLabel(type: "dine_in" | "take_away" | null): string {
+  if (type === "dine_in") return "Dine In";
+  if (type === "take_away") return "Take Away";
+  return "-";
+}

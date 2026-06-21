@@ -74,3 +74,35 @@ export interface QuizOption {
   /** Nama filter chip yang dibobot bila opsi dipilih. */
   chip: string;
 }
+
+
+/* ---- Cashier domain (CASHIER_UI.md) ---- */
+
+export interface CashierOrderItem {
+  name: string;
+  quantity: number;
+  sweetnessLevel: SweetnessLevel | null;
+  price: number;
+}
+
+export interface CashierOrder {
+  id: string;
+  statusUrl: string | null;
+  displayNumber: string | null;
+  orderType: OrderType | null;
+  customerName: string | null;
+  whatsapp: string | null;
+  notes: string | null;
+  status: OrderStatus;
+  totalPrice: number;
+  createdAt: string;
+  items: CashierOrderItem[];
+}
+
+export interface ShiftNote {
+  id: string;
+  category: string;
+  nominal: number | null;
+  description: string | null;
+  createdAt: string;
+}
