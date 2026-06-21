@@ -1,15 +1,27 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Download, MapPin, Share2 } from "lucide-react";
+import {
+  CalendarDays,
+  Download,
+  Hash,
+  MapPin,
+  Receipt as ReceiptIcon,
+  Share2,
+  Sparkles,
+} from "lucide-react";
 
+import { StatusTimeline } from "@/components/customer/status-timeline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PAYMENT_METHODS, statusLabel, sweetnessLabel } from "@/constants";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { getOrderByReceipt } from "@/lib/order-cache";
+import { buildTrackingUrl, qrImageUrl } from "@/lib/qr";
+import { printPdf } from "@/lib/export";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 import type { OrderResult } from "@/services/orders.service";
 
 function paymentLabel(method: string): string {
@@ -17,9 +29,10 @@ function paymentLabel(method: string): string {
 }
 
 /**
- * Struk Digital (/receipt/[receiptNumber]) — RECEIPT_SYSTEM.md / WIREFRAMES.md.
- * Header (logo, no struk, no pesanan, tanggal, meja), Items, Summary, Status,
- * Actions (Download PDF, Bagikan WhatsApp, Lihat Status Pesanan).
+ * Struk Digital (/receipt/[receiptNumber]) — RECEIPT_SYSTEM.md.
+ * Header (logo, no struk, no pesanan, tanggal, meja) -> Items -> Summary ->
+ * Status -> QR Tracking -> Actions (Download PDF, Bagikan WhatsApp, Lihat Status).
+ * Desain modern, mobile-first; siap dicetak (print CSS).
  */
 export default function ReceiptPage() {
   const params = useParams<{ receiptNumber: string }>();
@@ -33,21 +46,26 @@ export default function ReceiptPage() {
     if (receiptNumber) setOrder(getOrderByReceipt(receiptNumber));
   }, [receiptNumber]);
 
+  const trackingUrl = order ? buildTrackingUrl(order.statusUrl) : "";
+
   function handleDownload() {
-    window.print();
+    printPdf();
   }
 
   function handleShare() {
     if (!order) return;
+    const receiptUrl =
+      typeof window !== "undefined" ? window.location.href : "";
     const lines = [
       `Halo${order.customerName ? " " + order.customerName : ""},`,
       "",
-      "Pesanan Anda berhasil dibuat.",
+      "Pesanan Anda di Majamu berhasil dibuat.",
       `No Order: ${order.displayNumber}`,
       `No Struk: ${order.receiptNumber}`,
       `Total: ${formatCurrency(order.totalPrice)}`,
       "",
-      `Status Pesanan: ${typeof window !== "undefined" ? window.location.origin : ""}/order/${order.statusUrl}`,
+      `Struk: ${receiptUrl}`,
+      `Status Pesanan: ${trackingUrl}`,
     ];
     const text = encodeURIComponent(lines.join("\n"));
     const phone = (order.whatsapp || "").replace(/[^0-9]/g, "");
@@ -61,9 +79,12 @@ export default function ReceiptPage() {
 
   if (!order) {
     return (
-      <div className="px-4 py-8">
-        <div className="rounded-card bg-surface p-6 text-center text-sm text-black/60 shadow-sm">
-          Struk tidak ditemukan di perangkat ini.
+      <div className="px-4 py-10">
+        <div className="rounded-card bg-surface p-8 text-center shadow-sm">
+          <ReceiptIcon className="mx-auto mb-3 h-12 w-12 text-secondary" />
+          <p className="text-sm text-black/60">
+            Struk tidak ditemukan di perangkat ini.
+          </p>
         </div>
         <Link href="/" className="mt-4 block">
           <Button block variant="outline">
@@ -74,35 +95,44 @@ export default function ReceiptPage() {
     );
   }
 
+  const totalQty = order.items.reduce((s, i) => s + i.quantity, 0);
+
   return (
     <div className="px-4 py-4">
-      <div className="overflow-hidden rounded-card bg-surface shadow-sm">
+      {/* ===== Kartu Struk (print-area) ===== */}
+      <div className="print-area overflow-hidden rounded-modal bg-surface shadow-sm ring-1 ring-black/5">
         {/* Header */}
-        <div className="bg-primary px-5 py-5 text-center text-primary-foreground">
-          <p className="text-xl font-extrabold tracking-tight">Majamu</p>
-          <p className="mt-1 text-xs opacity-80">Struk Pembelian Digital</p>
+        <div className="relative bg-primary px-5 py-6 text-center text-primary-foreground">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
+            <Sparkles className="h-6 w-6" />
+          </div>
+          <p className="mt-2 text-2xl font-extrabold tracking-tight">Majamu</p>
+          <p className="text-xs opacity-80">Struk Pembelian Digital</p>
+          {/* Tepi bergerigi */}
+          <div className="pointer-events-none absolute -bottom-2 left-0 right-0 h-4 bg-[radial-gradient(circle,transparent_70%,#fff_72%)] bg-[length:16px_16px]" />
         </div>
 
-        <div className="space-y-4 p-5">
-          {/* Info */}
-          <div className="grid grid-cols-2 gap-y-2 text-sm">
-            <span className="text-black/50">No. Struk</span>
-            <span className="text-right font-semibold text-black/85">
+        <div className="space-y-5 p-5">
+          {/* Info utama */}
+          <div className="grid grid-cols-2 gap-3">
+            <InfoRow icon={<Hash className="h-4 w-4" />} label="No. Struk">
               {order.receiptNumber}
-            </span>
-            <span className="text-black/50">No. Pesanan</span>
-            <span className="text-right font-semibold text-black/85">
+            </InfoRow>
+            <InfoRow
+              icon={<ReceiptIcon className="h-4 w-4" />}
+              label="No. Pesanan"
+            >
               {order.displayNumber}
-            </span>
-            <span className="text-black/50">Tanggal</span>
-            <span className="text-right text-black/80">
+            </InfoRow>
+            <InfoRow
+              icon={<CalendarDays className="h-4 w-4" />}
+              label="Tanggal"
+            >
               {formatDateTime(order.createdAt)}
-            </span>
-            <span className="text-black/50">Tipe</span>
-            <span className="flex items-center justify-end gap-1 text-right text-black/80">
-              <MapPin className="h-3.5 w-3.5 text-primary" />
+            </InfoRow>
+            <InfoRow icon={<MapPin className="h-4 w-4" />} label="Tipe">
               {order.orderType === "dine_in" ? "Dine In" : "Take Away"}
-            </span>
+            </InfoRow>
           </div>
 
           <div className="flex justify-center">
@@ -115,16 +145,20 @@ export default function ReceiptPage() {
               {order.items.map((i) => (
                 <li
                   key={`${i.productId}-${i.sweetnessLevel}`}
-                  className="flex items-start justify-between gap-2 text-sm"
+                  className="flex items-start justify-between gap-3 text-sm"
                 >
                   <span className="min-w-0">
-                    <span className="font-medium text-black/85">{i.name}</span>
+                    <span className="font-semibold text-black/85">
+                      {i.name}
+                    </span>
                     <span className="block text-xs text-black/45">
-                      {i.quantity} x {formatCurrency(i.price)} •{" "}
-                      {sweetnessLabel(i.sweetnessLevel)}
+                      {i.quantity} x {formatCurrency(i.price)}
+                      {i.sweetnessLevel
+                        ? ` • ${sweetnessLabel(i.sweetnessLevel)}`
+                        : ""}
                     </span>
                   </span>
-                  <span className="shrink-0 font-medium text-black/85">
+                  <span className="shrink-0 font-semibold text-black/85">
                     {formatCurrency(i.price * i.quantity)}
                   </span>
                 </li>
@@ -133,31 +167,50 @@ export default function ReceiptPage() {
           </div>
 
           {/* Summary */}
-          <div className="space-y-1 border-t border-dashed border-black/15 pt-4 text-sm">
+          <div className="space-y-1.5 border-t border-dashed border-black/15 pt-4 text-sm">
             <div className="flex justify-between text-black/60">
               <span>Total Item</span>
-              <span>
-                {order.items.reduce((s, i) => s + i.quantity, 0)} item
-              </span>
+              <span>{totalQty} item</span>
             </div>
             <div className="flex justify-between text-black/60">
               <span>Metode Pembayaran</span>
               <span>{paymentLabel(order.paymentMethod)}</span>
             </div>
-            <div className="flex justify-between pt-1">
+            <div className="flex items-center justify-between pt-1.5">
               <span className="text-base font-bold text-black/85">
                 Total Pembayaran
               </span>
-              <span className="text-base font-extrabold text-primary">
+              <span className="text-xl font-extrabold text-primary">
                 {formatCurrency(order.totalPrice)}
               </span>
             </div>
           </div>
+
+          {/* QR Tracking Pesanan */}
+          <div className="flex flex-col items-center gap-2 border-t border-dashed border-black/15 pt-5">
+            <div className="rounded-card bg-white p-2 ring-1 ring-black/10">
+              <Image
+                src={qrImageUrl(trackingUrl, 200)}
+                alt="QR Lacak Pesanan"
+                width={140}
+                height={140}
+                unoptimized
+                className="h-[140px] w-[140px]"
+              />
+            </div>
+            <p className="text-xs font-medium text-black/55">
+              Scan untuk lacak status pesanan
+            </p>
+          </div>
+
+          <p className="text-center text-[11px] text-black/35">
+            Terima kasih telah memesan di Majamu 🌿
+          </p>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="mt-4 space-y-2 print:hidden">
+      {/* ===== Actions (tidak ikut tercetak) ===== */}
+      <div className="no-print mt-4 space-y-2">
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" onClick={handleDownload}>
             <Download className="h-4 w-4" />
@@ -172,6 +225,36 @@ export default function ReceiptPage() {
           <Button block>Lihat Status Pesanan</Button>
         </Link>
       </div>
+
+      {/* Ringkasan timeline status (mobile friendly, ikut tercetak) */}
+      <div className="mt-4 rounded-card bg-surface p-4 shadow-sm ring-1 ring-black/5">
+        <h2 className="mb-4 text-sm font-bold text-black/80">
+          Status Pesanan
+        </h2>
+        <StatusTimeline status={order.status} />
+      </div>
+    </div>
+  );
+}
+
+function InfoRow({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-card bg-background p-3">
+      <span className="flex items-center gap-1.5 text-xs text-black/45">
+        {icon}
+        {label}
+      </span>
+      <span className="mt-0.5 block text-sm font-semibold text-black/85">
+        {children}
+      </span>
     </div>
   );
 }

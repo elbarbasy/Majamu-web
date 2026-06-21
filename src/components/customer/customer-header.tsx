@@ -18,7 +18,7 @@ export function CustomerHeader() {
   const openSearch = useUiStore((s) => s.openSearch);
 
   return (
-    <header className="sticky top-0 z-30 h-14 border-b border-black/5 bg-surface/95 backdrop-blur">
+    <header className="no-print sticky top-0 z-30 h-14 border-b border-black/5 bg-surface/95 backdrop-blur">
       <div className="mx-auto flex h-full max-w-screen-sm items-center justify-between px-3">
         <div className="flex items-center gap-1">
           <button

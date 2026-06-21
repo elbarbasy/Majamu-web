@@ -1,13 +1,22 @@
 /**
- * Helper QR Meja (OWNER_UI.md: Generate QR / Download QR).
+ * Helper QR (OWNER_UI.md: Generate/Download QR Meja; RECEIPT_SYSTEM.md: QR Tracking).
  */
+
+function appBase(): string {
+  return (
+    (typeof process !== "undefined" && process.env.NEXT_PUBLIC_APP_URL) ||
+    (typeof window !== "undefined" ? window.location.origin : "")
+  );
+}
 
 /** URL tujuan QR untuk sebuah meja: {APP_URL}/table/{n}. */
 export function buildTableUrl(tableNumber: number): string {
-  const base =
-    (typeof process !== "undefined" && process.env.NEXT_PUBLIC_APP_URL) ||
-    (typeof window !== "undefined" ? window.location.origin : "");
-  return `${base}/table/${tableNumber}`;
+  return `${appBase()}/table/${tableNumber}`;
+}
+
+/** URL tracking pesanan: {APP_URL}/order/{statusUrl} (RECEIPT_SYSTEM.md). */
+export function buildTrackingUrl(statusUrl: string): string {
+  return `${appBase()}/order/${statusUrl}`;
 }
 
 /**

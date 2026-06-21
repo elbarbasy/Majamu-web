@@ -22,7 +22,7 @@ export function FloatingDock() {
   if (hidden) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30">
+    <div className="no-print pointer-events-none fixed inset-x-0 bottom-0 z-30">
       <div className="safe-bottom pointer-events-auto mx-auto flex max-w-screen-sm flex-col gap-2 px-4 pb-3">
         <ActiveOrderBadge />
         <FloatingCartBar />

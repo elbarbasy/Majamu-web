@@ -44,3 +44,23 @@ body {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
+
+
+/* Print: hanya struk yang tercetak rapi (RECEIPT_SYSTEM.md Download PDF) */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+  }
+  .print-area {
+    box-shadow: none !important;
+  }
+  main {
+    padding-bottom: 0 !important;
+  }
+  @page {
+    margin: 12mm;
+  }
+}
