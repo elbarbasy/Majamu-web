@@ -5,7 +5,6 @@
 import type {
   OrderStatus,
   OrderType,
-  PaymentMethod,
   SweetnessLevel,
 } from "@/types/database";
 
