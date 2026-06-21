@@ -180,6 +180,134 @@ export interface ReportData {
 }
 
 export async function getReport(range: ReportRange): Promise<ReportData> {
+  const supabase = getClient();
+  if (!supabase) return getReportFallback(range);
+
+  try {
+    const now = new Date();
+    const start = new Date(now);
+    if (range === "daily") start.setHours(0, 0, 0, 0);
+    else if (range === "weekly") start.setDate(now.getDate() - 6);
+    else start.setDate(now.getDate() - 29);
+    if (range !== "daily") start.setHours(0, 0, 0, 0);
+
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("id, total_price, payment_method, created_at, status")
+      .gte("created_at", start.toISOString())
+      .neq("status", "menunggu_bayar");
+
+    const rows = orders ?? [];
+    const totalSales = rows.reduce((s, o) => s + (Number(o.total_price) || 0), 0);
+    const orderCount = rows.length;
+
+    // Breakdown metode pembayaran.
+    const payTally = new Map<string, number>();
+    rows.forEach((o) => {
+      const key = (o.payment_method as string) ?? "cash";
+      payTally.set(key, (payTally.get(key) ?? 0) + (Number(o.total_price) || 0));
+    });
+    const PAY_LABEL: Record<string, string> = {
+      cash: "Tunai",
+      qris: "QRIS",
+      midtrans: "Midtrans",
+    };
+    const byPayment = ["cash", "qris", "midtrans"].map((m) => ({
+      method: PAY_LABEL[m],
+      total: payTally.get(m) ?? 0,
+    }));
+
+    // Produk terlaris dari order_items.
+    let topProducts: ReportData["topProducts"] = [];
+    const ids = rows.map((o) => o.id);
+    if (ids.length > 0) {
+      const { data: items } = await supabase
+        .from("order_items")
+        .select("product_name_snapshot, quantity, subtotal, order_id")
+        .in("order_id", ids);
+      const tally = new Map<string, { qty: number; total: number }>();
+      (items ?? []).forEach((i) => {
+        const name = i.product_name_snapshot ?? "Produk";
+        const prev = tally.get(name) ?? { qty: 0, total: 0 };
+        tally.set(name, {
+          qty: prev.qty + (i.quantity ?? 0),
+          total: prev.total + (Number(i.subtotal) || 0),
+        });
+      });
+      topProducts = [...tally.entries()]
+        .map(([name, v]) => ({ name, qty: v.qty, total: v.total }))
+        .sort((a, b) => b.qty - a.qty)
+        .slice(0, 5);
+    }
+
+    const series = buildSeries(
+      range,
+      rows.map((o) => ({
+        createdAt: o.created_at ?? now.toISOString(),
+        total: Number(o.total_price) || 0,
+      }))
+    );
+
+    return { range, totalSales, orderCount, byPayment, topProducts, series };
+  } catch (err) {
+    console.warn("[owner.service] getReport fallback:", err);
+    return getReportFallback(range);
+  }
+}
+
+const WEEKDAY_ID = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+/** Bangun deret waktu sesuai rentang laporan. */
+function buildSeries(
+  range: ReportRange,
+  orders: { createdAt: string; total: number }[]
+): { label: string; total: number }[] {
+  if (range === "daily") {
+    const labels = ["08", "10", "12", "14", "16", "18", "20"];
+    const totals = new Array(labels.length).fill(0);
+    orders.forEach((o) => {
+      const hour = new Date(o.createdAt).getHours();
+      const idx = Math.min(labels.length - 1, Math.max(0, Math.round((hour - 8) / 2)));
+      totals[idx] += o.total;
+    });
+    return labels.map((label, i) => ({ label, total: totals[i] }));
+  }
+
+  if (range === "weekly") {
+    const days: { label: string; key: string; total: number }[] = [];
+    const base = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(base);
+      d.setDate(base.getDate() - i);
+      days.push({
+        label: WEEKDAY_ID[d.getDay()],
+        key: d.toISOString().slice(0, 10),
+        total: 0,
+      });
+    }
+    orders.forEach((o) => {
+      const key = new Date(o.createdAt).toISOString().slice(0, 10);
+      const slot = days.find((d) => d.key === key);
+      if (slot) slot.total += o.total;
+    });
+    return days.map((d) => ({ label: d.label, total: d.total }));
+  }
+
+  // monthly → 4 minggu terakhir.
+  const labels = ["W1", "W2", "W3", "W4"];
+  const totals = new Array(4).fill(0);
+  const base = new Date();
+  orders.forEach((o) => {
+    const diffDays = Math.floor(
+      (base.getTime() - new Date(o.createdAt).getTime()) / 86400000
+    );
+    const weekFromNow = Math.min(3, Math.floor(diffDays / 7));
+    totals[3 - weekFromNow] += o.total; // W4 = minggu terbaru
+  });
+  return labels.map((label, i) => ({ label, total: totals[i] }));
+}
+
+function getReportFallback(range: ReportRange): ReportData {
   const db = ownerDb();
   const base = db.products.slice(0, 5);
   const topProducts = base.map((p, i) => ({
@@ -199,7 +327,7 @@ export async function getReport(range: ReportRange): Promise<ReportData> {
     label,
     total: Math.round((totalSales / labels.length) * (0.6 + ((i % 3) + 1) * 0.2)),
   }));
-  return ok({
+  return {
     range,
     totalSales,
     orderCount,
@@ -210,7 +338,7 @@ export async function getReport(range: ReportRange): Promise<ReportData> {
     ],
     topProducts,
     series,
-  });
+  };
 }
 
 /* =========================================================

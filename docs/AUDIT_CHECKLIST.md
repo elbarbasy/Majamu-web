@@ -79,7 +79,7 @@
 4. Generate nomor struk/antrian via `next_daily_sequence()` (atomik) menggantikan generator klien.
 5. ✅ ~~Validasi nomor meja terhadap tabel `tables` saat scan QR~~ — **selesai** (`tables.service`).
 6. ✅ ~~Refleksikan `store_settings.store_status` (toko tutup) ke sisi pelanggan~~ — **selesai** (`settings.service`).
-7. **Laporan**: agregasi penuh dari Supabase (dashboard sudah metrik nyata; halaman Laporan masih estimasi sample).
+7. ✅ ~~**Laporan**: agregasi penuh dari Supabase~~ — **selesai** (totalSales, jumlah pesanan, metode bayar, produk terlaris, deret waktu dihitung dari `orders`/`order_items`; fallback estimasi bila tanpa Supabase).
 8. Pembuatan akun Kasir penuh via Supabase Auth admin (kini owner menulis profil di tabel `users`).
 
 > Build/typecheck belum dapat dijalankan di sandbox (mode `INTEGRATIONS_ONLY`, registry npm 403).
