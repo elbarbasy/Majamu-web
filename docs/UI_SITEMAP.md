@@ -3,55 +3,88 @@
 ## Customer
 
 ### Header
-- Hamburger Menu
+- Icon Kiri Logo
 - Logo Majamu
 - Search Menu
 
-### Hamburger Menu
-- Beranda
-- Pesanan Aktif
+### Panel Informasi
+- Tentang Majamu
+- Kontak
 - Riwayat Pesanan
-- Profil Saya
-- Bantuan
 
 ### Homepage
 - Banner Promo
-- Card Quiz Rekomendasi Jamu (sesuai PRD)
-- Filter Cepat (sesuai PRD)
-- Kategori Produk
-- Produk Populer
-- Semua Produk
-- Floating Cart
+- 11 Filter Chip
+- Card Quiz Rekomendasi
+- Grid Produk
+- Cart Bar Mengambang
+- Badge Pesanan Aktif
 
 ### Customer Pages
 - /table/[id]
 - /product/[id]
 - /cart
 - /checkout
-- /order/[id]
-- /orders/active
-- /orders/history
-- /profile
+- /order/[status-url]
+- /history
 
 ## Cashier
 
-### Sidebar
-- Dashboard
-- Pesanan Masuk
-- Pesanan Diproses
-- Pesanan Selesai
-- Shift
-- Profil
+### Main Dashboard
+- Tab Semua
+- Tab Menunggu Bayar
+- Tab Diterima
+- Tab Diracik
+- Tab Siap Diambil
+
+### Additional Modules
+- Catatan Shift
+- Riwayat Selesai
+- Stok Habis Hari Ini
 
 ## Owner
 
-### Sidebar
-- Dashboard
-- Produk
-- Kategori
-- Filter Quiz
-- Banner
+### Navigation
+- Beranda
+- Laporan
+- Kas
+- Menu & Filter
 - QR Meja
 - Kasir
-- Laporan
 - Pengaturan
+
+### Beranda
+- Omzet Hari Ini
+- Pesanan Hari Ini
+- Produk Terlaris
+- Status Toko
+
+### Laporan
+- Harian
+- Mingguan
+- Bulanan
+- Export Excel
+- Export PDF
+
+### Kas
+- Pemasukan
+- Pengeluaran
+- Rekap Harian
+- Rekap Bulanan
+
+### Menu & Filter
+- Produk
+- Filter Quiz
+- Banner
+- Produk Populer
+- Stok Habis Hari Ini
+
+### QR Meja
+- Tambah Meja
+- Generate QR
+- Download QR
+
+### Kasir
+- Kelola Kasir
+- Reset Password
+- Log Aktivitas
