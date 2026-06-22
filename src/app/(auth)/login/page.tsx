@@ -54,14 +54,21 @@ export default function LoginPage() {
       role: res.role!,
     });
 
-    // DEBUG: tampilkan role yang didapat (hapus setelah fix)
-    alert(`Login berhasil!\nRole: "${res.role}"\nRedirect ke: ${res.role === "owner" ? "/owner" : "/pos"}`);
-
+    // Redirect berdasarkan ROLE, abaikan ?next jika tidak sesuai role.
+    const roleHome = res.role === "owner" ? "/owner" : "/pos";
     const next =
       typeof window !== "undefined"
         ? new URLSearchParams(window.location.search).get("next")
         : null;
-    const dest = next ?? (res.role === "owner" ? "/owner" : "/pos");
+    // Hanya gunakan ?next jika sesuai role (owner → /owner/*, cashier → /pos/*).
+    let dest = roleHome;
+    if (next) {
+      const ownerNext = next.startsWith("/owner");
+      const cashierNext = next.startsWith("/pos");
+      if (res.role === "owner" && ownerNext) dest = next;
+      else if (res.role === "cashier" && cashierNext) dest = next;
+      // Jika ?next tidak sesuai role → abaikan, pakai roleHome.
+    }
     router.replace(dest);
   }
 
