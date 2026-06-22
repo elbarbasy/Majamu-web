@@ -20,6 +20,7 @@ import type {
 type OrderRow = {
   id: string;
   status_url: string | null;
+  receipt_number: string | null;
   display_number: string | null;
   order_type: string | null;
   customer_name: string | null;
@@ -50,6 +51,7 @@ function mapOrder(row: OrderRow): CashierOrder {
   return {
     id: row.id,
     statusUrl: row.status_url,
+    receiptNumber: row.receipt_number ?? null,
     displayNumber: row.display_number,
     orderType: (row.order_type as CashierOrder["orderType"]) ?? null,
     customerName: row.customer_name,
@@ -62,7 +64,7 @@ function mapOrder(row: OrderRow): CashierOrder {
   };
 }
 
-const ORDER_SELECT = `id, status_url, display_number, order_type, customer_name,
+const ORDER_SELECT = `id, status_url, receipt_number, display_number, order_type, customer_name,
   whatsapp, notes, status, total_price, created_at,
   order_items ( product_name_snapshot, quantity, sweetness_level, temperature, price_snapshot )`;
 

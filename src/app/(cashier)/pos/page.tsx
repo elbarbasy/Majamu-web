@@ -117,6 +117,28 @@ export default function PosBoardPage() {
     moveStatus(order.id, next); // optimistik
     await updateOrderStatus(order.id, next);
 
+    // Kirim struk WA saat kasir konfirmasi bayar TUNAI (menunggu_bayar → diterima)
+    if (prevStatus === "menunggu_bayar" && next === "diterima" && order.whatsapp) {
+      try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+        fetch("/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            whatsapp: order.whatsapp,
+            customerName: order.customerName ?? "",
+            orderNumber: order.displayNumber ?? "",
+            receiptNumber: order.receiptNumber ?? "",
+            total: formatCurrency(order.totalPrice),
+            receiptUrl: `${appUrl}/receipt/${order.receiptNumber ?? order.statusUrl}`,
+            statusUrl: `${appUrl}/order/${order.statusUrl}`,
+          }),
+        }).catch(() => {});
+      } catch {
+        /* fire-and-forget */
+      }
+    }
+
     push({
       tone: "success",
       message: "Status berhasil diperbarui",

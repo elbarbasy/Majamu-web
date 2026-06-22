@@ -105,6 +105,7 @@ export const SAMPLE_CASHIER_ORDERS: CashierOrder[] = [
   {
     id: "sample-ord-1",
     statusUrl: "trk-sample-1",
+    receiptNumber: "MJM-20260622-0001",
     displayNumber: "Meja 3",
     orderType: "dine_in",
     customerName: null,
@@ -121,6 +122,7 @@ export const SAMPLE_CASHIER_ORDERS: CashierOrder[] = [
   {
     id: "sample-ord-2",
     statusUrl: "trk-sample-2",
+    receiptNumber: "MJM-20260622-0002",
     displayNumber: "A-007",
     orderType: "take_away",
     customerName: "Sari",
@@ -136,6 +138,7 @@ export const SAMPLE_CASHIER_ORDERS: CashierOrder[] = [
   {
     id: "sample-ord-3",
     statusUrl: "trk-sample-3",
+    receiptNumber: "MJM-20260622-0003",
     displayNumber: "Meja 8",
     orderType: "dine_in",
     customerName: null,
@@ -153,6 +156,7 @@ export const SAMPLE_CASHIER_ORDERS: CashierOrder[] = [
   {
     id: "sample-ord-4",
     statusUrl: "trk-sample-4",
+    receiptNumber: "MJM-20260622-0004",
     displayNumber: "A-008",
     orderType: "take_away",
     customerName: "Budi",

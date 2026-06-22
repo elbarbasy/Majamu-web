@@ -94,6 +94,7 @@ export interface CashierOrderItem {
 export interface CashierOrder {
   id: string;
   statusUrl: string | null;
+  receiptNumber: string | null;
   displayNumber: string | null;
   orderType: OrderType | null;
   customerName: string | null;

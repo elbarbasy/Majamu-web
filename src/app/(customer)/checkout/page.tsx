@@ -119,26 +119,6 @@ export default function CheckoutPage() {
       });
       clearCart();
 
-      // Kirim struk otomatis via WhatsApp (Fonnte) — tidak menunggu callback.
-      try {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-        fetch("/api/notifications", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            whatsapp: values.whatsapp,
-            customerName: values.customerName,
-            orderNumber: order.displayNumber,
-            receiptNumber: order.receiptNumber,
-            total: formatCurrency(order.totalPrice),
-            receiptUrl: `${appUrl}/receipt/${order.receiptNumber}`,
-            statusUrl: `${appUrl}/order/${order.statusUrl}`,
-          }),
-        }).catch(() => {}); // fire-and-forget
-      } catch {
-        /* jangan blokir alur */
-      }
-
       // Pembayaran QRIS via Midtrans (Snap): hanya jika metode qris,
       // order tersimpan di server (bukan lokal/dev), dan client key tersedia.
       if (
