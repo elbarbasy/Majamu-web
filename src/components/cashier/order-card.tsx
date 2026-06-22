@@ -60,7 +60,7 @@ export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps
           <p className="text-2xl font-extrabold leading-tight text-primary">
             {order.displayNumber ?? "-"}
           </p>
-          {isTakeAway && order.customerName && (
+          {order.customerName && (
             <p className="mt-0.5 truncate text-sm font-medium text-black/60">
               {order.customerName}
             </p>

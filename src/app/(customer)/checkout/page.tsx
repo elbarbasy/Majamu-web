@@ -20,7 +20,7 @@ import { useCustomerHistoryStore } from "@/stores/customer-history-store";
 import type { PaymentMethod } from "@/types";
 
 const checkoutSchema = z.object({
-  customerName: z.string().max(60, "Nama terlalu panjang").optional(),
+  customerName: z.string().min(1, "Nama wajib diisi").max(60, "Nama terlalu panjang"),
   whatsapp: z
     .string()
     .min(8, "Nomor WhatsApp wajib diisi")
@@ -88,7 +88,7 @@ export default function CheckoutPage() {
     try {
       const order = await createOrder({
         items,
-        customerName: values.customerName ?? "",
+        customerName: values.customerName,
         whatsapp: values.whatsapp,
         notes: values.notes ?? "",
         paymentMethod: values.paymentMethod,
@@ -118,6 +118,26 @@ export default function CheckoutPage() {
           .join(", "),
       });
       clearCart();
+
+      // Kirim struk otomatis via WhatsApp (Fonnte) — tidak menunggu callback.
+      try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+        fetch("/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            whatsapp: values.whatsapp,
+            customerName: values.customerName,
+            orderNumber: order.displayNumber,
+            receiptNumber: order.receiptNumber,
+            total: formatCurrency(order.totalPrice),
+            receiptUrl: `${appUrl}/receipt/${order.receiptNumber}`,
+            statusUrl: `${appUrl}/order/${order.statusUrl}`,
+          }),
+        }).catch(() => {}); // fire-and-forget
+      } catch {
+        /* jangan blokir alur */
+      }
 
       // Pembayaran QRIS via Midtrans (Snap): hanya jika metode qris,
       // order tersimpan di server (bukan lokal/dev), dan client key tersedia.
@@ -282,9 +302,14 @@ export default function CheckoutPage() {
               </div>
               <input
                 {...register("customerName")}
-                placeholder="Nama pemesan (opsional)"
+                placeholder="Nama Anda (wajib)"
                 className="h-11 w-full rounded-input border border-line px-3.5 text-sm outline-none focus:border-primary"
               />
+              {errors.customerName && (
+                <p className="mt-1 text-xs text-error">
+                  {errors.customerName.message}
+                </p>
+              )}
             </div>
           </section>
 
