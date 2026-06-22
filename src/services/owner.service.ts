@@ -1027,6 +1027,7 @@ type SettingsRow = {
   address: string | null;
   tagline: string | null;
   brand_story: string | null;
+  quiz_image_url: string | null;
   logo_url: string | null;
   operational_hours: StoreSettingsData["operationalHours"] | null;
   payment_methods: string[] | null;
@@ -1039,6 +1040,7 @@ function mapSettings(row: SettingsRow): StoreSettingsData {
     storeName: row.store_name ?? "Majamu",
     tagline: row.tagline ?? "",
     brandStory: row.brand_story ?? "",
+    quizImageUrl: row.quiz_image_url ?? null,
     storeWhatsapp: row.store_whatsapp ?? "",
     instagram: row.instagram ?? "",
     address: row.address ?? "",
@@ -1056,7 +1058,7 @@ export async function getStoreSettings(): Promise<StoreSettingsData> {
   const { data } = await supabase
     .from("store_settings")
     .select(
-      "id, store_name, store_whatsapp, instagram, address, tagline, brand_story, logo_url, operational_hours, payment_methods, urgency_threshold_minutes, store_status"
+      "id, store_name, store_whatsapp, instagram, address, tagline, brand_story, quiz_image_url, logo_url, operational_hours, payment_methods, urgency_threshold_minutes, store_status"
     )
     .limit(1)
     .maybeSingle();
@@ -1084,6 +1086,7 @@ export async function updateStoreSettings(
   if (patch.storeName !== undefined) row.store_name = patch.storeName;
   if (patch.tagline !== undefined) row.tagline = patch.tagline;
   if (patch.brandStory !== undefined) row.brand_story = patch.brandStory;
+  if (patch.quizImageUrl !== undefined) row.quiz_image_url = patch.quizImageUrl;
   if (patch.storeWhatsapp !== undefined) row.store_whatsapp = patch.storeWhatsapp;
   if (patch.instagram !== undefined) row.instagram = patch.instagram;
   if (patch.address !== undefined) row.address = patch.address;

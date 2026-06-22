@@ -129,6 +129,7 @@
 - store_name (#13)
 - tagline
 - brand_story — sumber konten "Tentang Majamu" (tidak hardcoded)
+- quiz_image_url — gambar kartu Quiz (opsional, via upload)
 - store_whatsapp (#13)
 - instagram
 - address

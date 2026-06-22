@@ -525,6 +525,7 @@ export type Database = {
           address: string | null;
           tagline: string | null;
           brand_story: string | null;
+          quiz_image_url: string | null;
           logo_url: string | null;
           operational_hours: Json | null;
           payment_methods: Json | null;
@@ -541,6 +542,7 @@ export type Database = {
           address?: string | null;
           tagline?: string | null;
           brand_story?: string | null;
+          quiz_image_url?: string | null;
           logo_url?: string | null;
           operational_hours?: Json | null;
           payment_methods?: Json | null;
@@ -557,6 +559,7 @@ export type Database = {
           address?: string | null;
           tagline?: string | null;
           brand_story?: string | null;
+          quiz_image_url?: string | null;
           logo_url?: string | null;
           operational_hours?: Json | null;
           payment_methods?: Json | null;

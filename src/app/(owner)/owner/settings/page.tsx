@@ -142,6 +142,14 @@ export default function SettingsPage() {
                 Tampil otomatis di menu pelanggan → Tentang Majamu.
               </p>
             </div>
+            <ImageUpload
+              label="Gambar Quiz (kartu rekomendasi)"
+              bucket="banners"
+              aspect="aspect-[16/9]"
+              value={settings.quizImageUrl}
+              onChange={(url) => patch({ quizImageUrl: url })}
+              hint="Unggah dari perangkat (maks 5MB). Kosongkan untuk gradient default."
+            />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-semibold text-black/80">
