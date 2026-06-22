@@ -1,7 +1,9 @@
 /**
  * POST /api/notifications — kirim struk/notifikasi via WhatsApp (Fonnte).
- * Dipanggil setelah order berhasil dibuat (client-side trigger).
+ * Dipanggil setelah order berhasil dibuat.
  * Body: { whatsapp, customerName, orderNumber, receiptNumber, total, receiptUrl, statusUrl }
+ *
+ * Response selalu 200 (fire-and-forget) dengan detail { sent, reason?, fonnteResponse? }
  */
 import { NextResponse } from "next/server";
 
@@ -15,10 +17,10 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   if (!fonnteConfigured()) {
-    return NextResponse.json(
-      { sent: false, reason: "FONNTE_TOKEN not configured" },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      sent: false,
+      reason: "FONNTE_TOKEN not configured in environment variables",
+    });
   }
 
   let body: {
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
 
   const { whatsapp, customerName, orderNumber, receiptNumber, total, receiptUrl, statusUrl } = body;
   if (!whatsapp) {
-    return NextResponse.json({ sent: false, reason: "no whatsapp" }, { status: 400 });
+    return NextResponse.json({ sent: false, reason: "no whatsapp number" });
   }
 
   const message = buildOrderWhatsApp({
@@ -50,6 +52,11 @@ export async function POST(request: Request) {
     statusUrl: statusUrl ?? "",
   });
 
-  const ok = await sendWhatsApp(whatsapp, message);
-  return NextResponse.json({ sent: ok });
+  const result = await sendWhatsApp(whatsapp, message);
+
+  return NextResponse.json({
+    sent: result.sent,
+    fonnteStatus: result.status,
+    fonnteResponse: result.response,
+  });
 }
