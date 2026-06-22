@@ -37,12 +37,12 @@ export function sweetnessLabel(value: SweetnessLevel): string {
   return SWEETNESS_LEVELS.find((s) => s.value === value)?.label ?? value;
 }
 
-/** Metode pembayaran (PRD: Tunai, QRIS, Midtrans). */
+/** Metode pembayaran (PRD: Tunai, QRIS, E-Wallet). Nilai DB tetap. */
 export const PAYMENT_METHODS: { value: PaymentMethod; label: string; hint: string }[] =
   [
-    { value: "cash", label: "Tunai", hint: "Bayar langsung di kasir" },
-    { value: "qris", label: "QRIS", hint: "Scan QRIS untuk membayar" },
-    { value: "midtrans", label: "Midtrans", hint: "Kartu / e-wallet / transfer" },
+    { value: "cash", label: "Tunai", hint: "Bayar di counter kasir" },
+    { value: "qris", label: "QRIS", hint: "Scan untuk membayar" },
+    { value: "midtrans", label: "E-Wallet", hint: "GoPay, OVO, Dana, dll" },
   ];
 
 /** Urutan status untuk timeline tracking (WIREFRAMES.md Order Tracking). */

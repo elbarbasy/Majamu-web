@@ -1,47 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Search } from "lucide-react";
+import { Menu, Search, ShoppingBag } from "lucide-react";
 
+import { useCartStore } from "@/stores/cart-store";
 import { useUiStore } from "@/stores/ui-store";
 
 /**
- * Header Customer (CUSTOMER_UI.md / DESIGN_SYSTEM.md):
- * - Icon menu di KIRI logo (bukan hamburger generik untuk navigasi utama,
- *   hanya membuka panel informasi & riwayat)
- * - Logo Majamu di tengah-kiri
- * - Search di kanan
- * Sticky di atas. Tidak ada bottom navigation.
+ * Header Customer — sticky, 56px, premium.
+ * Layout: ☰ (kiri) · MAJAMU (tengah) · 🔍 🛒 (kanan).
+ * Logika dipertahankan: hamburger→drawer, search→SearchSheet, cart→/cart.
  */
 export function CustomerHeader() {
   const openInfoPanel = useUiStore((s) => s.openInfoPanel);
   const openSearch = useUiStore((s) => s.openSearch);
+  const items = useCartStore((s) => s.items);
+  const count = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <header className="no-print sticky top-0 z-30 h-14 border-b border-black/5 bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex h-full max-w-screen-sm items-center justify-between px-3">
+    <header className="no-print sticky top-0 z-30 border-b border-line/70 bg-background/85 backdrop-blur-xl">
+      <div className="relative mx-auto flex h-14 max-w-screen-sm items-center justify-between px-3">
+        {/* Kiri */}
+        <button
+          onClick={openInfoPanel}
+          aria-label="Buka menu"
+          className="touch-target flex items-center justify-center rounded-btn text-ink/80 transition-colors hover:bg-primary/10 hover:text-primary"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+
+        {/* Tengah: logo */}
+        <Link
+          href="/"
+          className="absolute left-1/2 -translate-x-1/2 select-none text-lg font-extrabold tracking-[0.18em] text-primary"
+        >
+          MAJAMU
+        </Link>
+
+        {/* Kanan */}
         <div className="flex items-center gap-1">
           <button
-            onClick={openInfoPanel}
-            aria-label="Buka menu informasi"
-            className="touch-target flex items-center justify-center rounded-full text-primary hover:bg-primary/10"
+            onClick={openSearch}
+            aria-label="Cari"
+            className="touch-target flex items-center justify-center rounded-btn text-ink/80 transition-colors hover:bg-primary/10 hover:text-primary"
           >
-            <Menu className="h-6 w-6" />
+            <Search className="h-[22px] w-[22px]" />
           </button>
           <Link
-            href="/"
-            className="select-none text-lg font-extrabold tracking-tight text-primary"
+            href="/cart"
+            aria-label="Keranjang"
+            className="touch-target relative flex items-center justify-center rounded-btn text-ink/80 transition-colors hover:bg-primary/10 hover:text-primary"
           >
-            Majamu
+            <ShoppingBag className="h-[22px] w-[22px]" />
+            {count > 0 && (
+              <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold leading-none text-accent-foreground">
+                {count}
+              </span>
+            )}
           </Link>
         </div>
-        <button
-          onClick={openSearch}
-          aria-label="Cari menu"
-          className="touch-target flex items-center justify-center rounded-full text-primary hover:bg-primary/10"
-        >
-          <Search className="h-5 w-5" />
-        </button>
       </div>
     </header>
   );

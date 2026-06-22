@@ -1,38 +1,48 @@
 "use client";
 
-import { Leaf, Sparkles } from "lucide-react";
+import { ArrowRight, Leaf, Sparkles } from "lucide-react";
 
 import { useUiStore } from "@/stores/ui-store";
 
 /**
- * Card Quiz Rekomendasi (CUSTOMER_UI.md: inline di antara filter dan grid produk).
- * Membuka quiz sebagai full-screen bottom sheet (aturan wajib).
+ * Quiz Card — kartu rekomendasi besar, gradient herbal hijau,
+ * ilustrasi di kanan, CTA "Mulai Kuis". Membuka quiz sheet (logika tetap).
  */
 export function QuizCard() {
   const openQuiz = useUiStore((s) => s.openQuiz);
 
   return (
-    <div className="px-4 py-1">
-      <button
-        onClick={openQuiz}
-        className="flex w-full items-center gap-3 rounded-card border border-accent/30 bg-accent/10 p-4 text-left transition-colors hover:bg-accent/15"
-      >
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent">
-          <Leaf className="h-6 w-6" />
+    <div className="px-4 py-2">
+      <div className="relative overflow-hidden rounded-card bg-gradient-to-br from-accent via-[#6E9061] to-[#52764A] p-5 shadow-soft">
+        {/* Ilustrasi kanan */}
+        <span className="pointer-events-none absolute -right-6 -top-6 h-36 w-36 rounded-full bg-white/10" />
+        <span className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 sm:block">
+          <Leaf className="h-24 w-24 text-white/20" />
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-1 text-sm font-bold text-primary">
-            Bingung pilih jamu?
-            <Sparkles className="h-4 w-4 text-accent" />
-          </span>
-          <span className="block text-xs text-black/60">
-            Jawab 4 pertanyaan singkat, kami rekomendasikan yang paling cocok.
-          </span>
-        </span>
-        <span className="shrink-0 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground">
-          Mulai Quiz
-        </span>
-      </button>
+
+        <div className="relative max-w-[78%]">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white">
+              <Leaf className="h-5 w-5" />
+            </span>
+            <h3 className="text-base font-extrabold text-white">
+              Bingung Pilih Jamu?
+            </h3>
+          </div>
+          <p className="clamp-2 text-sm leading-relaxed text-white/90">
+            Temukan rekomendasi yang cocok untuk kondisi Anda.
+          </p>
+
+          <button
+            onClick={openQuiz}
+            className="mt-4 inline-flex items-center gap-2 rounded-btn bg-white px-5 py-2.5 text-sm font-bold text-accent shadow-soft-sm transition active:scale-95"
+          >
+            <Sparkles className="h-4 w-4" />
+            Mulai Kuis
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

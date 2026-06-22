@@ -3,12 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ReceiptText } from "lucide-react";
+import { ArrowLeft, MessageCircle, ReceiptText } from "lucide-react";
 
 import { StatusTimeline } from "@/components/customer/status-timeline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { statusLabel } from "@/constants";
+import { STORE_INFO, statusLabel } from "@/constants";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { getOrderByStatusUrl, updateCachedStatus } from "@/lib/order-cache";
 import { getOrderStatusByUrl } from "@/services/orders.service";
@@ -82,6 +82,11 @@ export default function OrderTrackingPage() {
             <p className="mt-2 text-xs text-black/45">
               {formatDateTime(order.createdAt)}
             </p>
+            {order.status !== "selesai" && order.status !== "menunggu_bayar" && (
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-pill bg-accent/12 px-3 py-1 text-xs font-semibold text-accent">
+                Estimasi 10–15 menit
+              </div>
+            )}
           </div>
 
           {/* Timeline */}
@@ -125,6 +130,17 @@ export default function OrderTrackingPage() {
               </Button>
             </Link>
           )}
+
+          <a
+            href={`https://wa.me/${STORE_INFO.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button block variant="ghost">
+              <MessageCircle className="h-4 w-4" />
+              Hubungi via WhatsApp
+            </Button>
+          </a>
         </div>
       )}
     </div>

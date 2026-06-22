@@ -31,6 +31,17 @@ const checkoutSchema = z.object({
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
+function SectionTitle({ step, title }: { step: number; title: string }) {
+  return (
+    <div className="mb-3 flex items-center gap-2">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+        {step}
+      </span>
+      <h2 className="text-sm font-extrabold text-ink">{title}</h2>
+    </div>
+  );
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
@@ -64,7 +75,6 @@ export default function CheckoutPage() {
 
   const selectedPayment = watch("paymentMethod");
 
-  // Redirect bila keranjang kosong (setelah mounted).
   React.useEffect(() => {
     if (mounted && items.length === 0 && !submitting) {
       router.replace("/cart");
@@ -109,8 +119,6 @@ export default function CheckoutPage() {
       });
       clearCart();
 
-      // Pembayaran Midtrans (opsional): hanya jika metode midtrans, order
-      // tersimpan di server (bukan lokal/dev), dan client key tersedia.
       if (
         values.paymentMethod === "midtrans" &&
         midtransClientConfigured() &&
@@ -146,71 +154,49 @@ export default function CheckoutPage() {
         <button
           onClick={() => router.back()}
           aria-label="Kembali"
-          className="touch-target flex items-center justify-center rounded-full text-primary hover:bg-primary/10"
+          className="touch-target flex items-center justify-center rounded-btn text-primary hover:bg-primary/10"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold text-primary">Checkout</h1>
+        <h1 className="text-lg font-extrabold text-ink">Checkout</h1>
       </div>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-1 flex-col"
-      >
-        <div className="flex-1 space-y-3 px-4 pb-40">
-          {/* Data Pemesan */}
-          <div className="space-y-3 rounded-card bg-surface p-4 shadow-sm">
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-black/80">
-                Nama Pemesan{" "}
-                <span className="font-normal text-black/40">(opsional)</span>
-              </label>
-              <input
-                {...register("customerName")}
-                placeholder="Nama Anda"
-                className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
-              />
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
+        <div className="flex-1 space-y-4 px-4 pb-40">
+          {/* 1. Ringkasan Pesanan */}
+          <section className="rounded-card border border-line bg-surface p-4 shadow-soft-sm">
+            <SectionTitle step={1} title="Ringkasan Pesanan" />
+            <ul className="space-y-2.5">
+              {items.map((i) => (
+                <li
+                  key={`${i.productId}-${i.sweetnessLevel}`}
+                  className="flex items-start justify-between gap-2 text-sm"
+                >
+                  <span className="min-w-0 text-ink/80">
+                    <span className="font-semibold">
+                      {i.quantity}x {i.name}
+                    </span>
+                    <span className="block text-xs text-muted">
+                      {sweetnessLabel(i.sweetnessLevel)}
+                    </span>
+                  </span>
+                  <span className="shrink-0 font-semibold text-ink">
+                    {formatCurrency(i.price * i.quantity)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
+              <span className="text-sm text-muted">Total ({totalItems} item)</span>
+              <span className="text-lg font-extrabold text-primary">
+                {formatCurrency(totalPrice)}
+              </span>
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-black/80">
-                Nomor WhatsApp <span className="text-error">*</span>
-              </label>
-              <input
-                {...register("whatsapp")}
-                inputMode="tel"
-                placeholder="08xxxxxxxxxx"
-                className={cn(
-                  "h-11 w-full rounded-card border px-3 text-sm outline-none",
-                  errors.whatsapp
-                    ? "border-error focus:border-error"
-                    : "border-black/15 focus:border-primary"
-                )}
-              />
-              {errors.whatsapp && (
-                <p className="mt-1 text-xs text-error">
-                  {errors.whatsapp.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-black/80">
-                Catatan Tambahan{" "}
-                <span className="font-normal text-black/40">(opsional)</span>
-              </label>
-              <textarea
-                {...register("notes")}
-                rows={2}
-                placeholder="Catatan untuk pesanan…"
-                className="w-full resize-none rounded-card border border-black/15 p-3 text-sm outline-none focus:border-primary"
-              />
-            </div>
-          </div>
+          </section>
 
-          {/* Metode Pembayaran */}
-          <div className="rounded-card bg-surface p-4 shadow-sm">
-            <p className="mb-3 text-sm font-semibold text-black/80">
-              Metode Pembayaran
-            </p>
+          {/* 2. Metode Pembayaran */}
+          <section className="rounded-card border border-line bg-surface p-4 shadow-soft-sm">
+            <SectionTitle step={2} title="Metode Pembayaran" />
             <div className="space-y-2">
               {PAYMENT_METHODS.map((m) => {
                 const active = selectedPayment === (m.value as PaymentMethod);
@@ -220,24 +206,22 @@ export default function CheckoutPage() {
                     type="button"
                     onClick={() => setValue("paymentMethod", m.value)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-card border p-3 text-left transition-colors",
+                      "flex w-full items-center justify-between rounded-card border p-3.5 text-left transition-all",
                       active
                         ? "border-primary bg-primary/5"
-                        : "border-black/10 hover:border-primary/40"
+                        : "border-line hover:border-primary/40"
                     )}
                   >
                     <span>
-                      <span className="block text-sm font-semibold text-black/85">
+                      <span className="block text-sm font-bold text-ink">
                         {m.label}
                       </span>
-                      <span className="block text-xs text-black/50">
-                        {m.hint}
-                      </span>
+                      <span className="block text-xs text-muted">{m.hint}</span>
                     </span>
                     <span
                       className={cn(
                         "flex h-5 w-5 items-center justify-center rounded-full border-2",
-                        active ? "border-primary" : "border-black/20"
+                        active ? "border-primary" : "border-line"
                       )}
                     >
                       {active && (
@@ -248,46 +232,52 @@ export default function CheckoutPage() {
                 );
               })}
             </div>
-          </div>
+          </section>
 
-          {/* Ringkasan Order */}
-          <div className="rounded-card bg-surface p-4 shadow-sm">
-            <p className="mb-3 text-sm font-semibold text-black/80">
-              Ringkasan Order
-            </p>
-            <ul className="space-y-2">
-              {items.map((i) => (
-                <li
-                  key={`${i.productId}-${i.sweetnessLevel}`}
-                  className="flex items-start justify-between gap-2 text-sm"
-                >
-                  <span className="min-w-0 text-black/70">
-                    <span className="font-medium">
-                      {i.quantity}x {i.name}
-                    </span>
-                    <span className="block text-xs text-black/45">
-                      {sweetnessLabel(i.sweetnessLevel)}
-                    </span>
-                  </span>
-                  <span className="shrink-0 font-medium text-black/80">
-                    {formatCurrency(i.price * i.quantity)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-3 flex items-center justify-between border-t border-black/5 pt-3">
-              <span className="text-sm text-black/60">
-                Total ({totalItems} item)
-              </span>
-              <span className="text-lg font-extrabold text-primary">
-                {formatCurrency(totalPrice)}
-              </span>
+          {/* 3. WhatsApp (+ nama opsional) */}
+          <section className="rounded-card border border-line bg-surface p-4 shadow-soft-sm">
+            <SectionTitle step={3} title="Nomor WhatsApp" />
+            <div className="space-y-3">
+              <div>
+                <input
+                  {...register("whatsapp")}
+                  inputMode="tel"
+                  placeholder="08xxxxxxxxxx"
+                  className={cn(
+                    "h-11 w-full rounded-input border px-3.5 text-sm outline-none",
+                    errors.whatsapp
+                      ? "border-error"
+                      : "border-line focus:border-primary"
+                  )}
+                />
+                {errors.whatsapp && (
+                  <p className="mt-1 text-xs text-error">
+                    {errors.whatsapp.message}
+                  </p>
+                )}
+              </div>
+              <input
+                {...register("customerName")}
+                placeholder="Nama pemesan (opsional)"
+                className="h-11 w-full rounded-input border border-line px-3.5 text-sm outline-none focus:border-primary"
+              />
             </div>
-          </div>
+          </section>
+
+          {/* 4. Catatan */}
+          <section className="rounded-card border border-line bg-surface p-4 shadow-soft-sm">
+            <SectionTitle step={4} title="Catatan" />
+            <textarea
+              {...register("notes")}
+              rows={2}
+              placeholder="Catatan tambahan (opsional)…"
+              className="w-full resize-none rounded-input border border-line p-3.5 text-sm outline-none focus:border-primary"
+            />
+          </section>
         </div>
 
-        {/* Aksi sticky */}
-        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-black/5 bg-surface">
+        {/* 5. Buat Pesanan (sticky) */}
+        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface">
           <div className="mx-auto max-w-screen-sm px-4 py-3">
             <Button block size="lg" type="submit" disabled={submitting}>
               {submitting ? "Memproses…" : "Buat Pesanan"}

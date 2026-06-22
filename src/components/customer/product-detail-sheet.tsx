@@ -17,9 +17,9 @@ import { useUiStore } from "@/stores/ui-store";
 import type { Product, SweetnessLevel } from "@/types";
 
 /**
- * Detail Produk sebagai Bottom Sheet (CUSTOMER_UI.md / WIREFRAMES.md):
- * Foto, Nama+Harga, Chip Manfaat, Deskripsi Utama, Deskripsi Kontekstual,
- * Komposisi (collapsible), Tingkat Manis, Kontrol Jumlah, Tombol Aksi Sticky.
+ * Detail Produk — bottom sheet premium. Foto, nama, harga, benefit chip,
+ * deskripsi, komposisi (collapsible), tingkat manis, jumlah, tombol sticky.
+ * Logika lama dipertahankan (getProductById, addItem, sweetness, quantity).
  */
 export function ProductDetailSheet() {
   const productId = useUiStore((s) => s.detailProductId);
@@ -83,11 +83,11 @@ export function ProductDetailSheet() {
       }
     >
       {loading || !product ? (
-        <div className="py-10 text-center text-sm text-black/50">Memuat…</div>
+        <div className="py-12 text-center text-sm text-muted">Memuat…</div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Foto */}
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-card bg-secondary/20">
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-card bg-secondary/15">
             {product.photoUrl ? (
               <Image
                 src={product.photoUrl}
@@ -98,61 +98,63 @@ export function ProductDetailSheet() {
               />
             ) : (
               <span className="flex h-full w-full items-center justify-center text-secondary">
-                <Leaf className="h-12 w-12" />
+                <Leaf className="h-14 w-14" />
               </span>
             )}
           </div>
 
-          {/* Nama & Harga */}
+          {/* Nama & harga */}
           <div>
-            <h3 className="text-lg font-bold text-black/90">{product.name}</h3>
-            <p className="text-lg font-extrabold text-primary">
+            <h3 className="text-xl font-extrabold leading-snug text-ink">
+              {product.name}
+            </h3>
+            <p className="mt-1 text-xl font-extrabold text-primary">
               {formatCurrency(product.price)}
             </p>
           </div>
 
-          {/* Chip Manfaat */}
+          {/* Benefit chips */}
           {product.filterChips.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {product.filterChips.map((c) => (
-                <Badge key={c} variant="accent">
-                  {c}
-                </Badge>
-              ))}
+              {product.filterChips
+                .filter((c) => c !== "Semua")
+                .map((c) => (
+                  <Badge key={c} variant="accent">
+                    {c}
+                  </Badge>
+                ))}
             </div>
           )}
 
-          {/* Deskripsi Utama */}
+          {/* Deskripsi */}
           {product.description && (
-            <p className="text-sm leading-relaxed text-black/70">
+            <p className="text-sm leading-relaxed text-ink/75">
               {product.description}
             </p>
           )}
-
-          {/* Deskripsi Kontekstual */}
           {product.contextualDescription && (
-            <p className="rounded-card bg-accent/10 p-3 text-sm text-accent">
+            <p className="rounded-card bg-accent/10 p-3.5 text-sm leading-relaxed text-accent">
               {product.contextualDescription}
             </p>
           )}
 
-          {/* Komposisi (collapsible) */}
+          {/* Komposisi */}
           {product.ingredients.length > 0 && (
-            <div className="rounded-card border border-black/10">
+            <div className="overflow-hidden rounded-card border border-line">
               <button
                 onClick={() => setShowComposition((v) => !v)}
-                className="flex w-full items-center justify-between px-3 py-3 text-sm font-semibold text-black/80"
+                className="flex w-full items-center justify-between px-4 py-3.5 text-sm font-bold text-ink"
               >
                 Komposisi
                 <ChevronDown
                   className={cn(
-                    "h-4 w-4 transition-transform",
+                    "h-4 w-4 text-muted transition-transform",
                     showComposition && "rotate-180"
                   )}
                 />
               </button>
               {showComposition && (
-                <div className="flex flex-wrap gap-2 px-3 pb-3">
+                <div className="flex flex-wrap gap-2 px-4 pb-4">
                   {product.ingredients.map((i) => (
                     <Badge key={i} variant="secondary">
                       {i}
@@ -163,17 +165,15 @@ export function ProductDetailSheet() {
             </div>
           )}
 
-          {/* Tingkat Manis */}
+          {/* Tingkat manis */}
           <div>
-            <p className="mb-2 text-sm font-semibold text-black/80">
-              Tingkat Manis
-            </p>
+            <p className="mb-2 text-sm font-bold text-ink">Tingkat Manis</p>
             <SweetnessSelector value={sweetness} onChange={setSweetness} />
           </div>
 
-          {/* Kontrol Jumlah */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-black/80">Jumlah</p>
+          {/* Jumlah */}
+          <div className="flex items-center justify-between rounded-card bg-background px-4 py-3">
+            <p className="text-sm font-bold text-ink">Jumlah</p>
             <QuantityControl value={quantity} onChange={setQuantity} />
           </div>
         </div>

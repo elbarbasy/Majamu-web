@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag } from "lucide-react";
 
 import { formatCurrency } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 
 /**
- * Floating Cart Bar (DESIGN_SYSTEM.md): Sticky Bottom, Total Item, Total Harga.
- * Muncul hanya jika ada item (CUSTOMER_UI.md).
+ * Floating Cart Bar — seluruh bar clickable, melayang, shadow lembut.
+ * Format: "{n} Item • {total}"  ·  "Lihat Keranjang →". Logika cart tetap.
  */
 export function FloatingCartBar() {
   const items = useCartStore((s) => s.items);
@@ -20,18 +20,25 @@ export function FloatingCartBar() {
   return (
     <Link
       href="/cart"
-      className="flex items-center justify-between gap-3 rounded-btn bg-primary px-4 py-3 text-primary-foreground shadow-lg"
+      className="flex items-center justify-between gap-3 rounded-card bg-primary px-5 py-3.5 text-primary-foreground shadow-soft-lg transition active:scale-[0.99]"
     >
-      <span className="flex items-center gap-2">
-        <span className="relative">
-          <ShoppingBag className="h-6 w-6" />
-          <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold">
-            {totalItems}
+      <span className="flex items-center gap-3">
+        <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
+          <ShoppingBag className="h-5 w-5" />
+        </span>
+        <span className="leading-tight">
+          <span className="block text-[13px] font-semibold">
+            {totalItems} Item
+          </span>
+          <span className="block text-sm font-extrabold">
+            {formatCurrency(totalPrice)}
           </span>
         </span>
-        <span className="text-sm font-semibold">Lihat Keranjang</span>
       </span>
-      <span className="text-sm font-bold">{formatCurrency(totalPrice)}</span>
+      <span className="flex items-center gap-1 text-sm font-bold">
+        Lihat Keranjang
+        <ArrowRight className="h-4 w-4" />
+      </span>
     </Link>
   );
 }

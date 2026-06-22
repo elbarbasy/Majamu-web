@@ -96,11 +96,30 @@ export default function ReceiptPage() {
   }
 
   const totalQty = order.items.reduce((s, i) => s + i.quantity, 0);
+  const showCashNotice =
+    order.paymentMethod === "cash" && order.status === "menunggu_bayar";
 
   return (
     <div className="px-4 py-4">
+      {/* Peringatan pembayaran tunai */}
+      {showCashNotice && (
+        <div className="no-print mb-4 animate-rise-in overflow-hidden rounded-card bg-gold text-center shadow-soft">
+          <div className="px-5 py-5">
+            <p className="text-lg font-black tracking-wide text-[#3A2A12]">
+              TUNJUKKAN KE KASIR
+            </p>
+            <p className="mt-1 text-sm text-[#5B3A29]">
+              Silakan lakukan pembayaran di counter untuk memulai proses racik.
+            </p>
+            <p className="mt-3 text-3xl font-black text-primary">
+              {formatCurrency(order.totalPrice)}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ===== Kartu Struk (print-area) ===== */}
-      <div className="print-area overflow-hidden rounded-modal bg-surface shadow-sm ring-1 ring-black/5">
+      <div className="print-area overflow-hidden rounded-modal bg-surface shadow-soft ring-1 ring-line">
         {/* Header */}
         <div className="relative bg-primary px-5 py-6 text-center text-primary-foreground">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
