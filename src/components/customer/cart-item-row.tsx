@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Leaf, Trash2 } from "lucide-react";
 
 import { QuantityControl } from "@/components/ui/quantity-control";
@@ -27,12 +26,11 @@ export function CartItemRow({ item }: CartItemRowProps) {
     <div className="flex gap-3 rounded-card border border-line bg-surface p-3 shadow-soft-sm">
       <span className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-secondary/15">
         {item.photoUrl ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={item.photoUrl}
             alt={item.name}
-            fill
-            className="object-cover"
-            sizes="80px"
+            className="h-full w-full object-cover"
           />
         ) : (
           <span className="flex h-full w-full items-center justify-center text-secondary">

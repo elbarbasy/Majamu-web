@@ -172,25 +172,40 @@ export default function CheckoutPage() {
               {items.map((i) => (
                 <li
                   key={`${i.productId}-${i.sweetnessLevel}-${i.temperature}`}
-                  className="flex items-start justify-between gap-2 text-sm"
+                  className="flex items-start gap-3 text-sm"
                 >
-                  <span className="min-w-0 text-ink/80">
-                    <span className="font-semibold">
-                      {i.quantity}x {i.name}
+                  {/* Thumbnail produk */}
+                  {i.photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={i.photoUrl}
+                      alt={i.name}
+                      className="h-12 w-12 shrink-0 rounded-card object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-card bg-secondary/20 text-secondary">
+                      <span className="text-lg">🌿</span>
                     </span>
-                    {(i.temperature || i.sweetnessLevel) && (
-                      <span className="block text-xs text-muted">
-                        {[
-                          i.temperature ? temperatureLabel(i.temperature) : null,
-                          i.sweetnessLevel ? sweetnessLabel(i.sweetnessLevel) : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" • ")}
+                  )}
+                  <span className="flex min-w-0 flex-1 items-start justify-between gap-2">
+                    <span className="min-w-0 text-ink/80">
+                      <span className="font-semibold">
+                        {i.quantity}x {i.name}
                       </span>
-                    )}
-                  </span>
-                  <span className="shrink-0 font-semibold text-ink">
-                    {formatCurrency(i.price * i.quantity)}
+                      {(i.temperature || i.sweetnessLevel) && (
+                        <span className="block text-xs text-muted">
+                          {[
+                            i.temperature ? temperatureLabel(i.temperature) : null,
+                            i.sweetnessLevel ? sweetnessLabel(i.sweetnessLevel) : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" • ")}
+                        </span>
+                      )}
+                    </span>
+                    <span className="shrink-0 font-semibold text-ink">
+                      {formatCurrency(i.price * i.quantity)}
+                    </span>
                   </span>
                 </li>
               ))}
