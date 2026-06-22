@@ -4,6 +4,29 @@ const config: Config = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  // Pastikan kelas warna status kasir SELALU di-generate (dipakai via
+  // peta string di constants, agar tidak terlewat oleh content scan/cache).
+  safelist: [
+    // tint header/footer
+    "bg-amber-50", "bg-blue-50", "bg-orange-50", "bg-green-50", "bg-gray-50", "bg-red-50",
+    // badge bg
+    "bg-amber-100", "bg-blue-100", "bg-orange-100", "bg-green-100", "bg-gray-100", "bg-red-100",
+    // bar
+    "bg-amber-400", "bg-gray-400",
+    // solid / dot
+    "bg-amber-500", "bg-blue-500", "bg-blue-600", "bg-orange-500", "bg-green-500",
+    "bg-green-600", "bg-gray-500", "bg-red-600",
+    // text
+    "text-amber-700", "text-amber-800", "text-blue-800", "text-orange-800",
+    "text-green-700", "text-green-800", "text-gray-700", "text-red-600", "text-red-700",
+    // border
+    "border-amber-300", "border-amber-400", "border-amber-500",
+    "border-blue-300", "border-blue-600", "border-orange-300", "border-orange-500",
+    "border-green-300", "border-green-600", "border-gray-300", "border-gray-500",
+    "border-red-100", "border-red-400", "border-red-600",
+    // ring
+    "ring-amber-100", "ring-amber-200", "ring-red-100", "ring-red-200",
+  ],
   theme: {
     extend: {
       colors: {
