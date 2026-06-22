@@ -465,7 +465,8 @@ export async function listProducts(): Promise<OwnerProduct[]> {
   return (data as unknown as ProductRow[]).map(mapProductRow);
 }
 
-/** Map nama->id untuk filter_chips & ingredients (dipakai sinkronisasi join). */
+/** Map nama->id untuk filter_chips & ingredients (dipakai sinkronisasi join).
+ * Jika nama belum ada di DB → INSERT baru (auto-create). */
 async function nameIdMaps(supabase: NonNullable<ReturnType<typeof getClient>>) {
   const [chipsRes, ingRes] = await Promise.all([
     supabase.from("filter_chips").select("id, name"),
@@ -478,12 +479,50 @@ async function nameIdMaps(supabase: NonNullable<ReturnType<typeof getClient>>) {
   return { chipMap, ingMap };
 }
 
+/** Pastikan semua nama ada di tabel (auto-create jika belum). */
+async function ensureChipsExist(
+  supabase: NonNullable<ReturnType<typeof getClient>>,
+  names: string[]
+) {
+  const { data: existing } = await supabase
+    .from("filter_chips")
+    .select("name");
+  const existingNames = new Set((existing ?? []).map((c) => c.name));
+  const toCreate = names.filter((n) => n && !existingNames.has(n));
+  if (toCreate.length > 0) {
+    await supabase
+      .from("filter_chips")
+      .insert(toCreate.map((name, i) => ({ name, sort_order: 100 + i })));
+  }
+}
+
+async function ensureIngredientsExist(
+  supabase: NonNullable<ReturnType<typeof getClient>>,
+  names: string[]
+) {
+  const { data: existing } = await supabase
+    .from("ingredients")
+    .select("name");
+  const existingNames = new Set((existing ?? []).map((i) => i.name));
+  const toCreate = names.filter((n) => n && !existingNames.has(n));
+  if (toCreate.length > 0) {
+    await supabase
+      .from("ingredients")
+      .insert(toCreate.map((name) => ({ name })));
+  }
+}
+
 async function syncProductJoins(
   supabase: NonNullable<ReturnType<typeof getClient>>,
   productId: string,
   filterChips: string[],
   ingredients: string[]
 ) {
+  // Auto-create filter chips & ingredients yang belum ada di DB.
+  await ensureChipsExist(supabase, filterChips);
+  await ensureIngredientsExist(supabase, ingredients);
+
+  // Refresh peta nama->id setelah auto-create.
   const { chipMap, ingMap } = await nameIdMaps(supabase);
   await supabase.from("product_filter_chips").delete().eq("product_id", productId);
   await supabase.from("product_ingredients").delete().eq("product_id", productId);

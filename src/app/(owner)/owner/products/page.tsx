@@ -19,6 +19,7 @@ import {
   setProductStock,
   upsertProduct,
 } from "@/services/owner.service";
+import { invalidateProductsCache } from "@/services/products.service";
 import type { OwnerProduct } from "@/lib/owner-store";
 
 const EMPTY: Omit<OwnerProduct, "id"> = {
@@ -73,6 +74,7 @@ export default function ProductsPage() {
   async function save() {
     if (!form.name || form.price <= 0) return;
     await upsertProduct({ ...form, id: editing?.id });
+    invalidateProductsCache();
     setOpen(false);
     reload();
   }
@@ -386,6 +388,26 @@ export default function ProductsPage() {
                 </button>
               ))}
             </div>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                placeholder="Tambah filter baru…"
+                className="h-9 flex-1 rounded-card border border-black/15 px-3 text-xs outline-none focus:border-primary"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const val = (e.target as HTMLInputElement).value.trim();
+                    if (val && !chips.includes(val)) {
+                      setChips((prev) => [...prev, val]);
+                    }
+                    if (val && !form.filterChips.includes(val)) {
+                      setForm({ ...form, filterChips: [...form.filterChips, val] });
+                    }
+                    (e.target as HTMLInputElement).value = "";
+                  }
+                }}
+              />
+              <span className="text-[10px] text-black/40">Enter untuk tambah</span>
+            </div>
           </div>
 
           <div>
@@ -411,6 +433,26 @@ export default function ProductsPage() {
                   {i}
                 </button>
               ))}
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                placeholder="Tambah bahan baru…"
+                className="h-9 flex-1 rounded-card border border-black/15 px-3 text-xs outline-none focus:border-primary"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const val = (e.target as HTMLInputElement).value.trim();
+                    if (val && !allIngredients.includes(val)) {
+                      setAllIngredients((prev) => [...prev, val]);
+                    }
+                    if (val && !form.ingredients.includes(val)) {
+                      setForm({ ...form, ingredients: [...form.ingredients, val] });
+                    }
+                    (e.target as HTMLInputElement).value = "";
+                  }
+                }}
+              />
+              <span className="text-[10px] text-black/40">Enter untuk tambah</span>
             </div>
           </div>
 
