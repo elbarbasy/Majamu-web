@@ -5,7 +5,7 @@ import { MessageSquareText, Utensils } from "lucide-react";
 import { OrderTimer } from "@/components/cashier/order-timer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CASHIER_ACTION, orderTypeLabel, statusLabel, sweetnessLabel } from "@/constants";
+import { CASHIER_ACTION, orderTypeLabel, statusLabel, sweetnessLabel, temperatureLabel } from "@/constants";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { CashierOrder, OrderStatus } from "@/types";
 
@@ -77,9 +77,14 @@ export function OrderCard({ order, now, onAdvance, busy }: OrderCardProps) {
                   <p className="text-base font-semibold leading-tight text-black/85">
                     {item.name}
                   </p>
+                  {item.temperature && (
+                    <p className="text-xs font-semibold text-primary">
+                      Suhu: {temperatureLabel(item.temperature)}
+                    </p>
+                  )}
                   {item.sweetnessLevel && (
-                    <p className="text-xs font-medium text-accent">
-                      {sweetnessLabel(item.sweetnessLevel)}
+                    <p className="text-xs font-semibold text-accent">
+                      Manis: {sweetnessLabel(item.sweetnessLevel)}
                     </p>
                   )}
                 </div>

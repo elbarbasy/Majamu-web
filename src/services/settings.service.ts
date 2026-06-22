@@ -1,11 +1,60 @@
 /**
- * settings.service — pembacaan pengaturan toko untuk sisi publik (pelanggan).
- * Memakai store_settings (read publik via RLS). Fallback "open" bila Supabase
- * belum dikonfigurasi.
+ * settings.service — pengaturan toko untuk sisi publik (pelanggan).
+ * Supabase-first; fallback ke owner-store (dev) agar konten dinamis tetap
+ * konsisten dengan yang diatur Owner tanpa Supabase.
  */
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { ownerDb } from "@/lib/owner-store";
+
+export interface PublicSettings {
+  storeName: string;
+  tagline: string;
+  brandStory: string;
+  whatsapp: string;
+  instagram: string;
+  address: string;
+  storeStatus: "open" | "closed";
+}
+
+function fromOwnerStore(): PublicSettings {
+  const s = ownerDb().settings;
+  return {
+    storeName: s.storeName,
+    tagline: s.tagline,
+    brandStory: s.brandStory,
+    whatsapp: s.storeWhatsapp,
+    instagram: s.instagram,
+    address: s.address,
+    storeStatus: s.storeStatus,
+  };
+}
+
+export async function getPublicSettings(): Promise<PublicSettings> {
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("store_settings")
+      .select(
+        "store_name, tagline, brand_story, store_whatsapp, instagram, address, store_status"
+      )
+      .limit(1)
+      .maybeSingle();
+    if (!data) return fromOwnerStore();
+    return {
+      storeName: data.store_name ?? "Majamu",
+      tagline: data.tagline ?? "",
+      brandStory: data.brand_story ?? "",
+      whatsapp: data.store_whatsapp ?? "",
+      instagram: data.instagram ?? "",
+      address: data.address ?? "",
+      storeStatus: (data.store_status as "open" | "closed") ?? "open",
+    };
+  } catch {
+    return fromOwnerStore();
+  }
+}
 
 export async function getStoreStatus(): Promise<"open" | "closed"> {
   try {
@@ -15,8 +64,9 @@ export async function getStoreStatus(): Promise<"open" | "closed"> {
       .select("store_status")
       .limit(1)
       .maybeSingle();
-    return (data?.store_status as "open" | "closed") ?? "open";
+    if (!data) return ownerDb().settings.storeStatus;
+    return (data.store_status as "open" | "closed") ?? "open";
   } catch {
-    return "open";
+    return ownerDb().settings.storeStatus;
   }
 }

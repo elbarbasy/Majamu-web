@@ -32,6 +32,7 @@ type OrderRow = {
         product_name_snapshot: string | null;
         quantity: number;
         sweetness_level: string | null;
+        temperature: string | null;
         price_snapshot: number | null;
       }[]
     | null;
@@ -42,6 +43,7 @@ function mapOrder(row: OrderRow): CashierOrder {
     name: i.product_name_snapshot ?? "Produk",
     quantity: i.quantity,
     sweetnessLevel: (i.sweetness_level as CashierOrderItem["sweetnessLevel"]) ?? null,
+    temperature: (i.temperature as CashierOrderItem["temperature"]) ?? null,
     price: Number(i.price_snapshot) || 0,
   }));
   return {
@@ -61,7 +63,7 @@ function mapOrder(row: OrderRow): CashierOrder {
 
 const ORDER_SELECT = `id, status_url, display_number, order_type, customer_name,
   whatsapp, notes, status, total_price, created_at,
-  order_items ( product_name_snapshot, quantity, sweetness_level, price_snapshot )`;
+  order_items ( product_name_snapshot, quantity, sweetness_level, temperature, price_snapshot )`;
 
 /** Order aktif (belum selesai) untuk board. */
 export async function fetchActiveOrders(): Promise<CashierOrder[]> {

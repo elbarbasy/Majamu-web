@@ -421,6 +421,8 @@ type ProductRow = {
   price: number;
   description: string | null;
   stock_status: string | null;
+  temperature_enabled: boolean | null;
+  sweetness_enabled: boolean | null;
   product_filter_chips: { filter_chips: { name: string } | null }[] | null;
   product_ingredients: { ingredients: { name: string } | null }[] | null;
 };
@@ -441,6 +443,8 @@ function mapProductRow(row: ProductRow): OwnerProduct {
     filterChips,
     ingredients,
     isPopular: filterChips.includes("Rekomendasi"),
+    temperatureEnabled: Boolean(row.temperature_enabled),
+    sweetnessEnabled: row.sweetness_enabled !== false,
   };
 }
 
@@ -450,7 +454,7 @@ export async function listProducts(): Promise<OwnerProduct[]> {
   const { data, error } = await supabase
     .from("products")
     .select(
-      `id, name, price, description, stock_status,
+      `id, name, price, description, stock_status, temperature_enabled, sweetness_enabled,
        product_filter_chips ( filter_chips ( name ) ),
        product_ingredients ( ingredients ( name ) )`
     )
@@ -528,6 +532,8 @@ export async function upsertProduct(
     price: input.price,
     description: input.description || null,
     stock_status: input.stockStatus,
+    temperature_enabled: input.temperatureEnabled,
+    sweetness_enabled: input.sweetnessEnabled,
   };
 
   let productId = input.id ?? "";
@@ -1014,6 +1020,10 @@ type SettingsRow = {
   id: string;
   store_name: string | null;
   store_whatsapp: string | null;
+  instagram: string | null;
+  address: string | null;
+  tagline: string | null;
+  brand_story: string | null;
   logo_url: string | null;
   operational_hours: StoreSettingsData["operationalHours"] | null;
   payment_methods: string[] | null;
@@ -1024,7 +1034,11 @@ type SettingsRow = {
 function mapSettings(row: SettingsRow): StoreSettingsData {
   return {
     storeName: row.store_name ?? "Majamu",
+    tagline: row.tagline ?? "",
+    brandStory: row.brand_story ?? "",
     storeWhatsapp: row.store_whatsapp ?? "",
+    instagram: row.instagram ?? "",
+    address: row.address ?? "",
     logoUrl: row.logo_url,
     operationalHours: row.operational_hours ?? {},
     paymentMethods: row.payment_methods ?? ["cash", "qris", "midtrans"],
@@ -1039,7 +1053,7 @@ export async function getStoreSettings(): Promise<StoreSettingsData> {
   const { data } = await supabase
     .from("store_settings")
     .select(
-      "id, store_name, store_whatsapp, logo_url, operational_hours, payment_methods, urgency_threshold_minutes, store_status"
+      "id, store_name, store_whatsapp, instagram, address, tagline, brand_story, logo_url, operational_hours, payment_methods, urgency_threshold_minutes, store_status"
     )
     .limit(1)
     .maybeSingle();
@@ -1065,7 +1079,11 @@ export async function updateStoreSettings(
 
   const row: Record<string, unknown> = {};
   if (patch.storeName !== undefined) row.store_name = patch.storeName;
+  if (patch.tagline !== undefined) row.tagline = patch.tagline;
+  if (patch.brandStory !== undefined) row.brand_story = patch.brandStory;
   if (patch.storeWhatsapp !== undefined) row.store_whatsapp = patch.storeWhatsapp;
+  if (patch.instagram !== undefined) row.instagram = patch.instagram;
+  if (patch.address !== undefined) row.address = patch.address;
   if (patch.logoUrl !== undefined) row.logo_url = patch.logoUrl;
   if (patch.operationalHours !== undefined)
     row.operational_hours = patch.operationalHours;

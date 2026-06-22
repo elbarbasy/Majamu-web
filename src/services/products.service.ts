@@ -18,6 +18,8 @@ type ProductRow = {
   description: string | null;
   price: number;
   stock_status: string | null;
+  temperature_enabled: boolean | null;
+  sweetness_enabled: boolean | null;
   product_filter_chips: { filter_chips: { name: string } | null }[] | null;
   product_ingredients: { ingredients: { name: string } | null }[] | null;
 };
@@ -30,6 +32,8 @@ function mapProduct(row: ProductRow): Product {
     description: row.description,
     price: Number(row.price) || 0,
     stockStatus: row.stock_status === "out_of_stock" ? "out_of_stock" : "available",
+    temperatureEnabled: Boolean(row.temperature_enabled),
+    sweetnessEnabled: row.sweetness_enabled !== false,
     filterChips: (row.product_filter_chips ?? [])
       .map((pc) => pc.filter_chips?.name)
       .filter((n): n is string => Boolean(n)),
@@ -46,6 +50,7 @@ export async function getProducts(): Promise<Product[]> {
       .from("products")
       .select(
         `id, name, photo_url, description, price, stock_status,
+         temperature_enabled, sweetness_enabled,
          product_filter_chips ( filter_chips ( name ) ),
          product_ingredients ( ingredients ( name ) )`
       )
@@ -68,6 +73,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       .from("products")
       .select(
         `id, name, photo_url, description, price, stock_status,
+         temperature_enabled, sweetness_enabled,
          product_filter_chips ( filter_chips ( name ) ),
          product_ingredients ( ingredients ( name ) )`
       )

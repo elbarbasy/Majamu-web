@@ -42,6 +42,8 @@ create table products (
   price numeric(12,2) not null,
   menu_status text default 'active' check (menu_status in ('active','inactive')),
   stock_status text default 'available' check (stock_status in ('available','out_of_stock')),
+  temperature_enabled boolean default false,
+  sweetness_enabled boolean default true,
   featured_filter_chip_id uuid references filter_chips(id) on delete set null,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -111,6 +113,7 @@ create table order_items (
   product_name_snapshot text,
   price_snapshot numeric(12,2),
   sweetness_level text check (sweetness_level in ('normal','less','low','no_sugar')),  -- (#8)
+  temperature text check (temperature in ('hot','ice')),
   quantity integer not null,
   subtotal numeric(12,2)
 );
@@ -168,6 +171,10 @@ create table store_settings (
   id uuid primary key default gen_random_uuid(),
   store_name text,                                  -- (#13)
   store_whatsapp text,                              -- (#13)
+  instagram text,
+  address text,
+  tagline text,
+  brand_story text,
   logo_url text,                                    -- (#13)
   operational_hours jsonb,                          -- (#13) {"mon":{"open":"08:00","close":"21:00"}, ...}
   payment_methods jsonb default '["cash","qris","midtrans"]'::jsonb,  -- (#13)

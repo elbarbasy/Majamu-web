@@ -8,7 +8,7 @@ import { ArrowLeft, MessageCircle, ReceiptText } from "lucide-react";
 import { StatusTimeline } from "@/components/customer/status-timeline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { STORE_INFO, statusLabel } from "@/constants";
+import { STORE_INFO, statusLabel, sweetnessLabel, temperatureLabel } from "@/constants";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { getOrderByStatusUrl, updateCachedStatus } from "@/lib/order-cache";
 import { getOrderStatusByUrl } from "@/services/orders.service";
@@ -102,13 +102,25 @@ export default function OrderTrackingPage() {
             <ul className="space-y-2">
               {order.items.map((i) => (
                 <li
-                  key={`${i.productId}-${i.sweetnessLevel}`}
-                  className="flex items-center justify-between text-sm"
+                  key={`${i.productId}-${i.sweetnessLevel}-${i.temperature}`}
+                  className="flex items-start justify-between gap-2 text-sm"
                 >
-                  <span className="text-black/70">
-                    {i.quantity}x {i.name}
+                  <span className="min-w-0 text-black/70">
+                    <span className="font-medium">
+                      {i.quantity}x {i.name}
+                    </span>
+                    {(i.temperature || i.sweetnessLevel) && (
+                      <span className="block text-xs text-muted">
+                        {[
+                          i.temperature ? temperatureLabel(i.temperature) : null,
+                          i.sweetnessLevel ? sweetnessLabel(i.sweetnessLevel) : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" • ")}
+                      </span>
+                    )}
                   </span>
-                  <span className="font-medium text-black/80">
+                  <span className="shrink-0 font-medium text-black/80">
                     {formatCurrency(i.price * i.quantity)}
                   </span>
                 </li>

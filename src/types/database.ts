@@ -29,6 +29,7 @@ export type OrderStatus =
   | "selesai";
 export type PaymentMethod = "cash" | "qris" | "midtrans";
 export type SweetnessLevel = "normal" | "less" | "low" | "no_sugar";
+export type TemperatureLevel = "hot" | "ice";
 export type CashEntryType = "income" | "expense";
 export type StoreStatus = "open" | "closed";
 
@@ -95,6 +96,8 @@ export type Database = {
           price: number;
           menu_status: MenuStatus | null;
           stock_status: StockStatus | null;
+          temperature_enabled: boolean | null;
+          sweetness_enabled: boolean | null;
           featured_filter_chip_id: string | null;
           created_at: string | null;
           updated_at: string | null;
@@ -107,6 +110,8 @@ export type Database = {
           price: number;
           menu_status?: MenuStatus | null;
           stock_status?: StockStatus | null;
+          temperature_enabled?: boolean | null;
+          sweetness_enabled?: boolean | null;
           featured_filter_chip_id?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
@@ -119,6 +124,8 @@ export type Database = {
           price?: number;
           menu_status?: MenuStatus | null;
           stock_status?: StockStatus | null;
+          temperature_enabled?: boolean | null;
+          sweetness_enabled?: boolean | null;
           featured_filter_chip_id?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
@@ -321,6 +328,7 @@ export type Database = {
           product_name_snapshot: string | null;
           price_snapshot: number | null;
           sweetness_level: SweetnessLevel | null;
+          temperature: TemperatureLevel | null;
           quantity: number;
           subtotal: number | null;
         };
@@ -331,6 +339,7 @@ export type Database = {
           product_name_snapshot?: string | null;
           price_snapshot?: number | null;
           sweetness_level?: SweetnessLevel | null;
+          temperature?: TemperatureLevel | null;
           quantity: number;
           subtotal?: number | null;
         };
@@ -341,6 +350,7 @@ export type Database = {
           product_name_snapshot?: string | null;
           price_snapshot?: number | null;
           sweetness_level?: SweetnessLevel | null;
+          temperature?: TemperatureLevel | null;
           quantity?: number;
           subtotal?: number | null;
         };
@@ -511,6 +521,10 @@ export type Database = {
           id: string;
           store_name: string | null;
           store_whatsapp: string | null;
+          instagram: string | null;
+          address: string | null;
+          tagline: string | null;
+          brand_story: string | null;
           logo_url: string | null;
           operational_hours: Json | null;
           payment_methods: Json | null;
@@ -523,6 +537,10 @@ export type Database = {
           id?: string;
           store_name?: string | null;
           store_whatsapp?: string | null;
+          instagram?: string | null;
+          address?: string | null;
+          tagline?: string | null;
+          brand_story?: string | null;
           logo_url?: string | null;
           operational_hours?: Json | null;
           payment_methods?: Json | null;
@@ -535,6 +553,10 @@ export type Database = {
           id?: string;
           store_name?: string | null;
           store_whatsapp?: string | null;
+          instagram?: string | null;
+          address?: string | null;
+          tagline?: string | null;
+          brand_story?: string | null;
           logo_url?: string | null;
           operational_hours?: Json | null;
           payment_methods?: Json | null;

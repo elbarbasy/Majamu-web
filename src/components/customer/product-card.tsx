@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Leaf, Plus } from "lucide-react";
 
+import { DEFAULT_SWEETNESS, DEFAULT_TEMPERATURE } from "@/constants";
 import { formatCurrency } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { useUiStore } from "@/stores/ui-store";
@@ -82,12 +83,22 @@ export function ProductCard({ product }: ProductCardProps) {
             aria-label={`Tambah ${product.name}`}
             disabled={soldOut}
             onClick={() =>
-              addItem({
-                id: product.id,
-                name: product.name,
-                photoUrl: product.photoUrl,
-                price: product.price,
-              })
+              addItem(
+                {
+                  id: product.id,
+                  name: product.name,
+                  photoUrl: product.photoUrl,
+                  price: product.price,
+                },
+                {
+                  sweetnessLevel: product.sweetnessEnabled
+                    ? DEFAULT_SWEETNESS
+                    : null,
+                  temperature: product.temperatureEnabled
+                    ? DEFAULT_TEMPERATURE
+                    : null,
+                }
+              )
             }
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-btn bg-primary text-primary-foreground shadow-soft-sm transition active:scale-90 disabled:opacity-40"
           >

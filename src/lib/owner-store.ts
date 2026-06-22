@@ -21,6 +21,8 @@ export interface OwnerProduct {
   filterChips: string[];
   ingredients: string[];
   isPopular: boolean;
+  temperatureEnabled: boolean;
+  sweetnessEnabled: boolean;
 }
 
 export interface FilterChipItem {
@@ -73,7 +75,11 @@ export interface ActivityLogItem {
 
 export interface StoreSettingsData {
   storeName: string;
+  tagline: string;
+  brandStory: string;
   storeWhatsapp: string;
+  instagram: string;
+  address: string;
   logoUrl: string | null;
   operationalHours: Record<string, { open: string; close: string; closed: boolean }>;
   paymentMethods: string[];
@@ -116,6 +122,8 @@ function seed(): OwnerDb {
     filterChips: p.filterChips,
     ingredients: p.ingredients,
     isPopular: p.filterChips.includes("Rekomendasi"),
+    temperatureEnabled: p.temperatureEnabled,
+    sweetnessEnabled: p.sweetnessEnabled,
   }));
 
   const chips: FilterChipItem[] = FILTER_CHIPS.filter(
@@ -207,7 +215,12 @@ function seed(): OwnerDb {
 
   const settings: StoreSettingsData = {
     storeName: "Majamu",
+    tagline: "Jamu modern, hangat & menyehatkan",
+    brandStory:
+      "Majamu menghadirkan jamu modern dengan bahan alami pilihan. Diracik higienis, terinspirasi resep warisan nusantara untuk kesehatan keluarga Indonesia.",
     storeWhatsapp: "628000000000",
+    instagram: "@majamu.id",
+    address: "Jl. Herbal No. 1, Indonesia",
     logoUrl: null,
     operationalHours,
     paymentMethods: ["cash", "qris", "midtrans"],

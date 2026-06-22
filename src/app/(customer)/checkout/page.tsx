@@ -8,7 +8,7 @@ import { z } from "zod";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { PAYMENT_METHODS, sweetnessLabel } from "@/constants";
+import { PAYMENT_METHODS, sweetnessLabel, temperatureLabel } from "@/constants";
 import { cn, formatCurrency } from "@/lib/utils";
 import { getTableContext } from "@/lib/table-context";
 import { saveOrder } from "@/lib/order-cache";
@@ -169,16 +169,23 @@ export default function CheckoutPage() {
             <ul className="space-y-2.5">
               {items.map((i) => (
                 <li
-                  key={`${i.productId}-${i.sweetnessLevel}`}
+                  key={`${i.productId}-${i.sweetnessLevel}-${i.temperature}`}
                   className="flex items-start justify-between gap-2 text-sm"
                 >
                   <span className="min-w-0 text-ink/80">
                     <span className="font-semibold">
                       {i.quantity}x {i.name}
                     </span>
-                    <span className="block text-xs text-muted">
-                      {sweetnessLabel(i.sweetnessLevel)}
-                    </span>
+                    {(i.temperature || i.sweetnessLevel) && (
+                      <span className="block text-xs text-muted">
+                        {[
+                          i.temperature ? temperatureLabel(i.temperature) : null,
+                          i.sweetnessLevel ? sweetnessLabel(i.sweetnessLevel) : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" • ")}
+                      </span>
+                    )}
                   </span>
                   <span className="shrink-0 font-semibold text-ink">
                     {formatCurrency(i.price * i.quantity)}

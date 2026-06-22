@@ -28,6 +28,8 @@ const EMPTY: Omit<OwnerProduct, "id"> = {
   filterChips: [],
   ingredients: [],
   isPopular: false,
+  temperatureEnabled: false,
+  sweetnessEnabled: true,
 };
 
 export default function ProductsPage() {
@@ -393,6 +395,34 @@ export default function ProductsPage() {
             <Switch
               checked={form.isPopular}
               onChange={(v) => setForm({ ...form, isPopular: v })}
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-card bg-background p-3">
+            <div>
+              <span className="block text-sm font-semibold text-black/80">
+                Opsi Suhu (Hot/Ice)
+              </span>
+              <span className="block text-xs text-black/45">
+                Tampilkan pilihan suhu ke pelanggan
+              </span>
+            </div>
+            <Switch
+              checked={form.temperatureEnabled}
+              onChange={(v) => setForm({ ...form, temperatureEnabled: v })}
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-card bg-background p-3">
+            <div>
+              <span className="block text-sm font-semibold text-black/80">
+                Opsi Tingkat Manis
+              </span>
+              <span className="block text-xs text-black/45">
+                Tampilkan pilihan kemanisan ke pelanggan
+              </span>
+            </div>
+            <Switch
+              checked={form.sweetnessEnabled}
+              onChange={(v) => setForm({ ...form, sweetnessEnabled: v })}
             />
           </div>
           <div className="flex items-center justify-between rounded-card bg-background p-3">

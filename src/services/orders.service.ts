@@ -133,6 +133,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
         product_name_snapshot: i.name,
         price_snapshot: i.price,
         sweetness_level: i.sweetnessLevel,
+        temperature: i.temperature,
         quantity: i.quantity,
         subtotal: i.price * i.quantity,
       }))

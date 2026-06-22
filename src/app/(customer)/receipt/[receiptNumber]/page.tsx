@@ -17,7 +17,7 @@ import {
 import { StatusTimeline } from "@/components/customer/status-timeline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PAYMENT_METHODS, statusLabel, sweetnessLabel } from "@/constants";
+import { PAYMENT_METHODS, statusLabel, sweetnessLabel, temperatureLabel } from "@/constants";
 import { getOrderByReceipt } from "@/lib/order-cache";
 import { buildTrackingUrl, qrImageUrl } from "@/lib/qr";
 import { printPdf } from "@/lib/export";
@@ -163,7 +163,7 @@ export default function ReceiptPage() {
             <ul className="space-y-3">
               {order.items.map((i) => (
                 <li
-                  key={`${i.productId}-${i.sweetnessLevel}`}
+                  key={`${i.productId}-${i.sweetnessLevel}-${i.temperature}`}
                   className="flex items-start justify-between gap-3 text-sm"
                 >
                   <span className="min-w-0">
@@ -172,6 +172,7 @@ export default function ReceiptPage() {
                     </span>
                     <span className="block text-xs text-black/45">
                       {i.quantity} x {formatCurrency(i.price)}
+                      {i.temperature ? ` • ${temperatureLabel(i.temperature)}` : ""}
                       {i.sweetnessLevel
                         ? ` • ${sweetnessLabel(i.sweetnessLevel)}`
                         : ""}

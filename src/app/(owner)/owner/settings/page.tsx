@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Check } from "lucide-react";
+import Link from "next/link";
+import { Check, GalleryHorizontalEnd } from "lucide-react";
 
 import { PageHeader } from "@/components/owner/page-header";
 import { SectionCard } from "@/components/owner/section-card";
@@ -106,7 +107,7 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-semibold text-black/80">
-                Nama Toko
+                Nama Brand
               </label>
               <input
                 value={settings.storeName}
@@ -116,16 +117,67 @@ export default function SettingsPage() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-semibold text-black/80">
-                WhatsApp Toko
+                Tagline
               </label>
               <input
-                value={settings.storeWhatsapp}
-                onChange={(e) =>
-                  patch({ storeWhatsapp: e.target.value.replace(/[^0-9]/g, "") })
-                }
-                inputMode="tel"
-                placeholder="628xxxxxxxxxx"
+                value={settings.tagline}
+                onChange={(e) => patch({ tagline: e.target.value })}
+                placeholder="mis. Jamu modern, hangat & menyehatkan"
                 className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-black/80">
+                Tentang Majamu (Brand Story)
+              </label>
+              <textarea
+                value={settings.brandStory}
+                onChange={(e) => patch({ brandStory: e.target.value })}
+                rows={4}
+                placeholder="Ceritakan tentang brand Anda…"
+                className="w-full resize-none rounded-card border border-black/15 p-3 text-sm outline-none focus:border-primary"
+              />
+              <p className="mt-1 text-xs text-black/45">
+                Tampil otomatis di menu pelanggan → Tentang Majamu.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-black/80">
+                  WhatsApp
+                </label>
+                <input
+                  value={settings.storeWhatsapp}
+                  onChange={(e) =>
+                    patch({ storeWhatsapp: e.target.value.replace(/[^0-9]/g, "") })
+                  }
+                  inputMode="tel"
+                  placeholder="628xxxxxxxxxx"
+                  className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-black/80">
+                  Instagram
+                </label>
+                <input
+                  value={settings.instagram}
+                  onChange={(e) => patch({ instagram: e.target.value })}
+                  placeholder="@majamu.id"
+                  className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-black/80">
+                Alamat
+              </label>
+              <textarea
+                value={settings.address}
+                onChange={(e) => patch({ address: e.target.value })}
+                rows={2}
+                placeholder="Alamat toko…"
+                className="w-full resize-none rounded-card border border-black/15 p-3 text-sm outline-none focus:border-primary"
               />
             </div>
             <div>
@@ -139,6 +191,16 @@ export default function SettingsPage() {
                 className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
               />
             </div>
+            <Link
+              href="/owner/banners"
+              className="flex items-center justify-between rounded-card border border-black/15 px-4 py-3 text-sm font-semibold text-black/80 hover:border-primary/40"
+            >
+              <span className="flex items-center gap-2">
+                <GalleryHorizontalEnd className="h-5 w-5 text-primary" />
+                Banner Homepage
+              </span>
+              <span className="text-xs font-medium text-primary">Kelola →</span>
+            </Link>
           </div>
         </SectionCard>
 

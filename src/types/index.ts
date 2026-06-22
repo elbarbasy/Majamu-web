@@ -6,6 +6,7 @@ import type {
   OrderStatus,
   OrderType,
   SweetnessLevel,
+  TemperatureLevel,
 } from "@/types/database";
 
 export type {
@@ -13,6 +14,7 @@ export type {
   OrderType,
   PaymentMethod,
   SweetnessLevel,
+  TemperatureLevel,
 } from "@/types/database";
 
 /** Produk yang dipakai di katalog/detail (gabungan tabel + relasi). */
@@ -29,6 +31,9 @@ export interface Product {
   filterChips: string[];
   /** Komposisi/bahan. */
   ingredients: string[];
+  /** Kustomisasi per produk (Owner Dashboard). */
+  temperatureEnabled: boolean;
+  sweetnessEnabled: boolean;
 }
 
 /** Item di keranjang (disimpan di localStorage). */
@@ -38,7 +43,8 @@ export interface CartItem {
   photoUrl: string | null;
   price: number;
   quantity: number;
-  sweetnessLevel: SweetnessLevel;
+  sweetnessLevel: SweetnessLevel | null;
+  temperature: TemperatureLevel | null;
 }
 
 /** Banner promo homepage. */
@@ -81,6 +87,7 @@ export interface CashierOrderItem {
   name: string;
   quantity: number;
   sweetnessLevel: SweetnessLevel | null;
+  temperature: TemperatureLevel | null;
   price: number;
 }
 

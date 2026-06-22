@@ -2,7 +2,7 @@
  * Konstanta domain Customer Majamu.
  * Label & urutan mengikuti CUSTOMER_UI.md dan WIREFRAMES.md.
  */
-import type { OrderStatus, PaymentMethod, SweetnessLevel } from "@/types";
+import type { OrderStatus, PaymentMethod, SweetnessLevel, TemperatureLevel } from "@/types";
 import type { QuizQuestion } from "@/types";
 
 /** 11 Filter Chip sesuai CUSTOMER_UI.md (urutan tampil). */
@@ -35,6 +35,25 @@ export const DEFAULT_SWEETNESS: SweetnessLevel = "normal";
 
 export function sweetnessLabel(value: SweetnessLevel): string {
   return SWEETNESS_LEVELS.find((s) => s.value === value)?.label ?? value;
+}
+
+/** Opsi tingkat manis yang ditampilkan ke pelanggan (3 opsi sesuai revisi). */
+export const CUSTOMER_SWEETNESS_LEVELS: { value: SweetnessLevel; label: string }[] = [
+  { value: "normal", label: "Normal" },
+  { value: "low", label: "Sedikit Manis" },
+  { value: "no_sugar", label: "Tidak Manis" },
+];
+
+/** Opsi suhu penyajian (kustomisasi per produk). */
+export const TEMPERATURE_LEVELS: { value: TemperatureLevel; label: string }[] = [
+  { value: "hot", label: "Hot" },
+  { value: "ice", label: "Ice" },
+];
+
+export const DEFAULT_TEMPERATURE: TemperatureLevel = "hot";
+
+export function temperatureLabel(value: TemperatureLevel): string {
+  return TEMPERATURE_LEVELS.find((t) => t.value === value)?.label ?? value;
 }
 
 /** Metode pembayaran (PRD: Tunai, QRIS, E-Wallet). Nilai DB tetap. */

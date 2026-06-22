@@ -1,6 +1,7 @@
 /**
  * cartStore — keranjang belanja pelanggan (STATE_MANAGEMENT.md).
- * Persist: localStorage. Catatan berlaku untuk seluruh order (CUSTOMER_UI.md).
+ * Persist: localStorage. Item dibedakan berdasarkan kombinasi
+ * produk + tingkat manis + suhu (kustomisasi per produk).
  */
 "use client";
 
@@ -8,25 +9,31 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { DEFAULT_SWEETNESS } from "@/constants";
-import type { CartItem, Product, SweetnessLevel } from "@/types";
+import type { CartItem, Product, SweetnessLevel, TemperatureLevel } from "@/types";
+
+interface AddOptions {
+  quantity?: number;
+  sweetnessLevel?: SweetnessLevel | null;
+  temperature?: TemperatureLevel | null;
+}
 
 interface CartState {
   items: CartItem[];
   notes: string;
   addItem: (
     product: Pick<Product, "id" | "name" | "photoUrl" | "price">,
-    options?: { quantity?: number; sweetnessLevel?: SweetnessLevel }
+    options?: AddOptions
   ) => void;
-  removeItem: (productId: string, sweetnessLevel: SweetnessLevel) => void;
+  removeItem: (
+    productId: string,
+    sweetnessLevel: SweetnessLevel | null,
+    temperature: TemperatureLevel | null
+  ) => void;
   updateQuantity: (
     productId: string,
-    sweetnessLevel: SweetnessLevel,
+    sweetnessLevel: SweetnessLevel | null,
+    temperature: TemperatureLevel | null,
     quantity: number
-  ) => void;
-  updateSweetness: (
-    productId: string,
-    from: SweetnessLevel,
-    to: SweetnessLevel
   ) => void;
   setNotes: (notes: string) => void;
   clearCart: () => void;
@@ -34,9 +41,18 @@ interface CartState {
   totalPrice: () => number;
 }
 
-/** Item dibedakan berdasarkan kombinasi produk + tingkat manis. */
-function sameLine(item: CartItem, productId: string, sweet: SweetnessLevel) {
-  return item.productId === productId && item.sweetnessLevel === sweet;
+/** Identitas baris keranjang: produk + tingkat manis + suhu. */
+function sameLine(
+  item: CartItem,
+  productId: string,
+  sweet: SweetnessLevel | null,
+  temp: TemperatureLevel | null
+) {
+  return (
+    item.productId === productId &&
+    item.sweetnessLevel === sweet &&
+    item.temperature === temp
+  );
 }
 
 export const useCartStore = create<CartState>()(
@@ -47,15 +63,20 @@ export const useCartStore = create<CartState>()(
 
       addItem: (product, options) => {
         const quantity = options?.quantity ?? 1;
-        const sweetnessLevel = options?.sweetnessLevel ?? DEFAULT_SWEETNESS;
+        const sweetnessLevel =
+          options?.sweetnessLevel === undefined
+            ? DEFAULT_SWEETNESS
+            : options.sweetnessLevel;
+        const temperature = options?.temperature ?? null;
+
         set((state) => {
           const existing = state.items.find((i) =>
-            sameLine(i, product.id, sweetnessLevel)
+            sameLine(i, product.id, sweetnessLevel, temperature)
           );
           if (existing) {
             return {
               items: state.items.map((i) =>
-                sameLine(i, product.id, sweetnessLevel)
+                sameLine(i, product.id, sweetnessLevel, temperature)
                   ? { ...i, quantity: i.quantity + quantity }
                   : i
               ),
@@ -68,51 +89,35 @@ export const useCartStore = create<CartState>()(
             price: product.price,
             quantity,
             sweetnessLevel,
+            temperature,
           };
           return { items: [...state.items, newItem] };
         });
       },
 
-      removeItem: (productId, sweetnessLevel) =>
+      removeItem: (productId, sweetnessLevel, temperature) =>
         set((state) => ({
           items: state.items.filter(
-            (i) => !sameLine(i, productId, sweetnessLevel)
+            (i) => !sameLine(i, productId, sweetnessLevel, temperature)
           ),
         })),
 
-      updateQuantity: (productId, sweetnessLevel, quantity) =>
+      updateQuantity: (productId, sweetnessLevel, temperature, quantity) =>
         set((state) => {
           if (quantity <= 0) {
             return {
               items: state.items.filter(
-                (i) => !sameLine(i, productId, sweetnessLevel)
+                (i) => !sameLine(i, productId, sweetnessLevel, temperature)
               ),
             };
           }
           return {
             items: state.items.map((i) =>
-              sameLine(i, productId, sweetnessLevel) ? { ...i, quantity } : i
+              sameLine(i, productId, sweetnessLevel, temperature)
+                ? { ...i, quantity }
+                : i
             ),
           };
-        }),
-
-      updateSweetness: (productId, from, to) =>
-        set((state) => {
-          if (from === to) return state;
-          const moving = state.items.find((i) => sameLine(i, productId, from));
-          if (!moving) return state;
-          const rest = state.items.filter((i) => !sameLine(i, productId, from));
-          const target = rest.find((i) => sameLine(i, productId, to));
-          if (target) {
-            return {
-              items: rest.map((i) =>
-                sameLine(i, productId, to)
-                  ? { ...i, quantity: i.quantity + moving.quantity }
-                  : i
-              ),
-            };
-          }
-          return { items: [...rest, { ...moving, sweetnessLevel: to }] };
         }),
 
       setNotes: (notes) => set({ notes }),

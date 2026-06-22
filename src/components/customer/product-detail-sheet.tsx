@@ -1,25 +1,30 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, Leaf } from "lucide-react";
+import { ChevronDown, Leaf, Snowflake, Flame } from "lucide-react";
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { OptionPills } from "@/components/ui/option-pills";
 import { QuantityControl } from "@/components/ui/quantity-control";
-import { SweetnessSelector } from "@/components/ui/sweetness-selector";
-import { DEFAULT_SWEETNESS } from "@/constants";
+import {
+  CUSTOMER_SWEETNESS_LEVELS,
+  DEFAULT_SWEETNESS,
+  DEFAULT_TEMPERATURE,
+  TEMPERATURE_LEVELS,
+} from "@/constants";
 import { cn, formatCurrency } from "@/lib/utils";
 import { getProductById } from "@/services/products.service";
 import { useCartStore } from "@/stores/cart-store";
 import { useUiStore } from "@/stores/ui-store";
-import type { Product, SweetnessLevel } from "@/types";
+import type { Product, SweetnessLevel, TemperatureLevel } from "@/types";
 
 /**
- * Detail Produk — bottom sheet premium. Foto, nama, harga, benefit chip,
- * deskripsi, komposisi (collapsible), tingkat manis, jumlah, tombol sticky.
- * Logika lama dipertahankan (getProductById, addItem, sweetness, quantity).
+ * Detail Produk — bottom sheet premium. Selector Suhu & Tingkat Manis
+ * hanya tampil bila diaktifkan pada produk (kustomisasi per produk).
+ * Snapshot kustomisasi ikut tersimpan saat ditambahkan ke keranjang.
  */
 export function ProductDetailSheet() {
   const productId = useUiStore((s) => s.detailProductId);
@@ -30,6 +35,8 @@ export function ProductDetailSheet() {
   const [loading, setLoading] = React.useState(false);
   const [quantity, setQuantity] = React.useState(1);
   const [sweetness, setSweetness] = React.useState<SweetnessLevel>(DEFAULT_SWEETNESS);
+  const [temperature, setTemperature] =
+    React.useState<TemperatureLevel>(DEFAULT_TEMPERATURE);
   const [showComposition, setShowComposition] = React.useState(false);
 
   const open = Boolean(productId);
@@ -39,6 +46,7 @@ export function ProductDetailSheet() {
     setLoading(true);
     setQuantity(1);
     setSweetness(DEFAULT_SWEETNESS);
+    setTemperature(DEFAULT_TEMPERATURE);
     setShowComposition(false);
     let active = true;
     getProductById(productId).then((p) => {
@@ -63,7 +71,11 @@ export function ProductDetailSheet() {
         photoUrl: product.photoUrl,
         price: product.price,
       },
-      { quantity, sweetnessLevel: sweetness }
+      {
+        quantity,
+        sweetnessLevel: product.sweetnessEnabled ? sweetness : null,
+        temperature: product.temperatureEnabled ? temperature : null,
+      }
     );
     close();
   }
@@ -165,11 +177,35 @@ export function ProductDetailSheet() {
             </div>
           )}
 
-          {/* Tingkat manis */}
-          <div>
-            <p className="mb-2 text-sm font-bold text-ink">Tingkat Manis</p>
-            <SweetnessSelector value={sweetness} onChange={setSweetness} />
-          </div>
+          {/* Suhu (per produk) */}
+          {product.temperatureEnabled && (
+            <div>
+              <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-ink">
+                <Flame className="h-4 w-4 text-warning" />
+                Suhu Penyajian
+              </p>
+              <OptionPills
+                options={TEMPERATURE_LEVELS}
+                value={temperature}
+                onChange={setTemperature}
+              />
+            </div>
+          )}
+
+          {/* Tingkat manis (per produk) */}
+          {product.sweetnessEnabled && (
+            <div>
+              <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-ink">
+                <Snowflake className="h-4 w-4 text-accent" />
+                Tingkat Manis
+              </p>
+              <OptionPills
+                options={CUSTOMER_SWEETNESS_LEVELS}
+                value={sweetness}
+                onChange={setSweetness}
+              />
+            </div>
+          )}
 
           {/* Jumlah */}
           <div className="flex items-center justify-between rounded-card bg-background px-4 py-3">

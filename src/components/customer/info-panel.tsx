@@ -6,18 +6,29 @@ import Link from "next/link";
 import { ChevronRight, ClipboardList, Info, Leaf, Phone, X } from "lucide-react";
 
 import { STORE_INFO } from "@/constants";
+import { getPublicSettings, type PublicSettings } from "@/services/settings.service";
 import { useUiStore } from "@/stores/ui-store";
 
 /**
  * Drawer menu — slide dari KANAN, animasi halus.
- * Isi: Tentang Majamu, Kontak Kami, Riwayat Pesanan.
- * Logika lama dipertahankan (ui-store infoPanelOpen/closeInfoPanel).
+ * Isi: Tentang Majamu (dari settings.brand_story — TIDAK hardcoded),
+ * Kontak Kami, Riwayat Pesanan.
  */
 export function InfoPanel() {
   const open = useUiStore((s) => s.infoPanelOpen);
   const close = useUiStore((s) => s.closeInfoPanel);
   const [mounted, setMounted] = React.useState(false);
   const [showAbout, setShowAbout] = React.useState(false);
+  const [settings, setSettings] = React.useState<PublicSettings | null>(null);
+
+  React.useEffect(() => setMounted(true), []);
+  React.useEffect(() => {
+    if (open) getPublicSettings().then(setSettings);
+  }, [open]);
+
+  const tagline = settings?.tagline || STORE_INFO.tagline;
+  const brandStory = settings?.brandStory || STORE_INFO.about;
+  const whatsapp = settings?.whatsapp || STORE_INFO.whatsapp;
 
   React.useEffect(() => setMounted(true), []);
   React.useEffect(() => {
@@ -55,7 +66,7 @@ export function InfoPanel() {
               <p className="text-lg font-extrabold leading-none tracking-wide">
                 MAJAMU
               </p>
-              <p className="mt-1 text-xs text-white/80">{STORE_INFO.tagline}</p>
+              <p className="mt-1 text-xs text-white/80">{tagline}</p>
             </div>
           </div>
           <button
@@ -96,12 +107,12 @@ export function InfoPanel() {
             </button>
             {showAbout && (
               <p className="rounded-card bg-surface px-4 py-3 text-xs leading-relaxed text-muted">
-                {STORE_INFO.about}
+                {brandStory}
               </p>
             )}
 
             <a
-              href={`https://wa.me/${STORE_INFO.whatsapp}`}
+              href={`https://wa.me/${whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={close}

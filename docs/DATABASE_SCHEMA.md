@@ -29,6 +29,8 @@
 - price
 - menu_status (active, inactive)
 - stock_status (available, out_of_stock)
+- temperature_enabled (boolean) — opsi suhu Hot/Ice per produk
+- sweetness_enabled (boolean) — opsi tingkat manis per produk
 - featured_filter_chip_id (FK filter_chips)
 - created_at
 - updated_at
@@ -81,6 +83,7 @@
 - product_name_snapshot
 - price_snapshot
 - sweetness_level (normal, less, low, no_sugar) (#8)
+- temperature (hot, ice) — snapshot suhu pesanan
 - quantity
 - subtotal
 
@@ -124,7 +127,11 @@
 ## store_settings
 - id
 - store_name (#13)
+- tagline
+- brand_story — sumber konten "Tentang Majamu" (tidak hardcoded)
 - store_whatsapp (#13)
+- instagram
+- address
 - logo_url (#13)
 - operational_hours (jsonb) (#13)
 - payment_methods (jsonb) (#13)
