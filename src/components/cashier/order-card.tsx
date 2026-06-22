@@ -1,43 +1,57 @@
 "use client";
 
-import { MessageSquareText, Utensils } from "lucide-react";
+import { AlertTriangle, MessageSquareText, Utensils } from "lucide-react";
 
 import { OrderTimer } from "@/components/cashier/order-timer";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CASHIER_ACTION, orderTypeLabel, statusLabel, sweetnessLabel, temperatureLabel } from "@/constants";
+import {
+  CASHIER_ACTION,
+  CASHIER_STATUS_STYLE,
+  URGENCY_THRESHOLD_MINUTES,
+  orderTypeLabel,
+  sweetnessLabel,
+  temperatureLabel,
+} from "@/constants";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { CashierOrder, OrderStatus } from "@/types";
 
 interface OrderCardProps {
   order: CashierOrder;
   now: number;
-  onAdvance: (orderId: string, next: OrderStatus) => void;
+  onAdvance: (order: CashierOrder, next: OrderStatus) => void;
+  isNew?: boolean;
   busy?: boolean;
 }
 
-const STATUS_BADGE: Record<
-  OrderStatus,
-  "warning" | "primary" | "accent" | "success" | "neutral"
-> = {
-  menunggu_bayar: "warning",
-  diterima: "primary",
-  diracik: "accent",
-  siap_diambil: "success",
-  selesai: "neutral",
-};
-
 /**
- * Order Card BESAR (CASHIER_UI.md). Menampilkan nomor meja/antrian, badge
- * dine in/take away, timer, daftar produk + kustomisasi, catatan pelanggan,
- * total harga, dan tombol aksi sesuai status.
+ * Order Card BESAR — warna status fungsional, timer, kustomisasi (suhu/manis),
+ * badge BARU + glow (30 dtk), penanda urgent (timer melewati ambang).
  */
-export function OrderCard({ order, now, onAdvance, busy }: OrderCardProps) {
+export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps) {
   const action = CASHIER_ACTION[order.status];
   const isTakeAway = order.orderType === "take_away";
+  const style = CASHIER_STATUS_STYLE[order.status];
+
+  const elapsedMin = Math.floor(
+    Math.max(0, now - new Date(order.createdAt).getTime()) / 60000
+  );
+  const urgent =
+    order.status !== "selesai" && elapsedMin >= URGENCY_THRESHOLD_MINUTES;
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-card bg-surface shadow-md ring-1 ring-black/5">
+    <div
+      className={cn(
+        "flex flex-col overflow-hidden rounded-card bg-surface shadow-md ring-1 transition-all",
+        isNew
+          ? "ring-2 ring-amber-400 shadow-soft-lg"
+          : urgent
+            ? "ring-2 ring-red-400"
+            : "ring-black/5"
+      )}
+    >
+      {/* Strip warna status */}
+      <div className={cn("h-1.5 w-full", urgent ? "bg-red-500" : style.bar)} />
+
       {/* Header */}
       <div className="flex items-start justify-between gap-2 border-b border-black/5 p-4">
         <div className="min-w-0">
@@ -49,18 +63,34 @@ export function OrderCard({ order, now, onAdvance, busy }: OrderCardProps) {
               {order.customerName}
             </p>
           )}
-          <span className="mt-1.5 inline-flex">
-            <Badge variant={STATUS_BADGE[order.status]}>
-              {statusLabel(order.status)}
-            </Badge>
-          </span>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-xs font-bold",
+                style.badge
+              )}
+            >
+              {style.label}
+            </span>
+            {isNew && (
+              <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[11px] font-bold uppercase text-white">
+                Baru
+              </span>
+            )}
+            {urgent && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-bold text-red-700">
+                <AlertTriangle className="h-3 w-3" />
+                Urgent
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
           <OrderTimer createdAt={order.createdAt} now={now} />
-          <Badge variant={isTakeAway ? "secondary" : "primary"}>
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/5 px-2.5 py-0.5 text-xs font-medium text-black/60">
             <Utensils className="h-3 w-3" />
             {orderTypeLabel(order.orderType)}
-          </Badge>
+          </span>
         </div>
       </div>
 
@@ -96,11 +126,10 @@ export function OrderCard({ order, now, onAdvance, busy }: OrderCardProps) {
           ))}
         </ul>
 
-        {/* Catatan pelanggan */}
         {order.notes && (
-          <div className="mt-3 flex items-start gap-2 rounded-card bg-warning/10 p-3">
-            <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-            <p className="text-sm text-warning">{order.notes}</p>
+          <div className="mt-3 flex items-start gap-2 rounded-card bg-amber-50 p-3">
+            <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <p className="text-sm text-amber-700">{order.notes}</p>
           </div>
         )}
       </div>
@@ -119,18 +148,16 @@ export function OrderCard({ order, now, onAdvance, busy }: OrderCardProps) {
           </span>
         </div>
 
-        {action ? (
+        {action && (
           <Button
             block
             size="lg"
             disabled={busy}
             variant={order.status === "siap_diambil" ? "accent" : "primary"}
-            onClick={() => onAdvance(order.id, action.next)}
+            onClick={() => onAdvance(order, action.next)}
           >
             {action.label}
           </Button>
-        ) : (
-          <Badge variant={STATUS_BADGE[order.status]}>Selesai</Badge>
         )}
       </div>
     </div>

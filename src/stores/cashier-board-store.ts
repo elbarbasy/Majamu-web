@@ -16,6 +16,8 @@ interface CashierBoardState {
   setOrders: (orders: CashierOrder[]) => void;
   /** Pindahkan status order secara optimistik; hapus dari board bila selesai. */
   moveStatus: (orderId: string, status: OrderStatus) => void;
+  /** Kembalikan order ke board (untuk Undo, mis. setelah 'selesai'). */
+  restoreOrder: (order: CashierOrder) => void;
 }
 
 export const useCashierBoardStore = create<CashierBoardState>((set) => ({
@@ -36,5 +38,17 @@ export const useCashierBoardStore = create<CashierBoardState>((set) => ({
           o.id === orderId ? { ...o, status } : o
         ),
       };
+    }),
+
+  restoreOrder: (order) =>
+    set((state) => {
+      if (state.orders.some((o) => o.id === order.id)) {
+        return {
+          orders: state.orders.map((o) => (o.id === order.id ? order : o)),
+        };
+      }
+      const next = [...state.orders, order];
+      next.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+      return { orders: next };
     }),
 }));

@@ -8,6 +8,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { ownerDb } from "@/lib/owner-store";
 import { SAMPLE_CASHIER_ORDERS } from "@/lib/sample-data";
 import type {
   CashierOrder,
@@ -168,8 +169,34 @@ export async function createShiftNote(input: {
   }
 }
 
-export async function fetchShiftNotes(): Promise<ShiftNote[]> {
+/** Saldo kas saat ini (Σ income − expense). Fallback ke dev store. */
+export async function getCashBalance(): Promise<number> {
   try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("cash_entries")
+      .select("type, amount");
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      return ownerDb().cashEntries.reduce(
+        (s, c) => s + (c.type === "income" ? c.amount : -c.amount),
+        0
+      );
+    }
+    return data.reduce(
+      (s, c) =>
+        s + (c.type === "income" ? Number(c.amount) : -Number(c.amount)),
+      0
+    );
+  } catch {
+    return ownerDb().cashEntries.reduce(
+      (s, c) => s + (c.type === "income" ? c.amount : -c.amount),
+      0
+    );
+  }
+}
+
+export async function fetchShiftNotes(): Promise<ShiftNote[]> {  try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("shift_notes")

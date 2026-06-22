@@ -3,59 +3,93 @@
 import * as React from "react";
 import { Inbox } from "lucide-react";
 
-import { NewOrderToast } from "@/components/cashier/new-order-toast";
 import { OrderCard } from "@/components/cashier/order-card";
 import { StatusTabs } from "@/components/cashier/status-tabs";
 import { useNow } from "@/hooks/use-now";
+import { formatCurrency } from "@/lib/utils";
+import { playNewOrderSound } from "@/lib/sound";
 import {
   fetchActiveOrders,
   subscribeOrders,
   updateOrderStatus,
 } from "@/services/cashier.service";
 import { useCashierBoardStore } from "@/stores/cashier-board-store";
-import type { OrderStatus } from "@/types";
+import { useCashierSettingsStore } from "@/stores/cashier-settings-store";
+import { useToastStore } from "@/stores/toast-store";
+import type { CashierOrder, OrderStatus } from "@/types";
 
 type TabValue = OrderStatus | "all";
 
+const HIGHLIGHT_MS = 30000;
+
 /**
- * Order Board Kasir (CASHIER_UI.md): Realtime, kartu besar, timer per order,
- * tab status. Grid responsif: 1 kolom (mobile) / 2 (tablet) / 3-4 (desktop).
+ * Order Board Kasir — realtime, warna status fungsional, notifikasi order baru
+ * (suara + toast + highlight 30 dtk), dan Undo 10 dtk pada perubahan status.
  */
 export default function PosBoardPage() {
   const orders = useCashierBoardStore((s) => s.orders);
   const loading = useCashierBoardStore((s) => s.loading);
   const setOrders = useCashierBoardStore((s) => s.setOrders);
   const moveStatus = useCashierBoardStore((s) => s.moveStatus);
+  const restoreOrder = useCashierBoardStore((s) => s.restoreOrder);
+
+  const push = useToastStore((s) => s.push);
 
   const now = useNow(1000);
   const [activeTab, setActiveTab] = React.useState<TabValue>("all");
-  const [toast, setToast] = React.useState(false);
-  const prevCount = React.useRef(0);
 
-  // Muat awal + langganan realtime.
+  const knownIds = React.useRef<Set<string>>(new Set());
+  const newAt = React.useRef<Record<string, number>>({});
+  const initialized = React.useRef(false);
+
+  // Muat awal + langganan realtime + deteksi order baru.
   React.useEffect(() => {
     let alive = true;
+
+    function notifyNew(newOrders: CashierOrder[]) {
+      const { soundEnabled, volume } = useCashierSettingsStore.getState();
+      if (soundEnabled) playNewOrderSound(volume); // sekali, audio fallback bila diblokir
+      if (newOrders.length === 1) {
+        const o = newOrders[0];
+        const qty = o.items.reduce((s, i) => s + i.quantity, 0);
+        push({
+          tone: "new",
+          title: "🔔 Pesanan Baru",
+          message: `${o.displayNumber ?? "-"}\n${qty} Item • ${formatCurrency(o.totalPrice)}`,
+          durationMs: 6000,
+        });
+      } else {
+        push({
+          tone: "new",
+          title: "🔔 Pesanan Baru",
+          message: `${newOrders.length} pesanan baru masuk`,
+          durationMs: 6000,
+        });
+      }
+    }
+
     async function load() {
       const data = await fetchActiveOrders();
-      if (alive) setOrders(data);
+      if (!alive) return;
+
+      const incomingNew = data.filter((o) => !knownIds.current.has(o.id));
+      if (initialized.current && incomingNew.length > 0) {
+        const ts = Date.now();
+        incomingNew.forEach((o) => (newAt.current[o.id] = ts));
+        notifyNew(incomingNew);
+      }
+      knownIds.current = new Set(data.map((o) => o.id));
+      initialized.current = true;
+      setOrders(data);
     }
+
     load();
     const unsub = subscribeOrders(load);
     return () => {
       alive = false;
       unsub();
     };
-  }, [setOrders]);
-
-  // Notifikasi order baru ketika jumlah bertambah.
-  React.useEffect(() => {
-    if (orders.length > prevCount.current && prevCount.current !== 0) {
-      setToast(true);
-      const t = setTimeout(() => setToast(false), 3000);
-      return () => clearTimeout(t);
-    }
-    prevCount.current = orders.length;
-  }, [orders.length]);
+  }, [setOrders, push]);
 
   const counts = React.useMemo(() => {
     const base: Record<TabValue, number> = {
@@ -73,29 +107,43 @@ export default function PosBoardPage() {
   }, [orders]);
 
   const visible = React.useMemo(
-    () => (activeTab === "all" ? orders : orders.filter((o) => o.status === activeTab)),
+    () =>
+      activeTab === "all" ? orders : orders.filter((o) => o.status === activeTab),
     [orders, activeTab]
   );
 
-  async function handleAdvance(orderId: string, next: OrderStatus) {
-    moveStatus(orderId, next); // optimistik
-    await updateOrderStatus(orderId, next);
+  async function handleAdvance(order: CashierOrder, next: OrderStatus) {
+    const prevStatus = order.status;
+    moveStatus(order.id, next); // optimistik
+    await updateOrderStatus(order.id, next);
+
+    push({
+      tone: "success",
+      message: "Status berhasil diperbarui",
+      durationMs: 10000,
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          if (next === "selesai") {
+            restoreOrder({ ...order, status: prevStatus });
+          } else {
+            moveStatus(order.id, prevStatus);
+          }
+          await updateOrderStatus(order.id, prevStatus);
+        },
+      },
+    });
   }
 
   return (
     <div>
-      <NewOrderToast show={toast} />
-
       <StatusTabs active={activeTab} counts={counts} onSelect={setActiveTab} />
 
       <div className="p-4">
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-64 animate-pulse rounded-card bg-black/5"
-              />
+              <div key={i} className="h-64 animate-pulse rounded-card bg-black/5" />
             ))}
           </div>
         ) : visible.length === 0 ? (
@@ -107,14 +155,19 @@ export default function PosBoardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {visible.map((order) => (
-              <OrderCard
-                key={order.id}
-                order={order}
-                now={now}
-                onAdvance={handleAdvance}
-              />
-            ))}
+            {visible.map((order) => {
+              const firstSeen = newAt.current[order.id];
+              const isNew = Boolean(firstSeen && now - firstSeen < HIGHLIGHT_MS);
+              return (
+                <OrderCard
+                  key={order.id}
+                  order={order}
+                  now={now}
+                  isNew={isNew}
+                  onAdvance={handleAdvance}
+                />
+              );
+            })}
           </div>
         )}
       </div>

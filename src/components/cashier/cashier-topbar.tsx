@@ -3,10 +3,22 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, PackageX, ScrollText, Wallet } from "lucide-react";
+import {
+  LayoutGrid,
+  PackageX,
+  ScrollText,
+  Volume2,
+  VolumeX,
+  Wallet,
+} from "lucide-react";
 
 import { StockSheet } from "@/components/cashier/stock-sheet";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import {
+  useCashierSettingsStore,
+  type Volume,
+} from "@/stores/cashier-settings-store";
 
 const NAV = [
   { href: "/pos", label: "Order Board", icon: LayoutGrid },
@@ -14,14 +26,25 @@ const NAV = [
   { href: "/pos/shift", label: "Catatan Shift", icon: Wallet },
 ];
 
+const VOLUMES: { value: Volume; label: string }[] = [
+  { value: "low", label: "Rendah" },
+  { value: "medium", label: "Sedang" },
+  { value: "high", label: "Tinggi" },
+];
+
 /**
- * Top bar kasir (CASHIER_UI.md): satu papan kerja, tablet-first.
- * Berisi navigasi board/riwayat/shift + toggle Stok Habis Hari Ini.
- * Bukan layout POS kasir tradisional.
+ * Top bar kasir: navigasi board/riwayat/shift + toggle Stok Habis +
+ * pengaturan suara pesanan baru (ON/OFF & volume).
  */
 export function CashierTopbar() {
   const pathname = usePathname();
   const [stockOpen, setStockOpen] = React.useState(false);
+  const [soundOpen, setSoundOpen] = React.useState(false);
+
+  const soundEnabled = useCashierSettingsStore((s) => s.soundEnabled);
+  const volume = useCashierSettingsStore((s) => s.volume);
+  const setSoundEnabled = useCashierSettingsStore((s) => s.setSoundEnabled);
+  const setVolume = useCashierSettingsStore((s) => s.setVolume);
 
   return (
     <header className="sticky top-0 z-30 border-b border-black/5 bg-surface/95 backdrop-blur">
@@ -66,6 +89,70 @@ export function CashierTopbar() {
             <PackageX className="h-4 w-4" />
             <span className="hidden md:inline">Stok Habis</span>
           </button>
+
+          {/* Pengaturan suara */}
+          <div className="relative">
+            <button
+              onClick={() => setSoundOpen((v) => !v)}
+              aria-label="Pengaturan suara"
+              className={cn(
+                "flex items-center justify-center rounded-btn border px-3 py-2 transition-colors",
+                soundEnabled
+                  ? "border-primary/30 text-primary"
+                  : "border-black/15 text-black/40"
+              )}
+            >
+              {soundEnabled ? (
+                <Volume2 className="h-4 w-4" />
+              ) : (
+                <VolumeX className="h-4 w-4" />
+              )}
+            </button>
+
+            {soundOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setSoundOpen(false)}
+                  aria-hidden
+                />
+                <div className="absolute right-0 top-12 z-40 w-60 animate-rise-in rounded-card border border-line bg-surface p-4 shadow-soft-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-ink">
+                      Suara Pesanan Baru
+                    </span>
+                    <Switch
+                      checked={soundEnabled}
+                      onChange={setSoundEnabled}
+                    />
+                  </div>
+                  <p className="mb-3 mt-1 text-xs text-muted">
+                    Hanya berbunyi saat ada pesanan baru.
+                  </p>
+                  <p className="mb-2 text-xs font-semibold text-black/70">
+                    Volume
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {VOLUMES.map((v) => (
+                      <button
+                        key={v.value}
+                        disabled={!soundEnabled}
+                        onClick={() => setVolume(v.value)}
+                        className={cn(
+                          "rounded-btn border px-2 py-2 text-xs font-semibold transition-colors disabled:opacity-40",
+                          volume === v.value
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-black/15 text-black/60"
+                        )}
+                      >
+                        {v.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </nav>
       </div>
 

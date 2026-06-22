@@ -196,3 +196,39 @@ export function orderTypeLabel(type: "dine_in" | "take_away" | null): string {
   if (type === "take_away") return "Take Away";
   return "-";
 }
+
+/**
+ * Warna status FUNGSIONAL untuk Cashier (prioritas keterbacaan operasional,
+ * bukan brand). Menunggu=Kuning, Diterima=Biru, Diracik=Oranye,
+ * Siap=Hijau, Selesai=Abu. Urgent=Merah (lihat OrderTimer/threshold).
+ */
+export const CASHIER_STATUS_STYLE: Record<
+  OrderStatus,
+  { label: string; badge: string; bar: string }
+> = {
+  menunggu_bayar: {
+    label: "Menunggu Bayar",
+    badge: "bg-amber-100 text-amber-800",
+    bar: "bg-amber-400",
+  },
+  diterima: {
+    label: "Diterima",
+    badge: "bg-blue-100 text-blue-800",
+    bar: "bg-blue-500",
+  },
+  diracik: {
+    label: "Diracik",
+    badge: "bg-orange-100 text-orange-800",
+    bar: "bg-orange-500",
+  },
+  siap_diambil: {
+    label: "Siap Diambil",
+    badge: "bg-green-100 text-green-800",
+    bar: "bg-green-500",
+  },
+  selesai: {
+    label: "Selesai",
+    badge: "bg-gray-100 text-gray-700",
+    bar: "bg-gray-400",
+  },
+};
