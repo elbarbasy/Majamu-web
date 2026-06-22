@@ -123,8 +123,7 @@ export default function ShiftPage() {
 
         {sessionActive ? (
           <Button
-            variant="outline"
-            className="border-white/40 text-white hover:bg-white/10"
+            className="border-none bg-white text-green-700 shadow-sm hover:bg-white/90"
             onClick={() => {
               setKasFisik("");
               setNudge(false);
