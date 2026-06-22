@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, Leaf, Sparkles } from "lucide-react";
+import { Leaf, Sparkles } from "lucide-react";
 
 import { getPublicSettings } from "@/services/settings.service";
 import { useUiStore } from "@/stores/ui-store";
@@ -21,7 +21,7 @@ export function QuizCard() {
 
   return (
     <div className="px-4 py-2">
-      <div className="relative overflow-hidden rounded-card bg-gradient-to-br from-accent via-[#6E9061] to-[#52764A] p-5 shadow-soft">
+      <div className="relative h-[90px] overflow-hidden rounded-card bg-gradient-to-br from-accent via-[#6E9061] to-[#52764A] shadow-soft">
         {/* Latar gambar (opsional) */}
         {image && (
           <>
@@ -37,34 +37,32 @@ export function QuizCard() {
 
         {/* Ilustrasi ikon (saat tanpa gambar) */}
         {!image && (
-          <>
-            <span className="pointer-events-none absolute -right-6 -top-6 h-36 w-36 rounded-full bg-white/10" />
-            <span className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 sm:block">
-              <Leaf className="h-24 w-24 text-white/20" />
-            </span>
-          </>
+          <span className="pointer-events-none absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/10" />
         )}
 
-        <div className="relative max-w-[78%]">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white">
+        <div className="relative flex h-full items-center justify-between gap-3 px-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
               <Leaf className="h-5 w-5" />
             </span>
-            <h3 className="text-base font-extrabold text-white">
-              Bingung Pilih Jamu?
-            </h3>
+            <div className="min-w-0">
+              <h3 className="text-sm font-extrabold text-white">
+                Bingung Pilih Jamu?
+              </h3>
+              <p className="clamp-1 text-xs text-white/80">
+                Temukan rekomendasi yang cocok untuk Anda.
+              </p>
+            </div>
           </div>
-          <p className="clamp-2 text-sm leading-relaxed text-white/90">
-            Temukan rekomendasi yang cocok untuk kondisi Anda.
-          </p>
 
           <button
             onClick={openQuiz}
-            className="mt-4 inline-flex items-center gap-2 rounded-btn bg-white px-5 py-2.5 text-sm font-bold text-accent shadow-soft-sm transition active:scale-95"
+            className="shrink-0 rounded-btn bg-white px-4 py-2 text-xs font-bold text-accent shadow-soft-sm transition active:scale-95"
           >
-            <Sparkles className="h-4 w-4" />
-            Mulai Kuis
-            <ArrowRight className="h-4 w-4" />
+            <span className="flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5" />
+              Mulai Kuis
+            </span>
           </button>
         </div>
       </div>
