@@ -46,11 +46,11 @@ export function QuizCard() {
               <Leaf className="h-5 w-5" />
             </span>
             <div className="min-w-0">
-              <h3 className="truncate text-sm font-extrabold text-white">
+              <h3 className="text-sm font-extrabold text-white">
                 Bingung Pilih Jamu?
               </h3>
-              <p className="truncate text-xs text-white/85">
-                Temukan rekomendasi yang cocok untuk Anda.
+              <p className="text-xs text-white/85">
+                Temukan rekomendasi yang cocok.
               </p>
             </div>
           </div>
