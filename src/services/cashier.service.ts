@@ -128,23 +128,36 @@ export async function updateOrderStatus(
 /**
  * Subscribe realtime perubahan tabel orders (SUPABASE_SETUP.md Realtime).
  * Memanggil onChange setiap ada INSERT/UPDATE/DELETE. Mengembalikan unsubscribe.
+ *
+ * PENTING: Realtime harus diaktifkan di Supabase Dashboard:
+ * Database → Replication → aktifkan tabel "orders".
  */
 export function subscribeOrders(onChange: () => void): () => void {
   try {
     const supabase = createClient();
     const channel = supabase
-      .channel("cashier-orders")
+      .channel("cashier-orders-realtime")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "orders" },
         () => onChange()
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "order_status_history" },
+        () => onChange()
+      )
+      .subscribe((status) => {
+        console.info("[realtime] subscription status:", status);
+      });
     return () => {
       supabase.removeChannel(channel);
     };
-  } catch {
-    return () => {};
+  } catch (err) {
+    console.warn("[realtime] subscribe gagal, fallback polling:", err);
+    // Fallback: polling setiap 5 detik jika realtime gagal.
+    const interval = setInterval(onChange, 5000);
+    return () => clearInterval(interval);
   }
 }
 

@@ -1,5 +1,6 @@
 import { CashierTopbar } from "@/components/cashier/cashier-topbar";
 import { CashierToaster } from "@/components/cashier/cashier-toaster";
+import { AudioUnlocker } from "@/components/cashier/audio-unlocker";
 
 /**
  * Shell modul Kasir (CASHIER_UI.md): Tablet Landscape First, satu papan kerja
@@ -14,6 +15,7 @@ export default function CashierLayout({
       <CashierTopbar />
       <main className="mx-auto w-full max-w-screen-2xl">{children}</main>
       <CashierToaster />
+      <AudioUnlocker />
     </div>
   );
 }

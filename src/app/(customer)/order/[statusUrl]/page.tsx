@@ -11,13 +11,16 @@ import { Button } from "@/components/ui/button";
 import { STORE_INFO, statusLabel, sweetnessLabel, temperatureLabel } from "@/constants";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { getOrderByStatusUrl, updateCachedStatus } from "@/lib/order-cache";
+import { createClient } from "@/lib/supabase/client";
 import { getOrderStatusByUrl } from "@/services/orders.service";
 import { useActiveOrderStore } from "@/stores/active-order-store";
 import { useCustomerHistoryStore } from "@/stores/customer-history-store";
 import type { OrderResult } from "@/services/orders.service";
+import type { OrderStatus } from "@/types";
 
 /**
- * Tracking Pesanan (/order/[statusUrl]) — timeline status (aturan wajib).
+ * Tracking Pesanan (/order/[statusUrl]) — REALTIME via Supabase channel.
+ * Status otomatis update tanpa refresh.
  */
 export default function OrderTrackingPage() {
   const params = useParams<{ statusUrl: string }>();
@@ -30,20 +33,63 @@ export default function OrderTrackingPage() {
   const [order, setOrder] = React.useState<OrderResult | null>(null);
   const [mounted, setMounted] = React.useState(false);
 
+  // Fetch awal + subscribe realtime.
   React.useEffect(() => {
     setMounted(true);
     if (!statusUrl) return;
-    const cached = getOrderByStatusUrl(statusUrl);
-    setOrder(cached);
 
-    // Coba ambil status terbaru dari Supabase (jika tersedia).
-    getOrderStatusByUrl(statusUrl).then((live) => {
-      if (!live) return;
-      updateCachedStatus(statusUrl, live.status);
-      setOrder((prev) => (prev ? { ...prev, status: live.status } : prev));
-      updateActiveStatus(live.status);
-      if (cached?.orderId) updateHistoryStatus(cached.orderId, live.status);
-    });
+    // Muat dari cache lokal dulu (instant).
+    const cached = getOrderByStatusUrl(statusUrl);
+    if (cached) setOrder(cached);
+
+    // Fetch status terbaru dari server.
+    function fetchLatest() {
+      getOrderStatusByUrl(statusUrl!).then((live) => {
+        if (!live) return;
+        updateCachedStatus(statusUrl!, live.status);
+        setOrder((prev) => (prev ? { ...prev, status: live.status } : prev));
+        updateActiveStatus(live.status);
+        if (cached?.orderId) updateHistoryStatus(cached.orderId, live.status);
+      });
+    }
+    fetchLatest();
+
+    // Subscribe realtime: dengarkan perubahan pada order ini.
+    let unsub = () => {};
+    try {
+      const supabase = createClient();
+      const channel = supabase
+        .channel(`order-tracking-${statusUrl}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "orders",
+            filter: `status_url=eq.${statusUrl}`,
+          },
+          (payload) => {
+            const newStatus = (payload.new as { status?: string })?.status as OrderStatus | undefined;
+            if (newStatus) {
+              updateCachedStatus(statusUrl!, newStatus);
+              setOrder((prev) => (prev ? { ...prev, status: newStatus } : prev));
+              updateActiveStatus(newStatus);
+              if (cached?.orderId) updateHistoryStatus(cached.orderId, newStatus);
+            }
+          }
+        )
+        .subscribe();
+
+      unsub = () => {
+        supabase.removeChannel(channel);
+      };
+    } catch {
+      // Supabase belum dikonfigurasi → polling fallback setiap 5 detik.
+      const interval = setInterval(fetchLatest, 5000);
+      unsub = () => clearInterval(interval);
+    }
+
+    return unsub;
   }, [statusUrl, updateActiveStatus, updateHistoryStatus]);
 
   if (!mounted) return null;
@@ -55,7 +101,7 @@ export default function OrderTrackingPage() {
         <button
           onClick={() => router.push("/")}
           aria-label="Kembali"
-          className="touch-target flex items-center justify-center rounded-full text-primary hover:bg-primary/10"
+          className="touch-target flex items-center justify-center rounded-btn text-primary hover:bg-primary/10"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -73,7 +119,7 @@ export default function OrderTrackingPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-black/50">Nomor Pesanan</p>
-                <p className="text-base font-bold text-primary">
+                <p className="text-lead font-semibold text-primary">
                   {order.displayNumber}
                 </p>
               </div>

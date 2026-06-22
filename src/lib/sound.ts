@@ -12,6 +12,7 @@ const GAIN: Record<Volume, number> = { low: 0.12, medium: 0.35, high: 0.7 };
 type AudioWindow = Window & { webkitAudioContext?: typeof AudioContext };
 
 let ctx: AudioContext | null = null;
+let audioUnlocked = false;
 
 function getCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -20,6 +21,24 @@ function getCtx(): AudioContext | null {
   if (!AC) return null;
   if (!ctx) ctx = new AC();
   return ctx;
+}
+
+/** Unlock audio context (harus dipanggil dari event handler user gesture). */
+export function unlockAudio(): void {
+  if (audioUnlocked) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === "suspended") {
+    void ac.resume();
+  }
+  // Mainkan silent buffer untuk unlock iOS Safari.
+  const buf = ac.createBuffer(1, 1, 22050);
+  const src = ac.createBufferSource();
+  src.buffer = buf;
+  src.connect(ac.destination);
+  src.start(0);
+  audioUnlocked = true;
+  console.info("[sound] Audio unlocked");
 }
 
 export function playNewOrderSound(volume: Volume = "medium"): boolean {
