@@ -272,6 +272,14 @@ create policy public_read_banners on banners for select using (true);
 create policy public_read_tables on tables for select using (true);
 create policy public_read_store_settings on store_settings for select using (true);
 
+-- Owner/staff: kelola join tabel produk (INSERT/DELETE)
+create policy staff_manage_product_filter_chips on product_filter_chips for all
+  using (current_user_role() in ('owner','cashier'))
+  with check (current_user_role() in ('owner','cashier'));
+create policy staff_manage_product_ingredients on product_ingredients for all
+  using (current_user_role() in ('owner','cashier'))
+  with check (current_user_role() in ('owner','cashier'));
+
 -- Customer dapat membuat order & item & payment (tanpa login)
 create policy public_insert_orders on orders for insert with check (true);
 create policy public_insert_order_items on order_items for insert with check (true);
