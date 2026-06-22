@@ -312,6 +312,66 @@ create policy owner_manage_settings on store_settings for all
 create policy owner_read_activity_logs on activity_logs for select
   using (current_user_role() = 'owner');
 
--- User dapat membaca profilnya sendiri
+-- User dapat membaca profilnya sendiri (PENTING: tanpa ini login gagal baca role)
 create policy user_read_self on users for select
   using (auth_user_id = auth.uid() or current_user_role() = 'owner');
+
+-- Fallback: anon & authenticated bisa baca users untuk lookup role saat login.
+-- Ini menyelesaikan chicken-egg problem dimana current_user_role() butuh baca
+-- users tapi policy users butuh current_user_role().
+create policy auth_read_users on users for select
+  to authenticated
+  using (auth_user_id = auth.uid());
+
+-- =========================================================
+-- CASH SESSIONS RLS (kasir & owner boleh CRUD)
+-- =========================================================
+alter table cash_sessions enable row level security;
+create policy staff_manage_cash_sessions on cash_sessions for all
+  using (current_user_role() in ('cashier','owner'))
+  with check (current_user_role() in ('cashier','owner'));
+
+-- =========================================================
+-- DAILY SEQUENCES RLS (publik insert/select untuk nomor struk)
+-- =========================================================
+create policy public_manage_daily_sequences on daily_sequences for all
+  using (true) with check (true);
+
+-- =========================================================
+-- STORAGE POLICIES (untuk upload gambar produk & banner)
+-- Jalankan ini SETELAH bucket 'products' & 'banners' sudah dibuat
+-- di Supabase Dashboard > Storage (set Public).
+-- =========================================================
+-- Baca publik
+insert into storage.buckets (id, name, public) values ('products', 'products', true)
+  on conflict (id) do update set public = true;
+insert into storage.buckets (id, name, public) values ('banners', 'banners', true)
+  on conflict (id) do update set public = true;
+
+-- Policy: siapa pun bisa baca (publik)
+create policy "storage_public_read_products" on storage.objects
+  for select using (bucket_id = 'products');
+create policy "storage_public_read_banners" on storage.objects
+  for select using (bucket_id = 'banners');
+
+-- Policy: authenticated user bisa upload
+create policy "storage_auth_upload_products" on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'products');
+create policy "storage_auth_upload_banners" on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'banners');
+
+-- Policy: authenticated user bisa update/delete file sendiri
+create policy "storage_auth_manage_products" on storage.objects
+  for update to authenticated
+  using (bucket_id = 'products');
+create policy "storage_auth_delete_products" on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'products');
+create policy "storage_auth_manage_banners" on storage.objects
+  for update to authenticated
+  using (bucket_id = 'banners');
+create policy "storage_auth_delete_banners" on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'banners');
