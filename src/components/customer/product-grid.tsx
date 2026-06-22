@@ -24,7 +24,7 @@ export function ProductGrid({
     <section className="px-4 py-3">
       {title && (
         <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="font-display text-title font-semibold text-ink">{title}</h2>
+          <h2 className="text-lg font-extrabold text-ink">{title}</h2>
           {subtitle && (
             <span className="text-xs font-medium text-muted">{subtitle}</span>
           )}

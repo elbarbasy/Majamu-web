@@ -32,7 +32,7 @@ export function CustomerHeader() {
         {/* Tengah: logo */}
         <Link
           href="/"
-          className="absolute left-1/2 -translate-x-1/2 select-none font-display text-xl font-semibold tracking-[0.18em] text-primary"
+          className="absolute left-1/2 -translate-x-1/2 select-none text-lg font-extrabold tracking-[0.18em] text-primary"
         >
           MAJAMU
         </Link>

@@ -98,7 +98,7 @@ export function PromoBanner({ banners }: PromoBannerProps) {
                 <span className="mb-1.5 inline-flex w-fit items-center gap-1 rounded-pill bg-white/20 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
                   <Leaf className="h-3 w-3" /> Jamu Modern
                 </span>
-                <h2 className="clamp-2 font-display text-title font-medium leading-snug text-white drop-shadow">
+                <h2 className="clamp-2 text-lg font-extrabold leading-snug text-white drop-shadow">
                   {b.title ?? "Sehat alami setiap hari"}
                 </h2>
               </div>

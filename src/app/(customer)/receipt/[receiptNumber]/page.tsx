@@ -104,14 +104,14 @@ export default function ReceiptPage() {
       {/* Peringatan pembayaran tunai */}
       {showCashNotice && (
         <div className="no-print mb-4 animate-rise-in overflow-hidden rounded-card bg-gold text-center shadow-soft">
-          <div className="px-5 py-6">
-            <p className="text-lead font-semibold tracking-wide text-[#3A2A12]">
+          <div className="px-5 py-5">
+            <p className="text-lg font-black tracking-wide text-[#3A2A12]">
               TUNJUKKAN KE KASIR
             </p>
             <p className="mt-1 text-sm text-[#5B3A29]">
               Silakan lakukan pembayaran di counter untuk memulai proses racik.
             </p>
-            <p className="mt-3 font-display text-hero font-semibold tabular text-primary">
+            <p className="mt-3 text-3xl font-black text-primary">
               {formatCurrency(order.totalPrice)}
             </p>
           </div>
@@ -200,7 +200,7 @@ export default function ReceiptPage() {
               <span className="text-base font-bold text-black/85">
                 Total Pembayaran
               </span>
-              <span className="text-xl font-extrabold tabular text-primary">
+              <span className="text-xl font-extrabold text-primary">
                 {formatCurrency(order.totalPrice)}
               </span>
             </div>

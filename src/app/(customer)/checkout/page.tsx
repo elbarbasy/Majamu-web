@@ -197,7 +197,7 @@ export default function CheckoutPage() {
             </ul>
             <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
               <span className="text-sm text-muted">Total ({totalItems} item)</span>
-              <span className="text-lg font-extrabold tabular text-primary">
+              <span className="text-lg font-extrabold text-primary">
                 {formatCurrency(totalPrice)}
               </span>
             </div>
@@ -253,7 +253,7 @@ export default function CheckoutPage() {
                   inputMode="tel"
                   placeholder="08xxxxxxxxxx"
                   className={cn(
-                    "h-11 w-full rounded-input border px-3.5 text-base outline-none",
+                    "h-11 w-full rounded-input border px-3.5 text-sm outline-none",
                     errors.whatsapp
                       ? "border-error"
                       : "border-line focus:border-primary"
@@ -268,7 +268,7 @@ export default function CheckoutPage() {
               <input
                 {...register("customerName")}
                 placeholder="Nama pemesan (opsional)"
-                className="h-11 w-full rounded-input border border-line px-3.5 text-base outline-none focus:border-primary"
+                className="h-11 w-full rounded-input border border-line px-3.5 text-sm outline-none focus:border-primary"
               />
             </div>
           </section>
@@ -280,7 +280,7 @@ export default function CheckoutPage() {
               {...register("notes")}
               rows={2}
               placeholder="Catatan tambahan (opsional)…"
-              className="w-full resize-none rounded-input border border-line p-3.5 text-base outline-none focus:border-primary"
+              className="w-full resize-none rounded-input border border-line p-3.5 text-sm outline-none focus:border-primary"
             />
           </section>
         </div>

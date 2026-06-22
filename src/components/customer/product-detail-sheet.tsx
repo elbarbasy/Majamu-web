@@ -117,10 +117,10 @@ export function ProductDetailSheet() {
 
           {/* Nama & harga */}
           <div>
-            <h3 className="font-display text-title font-medium leading-snug text-ink">
+            <h3 className="text-xl font-extrabold leading-snug text-ink">
               {product.name}
             </h3>
-            <p className="mt-1 text-lead font-semibold tabular text-primary">
+            <p className="mt-1 text-xl font-extrabold text-primary">
               {formatCurrency(product.price)}
             </p>
           </div>
@@ -182,7 +182,7 @@ export function ProductDetailSheet() {
             <div>
               <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-ink">
                 <Flame className="h-4 w-4 text-warning" />
-                Suhu Minuman
+                Suhu Penyajian
               </p>
               <OptionPills
                 options={TEMPERATURE_LEVELS}
@@ -197,7 +197,7 @@ export function ProductDetailSheet() {
             <div>
               <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-ink">
                 <Snowflake className="h-4 w-4 text-accent" />
-                Tingkat Kemanisan
+                Tingkat Manis
               </p>
               <OptionPills
                 options={CUSTOMER_SWEETNESS_LEVELS}

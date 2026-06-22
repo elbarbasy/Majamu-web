@@ -98,7 +98,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 placeholder="owner@majamu.local"
-                className="h-11 w-full bg-transparent text-base outline-none"
+                className="h-11 w-full bg-transparent text-sm outline-none"
               />
             </div>
             {errors.email && (
@@ -122,7 +122,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="h-11 w-full bg-transparent text-base outline-none"
+                className="h-11 w-full bg-transparent text-sm outline-none"
               />
             </div>
             {errors.password && (
