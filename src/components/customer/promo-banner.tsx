@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { Leaf } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -76,14 +75,12 @@ export function PromoBanner({ banners }: PromoBannerProps) {
           {slides.map((b, i) => (
             <div key={b.id} className="relative h-full w-full shrink-0">
               {b.imageUrl ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={b.imageUrl}
                   alt={b.title ?? "Promo"}
-                  fill
-                  priority={i === 0}
                   draggable={false}
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 600px"
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 <div

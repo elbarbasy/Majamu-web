@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Leaf, Plus } from "lucide-react";
 
 import { DEFAULT_SWEETNESS, DEFAULT_TEMPERATURE } from "@/constants";
@@ -36,13 +35,12 @@ export function ProductCard({ product }: ProductCardProps) {
         className="relative aspect-square w-full bg-secondary/15"
       >
         {product.photoUrl ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={product.photoUrl}
             alt={product.name}
-            fill
             loading="lazy"
-            className="object-cover"
-            sizes="(max-width: 640px) 50vw, 260px"
+            className="h-full w-full object-cover"
           />
         ) : (
           <span className="flex h-full w-full items-center justify-center text-secondary">

@@ -17,8 +17,7 @@ function toDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      // Resize ke maks 800px (mengurangi ukuran data URL secara drastis).
-      const MAX = 800;
+      const MAX = 600;
       let w = img.width;
       let h = img.height;
       if (w > MAX || h > MAX) {
@@ -43,7 +42,7 @@ function toDataUrl(file: File): Promise<string> {
         return;
       }
       ctx.drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL("image/jpeg", 0.75)); // JPEG 75% quality
+      resolve(canvas.toDataURL("image/jpeg", 0.6)); // JPEG 60% quality
     };
     img.onerror = () => {
       // Jika bukan gambar valid, fallback raw data URL.
