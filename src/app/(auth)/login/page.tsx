@@ -53,6 +53,10 @@ export default function LoginPage() {
       email: values.email,
       role: res.role!,
     });
+
+    // DEBUG: tampilkan role yang didapat (hapus setelah fix)
+    alert(`Login berhasil!\nRole: "${res.role}"\nRedirect ke: ${res.role === "owner" ? "/owner" : "/pos"}`);
+
     const next =
       typeof window !== "undefined"
         ? new URLSearchParams(window.location.search).get("next")
