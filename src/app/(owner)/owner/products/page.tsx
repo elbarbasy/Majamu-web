@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
+import { Leaf, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
 
 import { PageHeader } from "@/components/owner/page-header";
 import { SectionCard } from "@/components/owner/section-card";
@@ -178,16 +178,32 @@ export default function ProductsPage() {
               {paged.map((p) => (
                 <tr key={p.id}>
                   <td className="py-3">
-                    <p className="font-semibold text-black/85">{p.name}</p>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {p.filterChips.slice(0, 3).map((c) => (
-                        <span
-                          key={c}
-                          className="rounded-full bg-secondary/30 px-2 py-0.5 text-[11px] text-secondary-foreground"
-                        >
-                          {c}
+                    <div className="flex items-center gap-3">
+                      {p.photoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={p.photoUrl}
+                          alt={p.name}
+                          className="h-12 w-12 shrink-0 rounded-card object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-card bg-secondary/20 text-secondary">
+                          <Leaf className="h-5 w-5" />
                         </span>
-                      ))}
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-semibold text-black/85">{p.name}</p>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {p.filterChips.slice(0, 3).map((c) => (
+                            <span
+                              key={c}
+                              className="rounded-full bg-secondary/30 px-2 py-0.5 text-[11px] text-secondary-foreground"
+                            >
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   <td className="py-3 text-right font-medium text-primary">

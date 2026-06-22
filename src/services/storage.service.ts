@@ -1,8 +1,11 @@
 /**
  * storage.service — upload file gambar ke Supabase Storage.
  * Mengembalikan URL publik untuk disimpan ke kolom (photo_url/image_url/logo_url).
- * Bila Supabase belum dikonfigurasi (dev), fallback ke data URL (base64)
- * agar preview tetap berfungsi.
+ *
+ * Strategi:
+ * 1. Coba upload ke Supabase Storage → kembalikan public URL.
+ * 2. Jika gagal (bucket belum ada / policy salah / env kosong) → fallback data URL.
+ * 3. Data URL tetap berfungsi sebagai preview & tersimpan di DB (≤5MB).
  *
  * Bucket sesuai SUPABASE_SETUP.md: "products", "banners", "qr-codes".
  */
@@ -25,12 +28,16 @@ function randomName(file: File): string {
 }
 
 export async function uploadImage(bucket: string, file: File): Promise<string> {
+  // Selalu siapkan data URL sebagai fallback pasti-muncul.
+  const dataUrl = await toDataUrl(file);
+
   let supabase: ReturnType<typeof createClient>;
   try {
     supabase = createClient();
   } catch {
-    // Supabase belum dikonfigurasi (dev) → data URL.
-    return toDataUrl(file);
+    // Supabase belum dikonfigurasi → pakai data URL.
+    console.info("[storage] Supabase not configured, using data URL");
+    return dataUrl;
   }
 
   try {
@@ -40,11 +47,36 @@ export async function uploadImage(bucket: string, file: File): Promise<string> {
       upsert: false,
       contentType: file.type || "image/jpeg",
     });
-    if (error) throw error;
+
+    if (error) {
+      console.warn("[storage] Upload error:", error.message, "→ using data URL");
+      return dataUrl;
+    }
+
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    return data.publicUrl;
+    const publicUrl = data?.publicUrl;
+
+    if (!publicUrl) {
+      console.warn("[storage] No public URL returned → using data URL");
+      return dataUrl;
+    }
+
+    // Verifikasi URL bisa diakses (cegah 403/404 silent).
+    try {
+      const check = await fetch(publicUrl, { method: "HEAD" });
+      if (!check.ok) {
+        console.warn("[storage] Public URL not accessible:", check.status, "→ using data URL");
+        return dataUrl;
+      }
+    } catch {
+      // Fetch gagal (CORS / network) → tetap coba pakai URL (mungkin OK di browser).
+      console.info("[storage] HEAD check failed (CORS?), using public URL anyway");
+    }
+
+    console.info("[storage] Upload success:", publicUrl);
+    return publicUrl;
   } catch (err) {
-    console.warn("[storage.service] upload gagal, fallback data URL:", err);
-    return toDataUrl(file);
+    console.warn("[storage] Unexpected error:", err, "→ using data URL");
+    return dataUrl;
   }
 }
