@@ -41,7 +41,7 @@ export function OrderCard({ order, now, onAdvance, busy }: OrderCardProps) {
       {/* Header */}
       <div className="flex items-start justify-between gap-2 border-b border-black/5 p-4">
         <div className="min-w-0">
-          <p className="text-2xl font-extrabold leading-tight text-primary">
+          <p className="font-display text-2xl font-bold leading-tight text-primary">
             {order.displayNumber ?? "-"}
           </p>
           {isTakeAway && order.customerName && (
@@ -111,7 +111,7 @@ export function OrderCard({ order, now, onAdvance, busy }: OrderCardProps) {
           <span className="text-sm text-black/55">Total</span>
           <span
             className={cn(
-              "font-extrabold text-primary",
+              "font-extrabold tabular text-primary",
               order.status === "menunggu_bayar" ? "text-2xl" : "text-lg"
             )}
           >

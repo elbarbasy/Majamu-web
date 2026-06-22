@@ -20,8 +20,8 @@ body {
 body {
   background-color: var(--background);
   color: var(--text);
-  font-family: Inter, Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-body), "Hanken Grotesk", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -40,6 +40,10 @@ body {
   }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* Angka rata kolom untuk harga/total/laporan */
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
   .clamp-1 {
     display: -webkit-box;

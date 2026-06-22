@@ -30,7 +30,7 @@ export function FloatingCartBar() {
           <span className="block text-[13px] font-semibold">
             {totalItems} Item
           </span>
-          <span className="block text-sm font-extrabold">
+          <span className="block text-sm font-extrabold tabular">
             {formatCurrency(totalPrice)}
           </span>
         </span>

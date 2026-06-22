@@ -46,8 +46,8 @@ export const CUSTOMER_SWEETNESS_LEVELS: { value: SweetnessLevel; label: string }
 
 /** Opsi suhu penyajian (kustomisasi per produk). */
 export const TEMPERATURE_LEVELS: { value: TemperatureLevel; label: string }[] = [
-  { value: "hot", label: "Hot" },
-  { value: "ice", label: "Ice" },
+  { value: "hot", label: "Panas" },
+  { value: "ice", label: "Dingin" },
 ];
 
 export const DEFAULT_TEMPERATURE: TemperatureLevel = "hot";

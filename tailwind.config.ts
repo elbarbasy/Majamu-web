@@ -15,13 +15,38 @@ const config: Config = {
         accent: { DEFAULT: "#7E9F6E", foreground: "#FFFFFF" },
         background: "#FCFAF7",
         surface: "#FFFFFF",
-        success: "#7E9F6E",
-        warning: "#C98A1E",
-        error: "#D14343",
+        success: "#6B9A63",
+        warning: "#E0B973",
+        danger: "#C86A5A",
+        error: "#C86A5A",
         gold: "#E0B973",
         ink: "#2D2D2D", // text
         muted: "#8C8C8C", // text-secondary
         line: "#ECE6DD", // soft warm border
+      },
+      fontFamily: {
+        // Body / UI
+        sans: [
+          "var(--font-body)",
+          "Hanken Grotesk",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "Arial",
+          "sans-serif",
+        ],
+        // Display
+        display: ["var(--font-display)", "Fraunces", "ui-serif", "Georgia", "serif"],
+      },
+      fontSize: {
+        micro: ["12px", { lineHeight: "16px" }],
+        lead: ["19px", { lineHeight: "26px" }],
+        title: ["23px", { lineHeight: "30px" }],
+        page: ["28px", { lineHeight: "34px" }],
+        display: ["34px", { lineHeight: "40px" }],
+        hero: ["44px", { lineHeight: "48px" }],
       },
       borderRadius: {
         card: "24px",
@@ -34,20 +59,6 @@ const config: Config = {
         soft: "0 8px 30px -12px rgba(91, 58, 41, 0.18)",
         "soft-sm": "0 4px 16px -8px rgba(91, 58, 41, 0.16)",
         "soft-lg": "0 24px 60px -24px rgba(91, 58, 41, 0.30)",
-      },
-      fontFamily: {
-        sans: [
-          "Inter",
-          "Geist",
-          "ui-sans-serif",
-          "system-ui",
-          "-apple-system",
-          "Segoe UI",
-          "Roboto",
-          "Helvetica Neue",
-          "Arial",
-          "sans-serif",
-        ],
       },
       keyframes: {
         "sheet-in": {

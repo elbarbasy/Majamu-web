@@ -73,7 +73,7 @@ export default function OrderTrackingPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-black/50">Nomor Pesanan</p>
-                <p className="text-base font-bold text-primary">
+                <p className="font-display text-lead font-semibold text-primary">
                   {order.displayNumber}
                 </p>
               </div>
