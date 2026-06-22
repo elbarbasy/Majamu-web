@@ -40,6 +40,7 @@ export function ProductCard({ product }: ProductCardProps) {
             src={product.photoUrl}
             alt={product.name}
             fill
+            loading="lazy"
             className="object-cover"
             sizes="(max-width: 640px) 50vw, 260px"
           />
