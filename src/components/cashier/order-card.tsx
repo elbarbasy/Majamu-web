@@ -3,7 +3,6 @@
 import { AlertTriangle, MessageSquareText, Utensils } from "lucide-react";
 
 import { OrderTimer } from "@/components/cashier/order-timer";
-import { Button } from "@/components/ui/button";
 import {
   CASHIER_ACTION,
   CASHIER_STATUS_STYLE,
@@ -24,8 +23,9 @@ interface OrderCardProps {
 }
 
 /**
- * Order Card BESAR — warna status fungsional, timer, kustomisasi (suhu/manis),
- * badge BARU + glow (30 dtk), penanda urgent (timer melewati ambang).
+ * Order Card BESAR — warna status fungsional yang JELAS:
+ * border berwarna + header ter-tint + badge. Tombol aksi mengikuti warna
+ * status kartu. Penanda BARU (glow 30 dtk) & Urgent (merah).
  */
 export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps) {
   const action = CASHIER_ACTION[order.status];
@@ -41,19 +41,21 @@ export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps
   return (
     <div
       className={cn(
-        "flex flex-col overflow-hidden rounded-card bg-surface shadow-md ring-1 transition-all",
+        "flex flex-col overflow-hidden rounded-card border-2 bg-surface shadow-md transition-all",
         isNew
-          ? "ring-2 ring-amber-400 shadow-soft-lg"
+          ? "border-amber-400 ring-4 ring-amber-200 shadow-soft-lg"
           : urgent
-            ? "ring-2 ring-red-400"
-            : "ring-black/5"
+            ? "border-red-400 ring-2 ring-red-100"
+            : style.border
       )}
     >
-      {/* Strip warna status */}
-      <div className={cn("h-1.5 w-full", urgent ? "bg-red-500" : style.bar)} />
-
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2 border-b border-black/5 p-4">
+      {/* Header ter-tint warna status */}
+      <div
+        className={cn(
+          "flex items-start justify-between gap-2 border-b p-4",
+          urgent ? "border-red-100 bg-red-50" : cn("border-black/5", style.tint)
+        )}
+      >
         <div className="min-w-0">
           <p className="text-2xl font-extrabold leading-tight text-primary">
             {order.displayNumber ?? "-"}
@@ -134,8 +136,8 @@ export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps
         )}
       </div>
 
-      {/* Footer: total + aksi */}
-      <div className="border-t border-black/5 p-4">
+      {/* Footer: total + aksi (warna mengikuti status) */}
+      <div className={cn("border-t border-black/5 p-4", style.tint)}>
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm text-black/55">Total</span>
           <span
@@ -149,15 +151,16 @@ export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps
         </div>
 
         {action && (
-          <Button
-            block
-            size="lg"
+          <button
             disabled={busy}
-            variant={order.status === "siap_diambil" ? "accent" : "primary"}
             onClick={() => onAdvance(order, action.next)}
+            className={cn(
+              "flex h-12 w-full items-center justify-center rounded-btn border text-sm font-bold shadow-soft-sm transition active:scale-[0.99] disabled:opacity-50",
+              style.solid
+            )}
           >
             {action.label}
-          </Button>
+          </button>
         )}
       </div>
     </div>

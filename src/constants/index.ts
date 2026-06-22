@@ -204,7 +204,15 @@ export function orderTypeLabel(type: "dine_in" | "take_away" | null): string {
  */
 export const CASHIER_STATUS_STYLE: Record<
   OrderStatus,
-  { label: string; badge: string; bar: string; solid: string; dot: string }
+  {
+    label: string;
+    badge: string;
+    bar: string;
+    solid: string;
+    dot: string;
+    border: string;
+    tint: string;
+  }
 > = {
   menunggu_bayar: {
     label: "Menunggu Bayar",
@@ -212,6 +220,8 @@ export const CASHIER_STATUS_STYLE: Record<
     bar: "bg-amber-400",
     solid: "bg-amber-500 text-white border-amber-500",
     dot: "bg-amber-500",
+    border: "border-amber-300",
+    tint: "bg-amber-50",
   },
   diterima: {
     label: "Diterima",
@@ -219,6 +229,8 @@ export const CASHIER_STATUS_STYLE: Record<
     bar: "bg-blue-500",
     solid: "bg-blue-600 text-white border-blue-600",
     dot: "bg-blue-600",
+    border: "border-blue-300",
+    tint: "bg-blue-50",
   },
   diracik: {
     label: "Diracik",
@@ -226,6 +238,8 @@ export const CASHIER_STATUS_STYLE: Record<
     bar: "bg-orange-500",
     solid: "bg-orange-500 text-white border-orange-500",
     dot: "bg-orange-500",
+    border: "border-orange-300",
+    tint: "bg-orange-50",
   },
   siap_diambil: {
     label: "Siap Diambil",
@@ -233,6 +247,8 @@ export const CASHIER_STATUS_STYLE: Record<
     bar: "bg-green-500",
     solid: "bg-green-600 text-white border-green-600",
     dot: "bg-green-600",
+    border: "border-green-300",
+    tint: "bg-green-50",
   },
   selesai: {
     label: "Selesai",
@@ -240,5 +256,7 @@ export const CASHIER_STATUS_STYLE: Record<
     bar: "bg-gray-400",
     solid: "bg-gray-500 text-white border-gray-500",
     dot: "bg-gray-500",
+    border: "border-gray-300",
+    tint: "bg-gray-50",
   },
 };
