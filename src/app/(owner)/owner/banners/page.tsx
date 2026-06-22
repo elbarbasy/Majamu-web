@@ -6,6 +6,7 @@ import { ImageIcon, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { PageHeader } from "@/components/owner/page-header";
 import { SectionCard } from "@/components/owner/section-card";
+import { ImageUpload } from "@/components/owner/image-upload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -160,17 +161,14 @@ export default function BannersPage() {
               className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-black/80">
-              URL Gambar <span className="font-normal text-black/40">(opsional)</span>
-            </label>
-            <input
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://…"
-              className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
-            />
-          </div>
+          <ImageUpload
+            label="Gambar Banner"
+            bucket="banners"
+            aspect="aspect-[16/7]"
+            value={imageUrl || null}
+            onChange={(url) => setImageUrl(url ?? "")}
+            hint="Unggah dari perangkat (maks 5MB). Tidak menerima link."
+          />
           <div className="flex items-center justify-between rounded-card bg-background p-3">
             <span className="text-sm font-semibold text-black/80">Aktif</span>
             <Switch checked={isActive} onChange={setIsActive} />

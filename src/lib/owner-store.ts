@@ -17,6 +17,7 @@ export interface OwnerProduct {
   name: string;
   price: number;
   description: string;
+  photoUrl: string | null;
   stockStatus: "available" | "out_of_stock";
   filterChips: string[];
   ingredients: string[];
@@ -118,6 +119,7 @@ function seed(): OwnerDb {
     name: p.name,
     price: p.price,
     description: p.description ?? "",
+    photoUrl: p.photoUrl,
     stockStatus: p.stockStatus,
     filterChips: p.filterChips,
     ingredients: p.ingredients,

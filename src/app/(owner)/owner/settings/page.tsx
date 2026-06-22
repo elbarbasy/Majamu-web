@@ -6,6 +6,7 @@ import { Check, GalleryHorizontalEnd } from "lucide-react";
 
 import { PageHeader } from "@/components/owner/page-header";
 import { SectionCard } from "@/components/owner/section-card";
+import { ImageUpload } from "@/components/owner/image-upload";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { PAYMENT_METHODS } from "@/constants";
@@ -180,17 +181,14 @@ export default function SettingsPage() {
                 className="w-full resize-none rounded-card border border-black/15 p-3 text-sm outline-none focus:border-primary"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-black/80">
-                URL Logo <span className="font-normal text-black/40">(opsional)</span>
-              </label>
-              <input
-                value={settings.logoUrl ?? ""}
-                onChange={(e) => patch({ logoUrl: e.target.value || null })}
-                placeholder="https://…"
-                className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
-              />
-            </div>
+            <ImageUpload
+              label="Logo Toko"
+              bucket="banners"
+              aspect="aspect-[3/1]"
+              value={settings.logoUrl}
+              onChange={(url) => patch({ logoUrl: url })}
+              hint="Unggah dari perangkat (maks 5MB). Tidak menerima link."
+            />
             <Link
               href="/owner/banners"
               className="flex items-center justify-between rounded-card border border-black/15 px-4 py-3 text-sm font-semibold text-black/80 hover:border-primary/40"

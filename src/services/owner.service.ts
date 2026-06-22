@@ -420,6 +420,7 @@ type ProductRow = {
   name: string;
   price: number;
   description: string | null;
+  photo_url: string | null;
   stock_status: string | null;
   temperature_enabled: boolean | null;
   sweetness_enabled: boolean | null;
@@ -439,6 +440,7 @@ function mapProductRow(row: ProductRow): OwnerProduct {
     name: row.name,
     price: Number(row.price) || 0,
     description: row.description ?? "",
+    photoUrl: row.photo_url,
     stockStatus: row.stock_status === "out_of_stock" ? "out_of_stock" : "available",
     filterChips,
     ingredients,
@@ -454,7 +456,7 @@ export async function listProducts(): Promise<OwnerProduct[]> {
   const { data, error } = await supabase
     .from("products")
     .select(
-      `id, name, price, description, stock_status, temperature_enabled, sweetness_enabled,
+      `id, name, price, description, photo_url, stock_status, temperature_enabled, sweetness_enabled,
        product_filter_chips ( filter_chips ( name ) ),
        product_ingredients ( ingredients ( name ) )`
     )
@@ -531,6 +533,7 @@ export async function upsertProduct(
     name: input.name,
     price: input.price,
     description: input.description || null,
+    photo_url: input.photoUrl,
     stock_status: input.stockStatus,
     temperature_enabled: input.temperatureEnabled,
     sweetness_enabled: input.sweetnessEnabled,

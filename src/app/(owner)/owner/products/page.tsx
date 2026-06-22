@@ -5,6 +5,7 @@ import { Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
 
 import { PageHeader } from "@/components/owner/page-header";
 import { SectionCard } from "@/components/owner/section-card";
+import { ImageUpload } from "@/components/owner/image-upload";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
@@ -24,6 +25,7 @@ const EMPTY: Omit<OwnerProduct, "id"> = {
   name: "",
   price: 0,
   description: "",
+  photoUrl: null,
   stockStatus: "available",
   filterChips: [],
   ingredients: [],
@@ -291,6 +293,14 @@ export default function ProductsPage() {
         }
       >
         <div className="space-y-4">
+          <ImageUpload
+            label="Foto Produk"
+            bucket="products"
+            aspect="aspect-square"
+            value={form.photoUrl}
+            onChange={(url) => setForm({ ...form, photoUrl: url })}
+            hint="Unggah dari perangkat (maks 5MB). Tidak menerima link."
+          />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-semibold text-black/80">
