@@ -137,13 +137,29 @@ create table shift_notes (
 );
 
 -- =========================================================
+-- CASH SESSIONS (PRD Patch v1.1: Sesi Kas per hari)
+-- =========================================================
+create table cash_sessions (
+  id uuid primary key default gen_random_uuid(),
+  tanggal date not null default current_date,
+  modal_awal numeric(12,2) not null default 0,
+  kas_fisik_terhitung numeric(12,2),
+  selisih numeric(12,2),           -- computed: kas_fisik - kas_seharusnya
+  waktu_buka timestamptz default now(),
+  waktu_tutup timestamptz,
+  status text not null default 'berjalan' check (status in ('berjalan','selesai'))
+);
+
+-- =========================================================
 -- CASH ENTRIES (modul Kas owner: pemasukan/pengeluaran) (#6)
+-- Revisi v1.1: type = income | expense | tambah_modal | catatan | lainnya
 -- =========================================================
 create table cash_entries (
   id uuid primary key default gen_random_uuid(),
-  type text not null check (type in ('income','expense')),
+  session_id uuid references cash_sessions(id) on delete set null,
+  type text not null check (type in ('income','expense','tambah_modal','catatan','lainnya')),
   category text,
-  amount numeric(12,2) not null,
+  amount numeric(12,2) not null default 0,
   description text,
   created_by uuid references users(id) on delete set null,
   created_at timestamptz default now()
@@ -180,6 +196,7 @@ create table store_settings (
   operational_hours jsonb,                          -- (#13) {"mon":{"open":"08:00","close":"21:00"}, ...}
   payment_methods jsonb default '["cash","qris"]'::jsonb,  -- (#13)
   urgency_threshold_minutes integer default 7,
+  threshold_selisih_kas numeric(12,2) default 10000,  -- v1.1: batas nudge recount
   store_status text default 'open' check (store_status in ('open','closed')),
   queue_counter integer default 1,
   updated_at timestamptz default now()

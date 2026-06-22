@@ -174,15 +174,14 @@ export const CASHIER_ACTION: Partial<
   siap_diambil: { next: "selesai", label: "Selesai" },
 };
 
-/** Kategori Catatan Shift (CASHIER_UI.md). withNominal: butuh input nominal. */
+/** Kategori Catatan Shift v1.1 (Sesi Kas / blind count). */
 export const SHIFT_NOTE_CATEGORIES: {
   value: string;
   label: string;
   withNominal: boolean;
 }[] = [
   { value: "pengeluaran", label: "Pengeluaran", withNominal: true },
-  { value: "selisih_kurang", label: "Selisih Kas Kurang", withNominal: true },
-  { value: "selisih_lebih", label: "Selisih Kas Lebih", withNominal: true },
+  { value: "tambah_modal", label: "Tambah Modal", withNominal: true },
   { value: "catatan_kas", label: "Catatan Kas", withNominal: false },
   { value: "lainnya", label: "Lainnya", withNominal: false },
 ];

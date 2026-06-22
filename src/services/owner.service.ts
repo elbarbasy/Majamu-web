@@ -1097,6 +1097,8 @@ export async function updateStoreSettings(
     row.payment_methods = patch.paymentMethods;
   if (patch.urgencyThresholdMinutes !== undefined)
     row.urgency_threshold_minutes = patch.urgencyThresholdMinutes;
+  if (patch.thresholdSelisihKas !== undefined)
+    row.threshold_selisih_kas = patch.thresholdSelisihKas;
   if (patch.storeStatus !== undefined) row.store_status = patch.storeStatus;
 
   if (existing?.id) {

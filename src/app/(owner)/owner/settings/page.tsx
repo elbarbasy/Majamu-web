@@ -247,6 +247,27 @@ export default function SettingsPage() {
             </div>
 
             <div>
+              <label className="mb-1 block text-sm font-semibold text-black/80">
+                Ambang Selisih Kas (Rp)
+              </label>
+              <input
+                value={settings.thresholdSelisihKas}
+                onChange={(e) =>
+                  patch({
+                    thresholdSelisihKas: Number(
+                      e.target.value.replace(/[^0-9]/g, "")
+                    ),
+                  })
+                }
+                inputMode="numeric"
+                className="h-11 w-full rounded-card border border-black/15 px-3 text-sm outline-none focus:border-primary"
+              />
+              <p className="mt-1 text-xs text-black/45">
+                Jika selisih melebihi ini, kasir diminta hitung ulang saat tutup toko.
+              </p>
+            </div>
+
+            <div>
               <p className="mb-2 text-sm font-semibold text-black/80">
                 Metode Pembayaran
               </p>

@@ -169,31 +169,145 @@ export async function createShiftNote(input: {
   }
 }
 
-/** Saldo kas saat ini (Σ income − expense). Fallback ke dev store. */
-export async function getCashBalance(): Promise<number> {
+/** ============ SESI KAS (v1.1 blind count) ============ */
+
+export interface CashSession {
+  id: string;
+  tanggal: string;
+  modalAwal: number;
+  kasFisikTerhitung: number | null;
+  selisih: number | null;
+  waktuBuka: string;
+  waktuTutup: string | null;
+  status: "berjalan" | "selesai";
+}
+
+/** Sesi kas aktif (status = berjalan). null bila belum dibuka hari ini. */
+export async function getActiveSession(): Promise<CashSession | null> {
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("cash_sessions")
+      .select("*")
+      .eq("status", "berjalan")
+      .order("waktu_buka", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!data) return null;
+    return mapSession(data);
+  } catch {
+    return null;
+  }
+}
+
+function mapSession(d: Record<string, unknown>): CashSession {
+  return {
+    id: String(d.id ?? ""),
+    tanggal: String(d.tanggal ?? ""),
+    modalAwal: Number(d.modal_awal) || 0,
+    kasFisikTerhitung: d.kas_fisik_terhitung != null ? Number(d.kas_fisik_terhitung) : null,
+    selisih: d.selisih != null ? Number(d.selisih) : null,
+    waktuBuka: String(d.waktu_buka ?? ""),
+    waktuTutup: d.waktu_tutup ? String(d.waktu_tutup) : null,
+    status: (d.status as CashSession["status"]) ?? "berjalan",
+  };
+}
+
+/** Buka toko (buat sesi kas baru). */
+export async function openCashSession(modalAwal: number): Promise<CashSession | null> {
   try {
     const supabase = createClient();
     const { data, error } = await supabase
-      .from("cash_entries")
-      .select("type, amount");
+      .from("cash_sessions")
+      .insert({
+        modal_awal: modalAwal,
+        status: "berjalan",
+      })
+      .select("*")
+      .single();
     if (error) throw error;
-    if (!data || data.length === 0) {
-      return ownerDb().cashEntries.reduce(
-        (s, c) => s + (c.type === "income" ? c.amount : -c.amount),
-        0
-      );
-    }
-    return data.reduce(
-      (s, c) =>
-        s + (c.type === "income" ? Number(c.amount) : -Number(c.amount)),
-      0
-    );
+    return mapSession(data as Record<string, unknown>);
   } catch {
-    return ownerDb().cashEntries.reduce(
-      (s, c) => s + (c.type === "income" ? c.amount : -c.amount),
-      0
-    );
+    // fallback dev
+    return {
+      id: `local-sess-${Date.now()}`,
+      tanggal: new Date().toISOString().slice(0, 10),
+      modalAwal,
+      kasFisikTerhitung: null,
+      selisih: null,
+      waktuBuka: new Date().toISOString(),
+      waktuTutup: null,
+      status: "berjalan",
+    };
   }
+}
+
+/** Tutup toko: kasir memasukkan jumlah kas fisik (blind count). */
+export async function closeCashSession(
+  sessionId: string,
+  kasFisik: number
+): Promise<boolean> {
+  try {
+    const supabase = createClient();
+    await supabase
+      .from("cash_sessions")
+      .update({
+        kas_fisik_terhitung: kasFisik,
+        waktu_tutup: new Date().toISOString(),
+        status: "selesai",
+      })
+      .eq("id", sessionId);
+    return true;
+  } catch {
+    return true; // dev
+  }
+}
+
+/** Ambil threshold selisih kas dari settings. */
+export async function getThresholdSelisih(): Promise<number> {
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("store_settings")
+      .select("threshold_selisih_kas")
+      .limit(1)
+      .maybeSingle();
+    return Number(data?.threshold_selisih_kas) || 10000;
+  } catch {
+    return ownerDb().settings.thresholdSelisihKas;
+  }
+}
+
+/** Hitung kas seharusnya untuk sesi berjalan (kasir TIDAK BOLEH lihat ini).
+ * Dipakai hanya oleh internal (threshold nudge) & Owner rekonsiliasi. */
+export async function computeExpectedCash(session: CashSession): Promise<number> {
+  let penjualanTunai = 0;
+  let tambahModal = 0;
+  let pengeluaran = 0;
+  try {
+    const supabase = createClient();
+    // Penjualan tunai hari ini
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("total_price")
+      .eq("payment_method", "cash")
+      .neq("status", "menunggu_bayar")
+      .gte("created_at", session.waktuBuka);
+    penjualanTunai = (orders ?? []).reduce((s, o) => s + (Number(o.total_price) || 0), 0);
+    // Entries pada sesi ini
+    const { data: entries } = await supabase
+      .from("cash_entries")
+      .select("type, amount")
+      .eq("session_id", session.id);
+    (entries ?? []).forEach((e) => {
+      if (e.type === "tambah_modal") tambahModal += Number(e.amount) || 0;
+      if (e.type === "expense" || e.type === "pengeluaran")
+        pengeluaran += Number(e.amount) || 0;
+    });
+  } catch {
+    /* dev fallback: leave 0 */
+  }
+  return session.modalAwal + penjualanTunai + tambahModal - pengeluaran;
 }
 
 export async function fetchShiftNotes(): Promise<ShiftNote[]> {  try {

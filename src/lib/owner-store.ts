@@ -86,6 +86,7 @@ export interface StoreSettingsData {
   operationalHours: Record<string, { open: string; close: string; closed: boolean }>;
   paymentMethods: string[];
   urgencyThresholdMinutes: number;
+  thresholdSelisihKas: number;  // v1.1
   storeStatus: "open" | "closed";
 }
 
@@ -229,6 +230,7 @@ function seed(): OwnerDb {
     operationalHours,
     paymentMethods: ["cash", "qris"],
     urgencyThresholdMinutes: 7,
+    thresholdSelisihKas: 10000,
     storeStatus: "open",
   };
 
