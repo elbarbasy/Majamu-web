@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, receipt_number, total_price, customer_name, whatsapp")
+    .select("id, receipt_number, total_price, customer_name, whatsapp, payment_method")
     .eq("id", orderId)
     .maybeSingle();
 
@@ -69,11 +69,13 @@ export async function POST(request: Request) {
       items: snapItems,
       customerName: order.customer_name ?? undefined,
       customerPhone: order.whatsapp ?? undefined,
+      // QRIS via Midtrans (QR mencakup QRIS/GoPay/ShopeePay).
+      enabledPayments: ["qris", "gopay", "shopeepay", "other_qris"],
     });
 
     await supabase.from("payments").insert({
       order_id: order.id,
-      method: "midtrans",
+      method: order.payment_method ?? "qris",
       status: "pending",
       amount: grossAmount,
     });

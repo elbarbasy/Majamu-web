@@ -1041,7 +1041,7 @@ function mapSettings(row: SettingsRow): StoreSettingsData {
     address: row.address ?? "",
     logoUrl: row.logo_url,
     operationalHours: row.operational_hours ?? {},
-    paymentMethods: row.payment_methods ?? ["cash", "qris", "midtrans"],
+    paymentMethods: row.payment_methods ?? ["cash", "qris"],
     urgencyThresholdMinutes: row.urgency_threshold_minutes ?? 7,
     storeStatus: (row.store_status as "open" | "closed") ?? "open",
   };

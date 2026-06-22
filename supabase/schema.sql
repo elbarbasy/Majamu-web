@@ -177,7 +177,7 @@ create table store_settings (
   brand_story text,
   logo_url text,                                    -- (#13)
   operational_hours jsonb,                          -- (#13) {"mon":{"open":"08:00","close":"21:00"}, ...}
-  payment_methods jsonb default '["cash","qris","midtrans"]'::jsonb,  -- (#13)
+  payment_methods jsonb default '["cash","qris"]'::jsonb,  -- (#13)
   urgency_threshold_minutes integer default 7,
   store_status text default 'open' check (store_status in ('open','closed')),
   queue_counter integer default 1,

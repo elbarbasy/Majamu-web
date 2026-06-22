@@ -56,12 +56,11 @@ export function temperatureLabel(value: TemperatureLevel): string {
   return TEMPERATURE_LEVELS.find((t) => t.value === value)?.label ?? value;
 }
 
-/** Metode pembayaran (PRD: Tunai, QRIS, E-Wallet). Nilai DB tetap. */
+/** Metode pembayaran: Tunai & QRIS (QRIS via gateway Midtrans). */
 export const PAYMENT_METHODS: { value: PaymentMethod; label: string; hint: string }[] =
   [
     { value: "cash", label: "Tunai", hint: "Bayar di counter kasir" },
-    { value: "qris", label: "QRIS", hint: "Scan untuk membayar" },
-    { value: "midtrans", label: "E-Wallet", hint: "GoPay, OVO, Dana, dll" },
+    { value: "qris", label: "QRIS", hint: "Scan QRIS via Midtrans" },
   ];
 
 /** Urutan status untuk timeline tracking (WIREFRAMES.md Order Tracking). */

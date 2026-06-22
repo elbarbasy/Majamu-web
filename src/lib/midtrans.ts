@@ -37,6 +37,8 @@ export interface CreateSnapParams {
   items: SnapItem[];
   customerName?: string;
   customerPhone?: string;
+  /** Batasi metode pembayaran (mis. QRIS). */
+  enabledPayments?: string[];
 }
 
 /** Buat transaksi Snap, kembalikan token & redirect_url. */
@@ -47,7 +49,7 @@ export async function createSnapTransaction(
   if (!serverKey) throw new Error("MIDTRANS_SERVER_KEY belum diset");
 
   const auth = Buffer.from(`${serverKey}:`).toString("base64");
-  const body = {
+  const body: Record<string, unknown> = {
     transaction_details: {
       order_id: params.orderId,
       gross_amount: Math.round(params.grossAmount),
@@ -62,8 +64,10 @@ export async function createSnapTransaction(
       first_name: params.customerName || "Pelanggan",
       phone: params.customerPhone || undefined,
     },
-    credit_card: { secure: true },
   };
+  if (params.enabledPayments && params.enabledPayments.length > 0) {
+    body.enabled_payments = params.enabledPayments;
+  }
 
   const res = await fetch(snapUrl(), {
     method: "POST",

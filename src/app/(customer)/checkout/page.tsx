@@ -119,8 +119,10 @@ export default function CheckoutPage() {
       });
       clearCart();
 
+      // Pembayaran QRIS via Midtrans (Snap): hanya jika metode qris,
+      // order tersimpan di server (bukan lokal/dev), dan client key tersedia.
       if (
-        values.paymentMethod === "midtrans" &&
+        values.paymentMethod === "qris" &&
         midtransClientConfigured() &&
         !order.orderId.startsWith("local-")
       ) {

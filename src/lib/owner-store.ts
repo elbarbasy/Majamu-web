@@ -223,7 +223,7 @@ function seed(): OwnerDb {
     address: "Jl. Herbal No. 1, Indonesia",
     logoUrl: null,
     operationalHours,
-    paymentMethods: ["cash", "qris", "midtrans"],
+    paymentMethods: ["cash", "qris"],
     urgencyThresholdMinutes: 7,
     storeStatus: "open",
   };
