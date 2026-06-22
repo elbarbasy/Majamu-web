@@ -204,31 +204,41 @@ export function orderTypeLabel(type: "dine_in" | "take_away" | null): string {
  */
 export const CASHIER_STATUS_STYLE: Record<
   OrderStatus,
-  { label: string; badge: string; bar: string }
+  { label: string; badge: string; bar: string; solid: string; dot: string }
 > = {
   menunggu_bayar: {
     label: "Menunggu Bayar",
     badge: "bg-amber-100 text-amber-800",
     bar: "bg-amber-400",
+    solid: "bg-amber-500 text-white border-amber-500",
+    dot: "bg-amber-500",
   },
   diterima: {
     label: "Diterima",
     badge: "bg-blue-100 text-blue-800",
     bar: "bg-blue-500",
+    solid: "bg-blue-600 text-white border-blue-600",
+    dot: "bg-blue-600",
   },
   diracik: {
     label: "Diracik",
     badge: "bg-orange-100 text-orange-800",
     bar: "bg-orange-500",
+    solid: "bg-orange-500 text-white border-orange-500",
+    dot: "bg-orange-500",
   },
   siap_diambil: {
     label: "Siap Diambil",
     badge: "bg-green-100 text-green-800",
     bar: "bg-green-500",
+    solid: "bg-green-600 text-white border-green-600",
+    dot: "bg-green-600",
   },
   selesai: {
     label: "Selesai",
     badge: "bg-gray-100 text-gray-700",
     bar: "bg-gray-400",
+    solid: "bg-gray-500 text-white border-gray-500",
+    dot: "bg-gray-500",
   },
 };
