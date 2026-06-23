@@ -53,10 +53,10 @@ export function InfoPanel() {
       <aside
         role="dialog"
         aria-modal="true"
-        className="absolute right-0 top-0 flex h-full w-[84%] max-w-sm animate-panel-in-right flex-col bg-background shadow-soft-lg"
+        className="absolute right-0 top-0 flex h-full w-[84%] max-w-sm animate-panel-in-right flex-col bg-[#5B3E2A] shadow-soft-lg"
       >
-        {/* Header — bg Mocca Brown, teks Cream, tagline Brown */}
-        <div className="flex items-center justify-between bg-primary px-5 pb-5 pt-6">
+        {/* Header — bg Cream, tagline Mocca Brown */}
+        <div className="flex items-center justify-between bg-[#F6F1E6] px-5 pb-5 pt-6">
           <div className="flex items-center gap-3">
             {settings?.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -66,52 +66,52 @@ export function InfoPanel() {
                 className="h-10 max-w-[100px] object-contain"
               />
             ) : (
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F6F1E6]/15">
-                <Leaf className="h-6 w-6 text-[#F6F1E6]" />
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#5B3E2A]/10">
+                <Leaf className="h-6 w-6 text-[#5B3E2A]" />
               </span>
             )}
             <div>
-              <p className="mt-1 font-display text-sm italic text-[#5B3E2A]">{tagline}</p>
+              <p className="font-display text-sm italic text-[#5B3E2A]">{tagline}</p>
             </div>
           </div>
           <button
             onClick={close}
             aria-label="Tutup"
-            className="touch-target flex items-center justify-center rounded-full text-[#F6F1E6] hover:bg-[#F6F1E6]/10"
+            className="touch-target flex items-center justify-center rounded-full text-[#5B3E2A] hover:bg-[#5B3E2A]/10"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Items */}
+        {/* Items — bg Mocca Brown body */}
         <div className="flex-1 overflow-y-auto p-4">
           <nav className="space-y-2">
             <Link
               href="/history"
               onClick={close}
-              className="flex items-center gap-3 rounded-card border border-line bg-surface px-4 py-3.5 text-sm font-semibold text-ink shadow-soft-sm transition active:scale-[0.99]"
+              className="flex items-center gap-3 rounded-card border border-[#F6F1E6]/20 bg-[#F6F1E6]/10 px-4 py-3.5 text-sm font-semibold text-[#F6F1E6] transition active:scale-[0.99]"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F6F1E6]/15 text-[#F6F1E6]">
                 <ClipboardList className="h-5 w-5" />
               </span>
               <span className="flex-1">Riwayat Pesanan</span>
-              <ChevronRight className="h-4 w-4 text-muted" />
+              <ChevronRight className="h-4 w-4 text-[#F6F1E6]/60" />
             </Link>
 
             <button
               onClick={() => setShowAbout((v) => !v)}
-              className="flex w-full items-center gap-3 rounded-card border border-line bg-surface px-4 py-3.5 text-left text-sm font-semibold text-ink shadow-soft-sm transition active:scale-[0.99]"
+              className="flex w-full items-center gap-3 rounded-card border border-[#F6F1E6]/20 bg-[#F6F1E6]/10 px-4 py-3.5 text-left text-sm font-semibold text-[#F6F1E6] transition active:scale-[0.99]"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/15 text-accent">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F6F1E6]/15 text-[#F6F1E6]">
                 <Info className="h-5 w-5" />
               </span>
               <span className="flex-1">Tentang Majamu</span>
               <ChevronRight
-                className={`h-4 w-4 text-muted transition-transform ${showAbout ? "rotate-90" : ""}`}
+                className={`h-4 w-4 text-[#F6F1E6]/60 transition-transform ${showAbout ? "rotate-90" : ""}`}
               />
             </button>
             {showAbout && (
-              <p className="rounded-card bg-surface px-4 py-3 text-xs leading-relaxed text-muted">
+              <p className="rounded-card bg-[#F6F1E6]/10 px-4 py-3 text-xs leading-relaxed text-[#F6F1E6]/80">
                 {brandStory}
               </p>
             )}
@@ -121,36 +121,36 @@ export function InfoPanel() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={close}
-              className="flex items-center gap-3 rounded-card border border-line bg-surface px-4 py-3.5 text-sm font-semibold text-ink shadow-soft-sm transition active:scale-[0.99]"
+              className="flex items-center gap-3 rounded-card border border-[#F6F1E6]/20 bg-[#F6F1E6]/10 px-4 py-3.5 text-sm font-semibold text-[#F6F1E6] transition active:scale-[0.99]"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/30 text-secondary-foreground">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F6F1E6]/15 text-[#F6F1E6]">
                 <Phone className="h-5 w-5" />
               </span>
               <span className="flex-1">Kontak Kami</span>
-              <ChevronRight className="h-4 w-4 text-muted" />
+              <ChevronRight className="h-4 w-4 text-[#F6F1E6]/60" />
             </a>
           </nav>
 
           {/* Mini section herbal */}
-          <div className="mt-6 overflow-hidden rounded-card border border-line bg-surface shadow-soft-sm">
+          <div className="mt-6 overflow-hidden rounded-card border border-[#F6F1E6]/20 bg-[#F6F1E6]/10">
             <div className="flex items-center gap-3 p-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent/15 text-accent">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F6F1E6]/15 text-[#F6F1E6]">
                 <Leaf className="h-6 w-6" />
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-extrabold text-ink">
+                <p className="text-sm font-extrabold text-[#F6F1E6]">
                   Jamu Modern Indonesia
                 </p>
-                <p className="clamp-2 text-xs leading-relaxed text-muted">
+                <p className="clamp-2 text-xs leading-relaxed text-[#F6F1E6]/70">
                   Ramuan herbal warisan nusantara untuk kesehatan keluarga.
                 </p>
               </div>
             </div>
-            <div className="h-1.5 w-full bg-gradient-to-r from-primary via-accent to-secondary" />
+            <div className="h-1.5 w-full bg-gradient-to-r from-[#E6AA2C] via-[#7E9F6E] to-[#F6F1E6]" />
           </div>
         </div>
 
-        <div className="safe-bottom border-t border-line p-4 text-center text-[11px] text-muted">
+        <div className="safe-bottom border-t border-[#F6F1E6]/20 p-4 text-center text-[11px] text-[#F6F1E6]/60">
           Majamu • Jamu Modern Indonesia
         </div>
       </aside>
