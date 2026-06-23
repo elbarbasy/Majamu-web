@@ -219,9 +219,9 @@ function seed(): OwnerDb {
 
   const settings: StoreSettingsData = {
     storeName: "Majamu",
-    tagline: "Jamu modern, hangat & menyehatkan",
+    tagline: "Diracik Saat Itu Juga",
     brandStory:
-      "Majamu menghadirkan jamu modern dengan bahan alami pilihan. Diracik higienis, terinspirasi resep warisan nusantara untuk kesehatan keluarga Indonesia.",
+      "Majamu menghadirkan jamu modern yang diracik saat itu juga dengan bahan alami pilihan. Untuk keluarga profesional dan anak muda yang peduli kesehatan alami.",
     quizImageUrl: null,
     storeWhatsapp: "628000000000",
     instagram: "@majamu.id",

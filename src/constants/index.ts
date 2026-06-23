@@ -134,9 +134,9 @@ export const TABLE_CONTEXT_KEY = "majamu_table_context";
 /** Statis: info toko untuk panel "Tentang/Kontak". */
 export const STORE_INFO = {
   name: "Majamu",
-  tagline: "Jamu modern, hangat & menyehatkan",
+  tagline: "Diracik Saat Itu Juga",
   about:
-    "Majamu menghadirkan jamu modern dengan bahan alami pilihan. Pesan langsung dari meja Anda dengan memindai QR.",
+    "Majamu menghadirkan jamu modern yang diracik saat itu juga dengan bahan alami pilihan. Untuk keluarga profesional dan anak muda yang peduli kesehatan.",
   whatsapp: "628000000000",
 };
 

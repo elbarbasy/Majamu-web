@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --primary: #5b3a29;
-  --secondary: #e0b973;
+  --primary: #5b3e2a;
+  --secondary: #e6aa2c;
   --accent: #7e9f6e;
-  --background: #fcfaf7;
+  --background: #f6f1e6;
   --surface: #ffffff;
   --text: #2d2d2d;
   --muted: #8c8c8c;
@@ -20,8 +20,8 @@ body {
 body {
   background-color: var(--background);
   color: var(--text);
-  font-family: Inter, Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-body), "Hanken Grotesk", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -40,6 +40,9 @@ body {
   }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
   .clamp-1 {
     display: -webkit-box;
@@ -61,7 +64,6 @@ body {
   }
 }
 
-/* Print: hanya struk yang tercetak rapi (RECEIPT_SYSTEM.md Download PDF) */
 @media print {
   .no-print {
     display: none !important;
