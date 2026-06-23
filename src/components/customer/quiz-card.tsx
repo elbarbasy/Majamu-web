@@ -6,9 +6,9 @@ import { getPublicSettings } from "@/services/settings.service";
 import { useUiStore } from "@/stores/ui-store";
 
 /**
- * Quiz Card — kartu rekomendasi. Latar memakai gambar Quiz dari Owner
- * (settings.quiz_image_url) bila ada; jika kosong → gradient herbal default.
- * Membuka quiz sheet (logika tetap).
+ * Quiz Card — kartu rekomendasi (fitur discovery penting).
+ * Desain: kartu Turmeric Gold solid, teks Mocca Brown, tombol Mocca Brown.
+ * Latar bisa gambar upload (jika ada); tanpa gambar → solid gold.
  */
 export function QuizCard() {
   const openQuiz = useUiStore((s) => s.openQuiz);
@@ -20,8 +20,8 @@ export function QuizCard() {
 
   return (
     <div className="px-4 py-2">
-      <div className="relative h-[90px] overflow-hidden rounded-card bg-gradient-to-br from-accent via-[#6E9061] to-[#52764A] shadow-soft">
-        {/* Latar gambar (tanpa overlay warna) */}
+      <div className="relative h-[90px] overflow-hidden rounded-card bg-secondary shadow-soft">
+        {/* Latar gambar (jika diupload owner) */}
         {image && (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -30,23 +30,23 @@ export function QuizCard() {
               alt=""
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <span className="absolute inset-0 bg-black/30" />
+            <span className="absolute inset-0 bg-secondary/70" />
           </>
         )}
 
         <div className="relative flex h-full items-center justify-between gap-2 px-4">
-          <div className="min-w-0 flex-1 pl-12">
-            <h3 className="text-sm font-extrabold text-white">
+          <div className="min-w-0 flex-1 pl-8">
+            <h3 className="text-sm font-extrabold text-primary">
               Bingung Pilih Jamu?
             </h3>
-            <p className="text-xs text-white/85">
+            <p className="text-xs text-primary/70">
               Temukan rekomendasi yang cocok.
             </p>
           </div>
 
           <button
             onClick={openQuiz}
-            className="shrink-0 whitespace-nowrap rounded-btn bg-white px-4 py-2 text-xs font-bold text-accent shadow-soft-sm transition active:scale-95"
+            className="shrink-0 whitespace-nowrap rounded-btn bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-soft-sm transition active:scale-95"
           >
             Mulai Kuis
           </button>
