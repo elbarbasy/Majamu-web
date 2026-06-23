@@ -42,7 +42,9 @@ function toDataUrl(file: File): Promise<string> {
         return;
       }
       ctx.drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL("image/jpeg", 0.6)); // JPEG 60% quality
+      // Pertahankan transparansi untuk PNG; JPEG untuk lainnya.
+      const isPng = file.type === "image/png";
+      resolve(canvas.toDataURL(isPng ? "image/png" : "image/jpeg", isPng ? undefined : 0.6));
     };
     img.onerror = () => {
       // Jika bukan gambar valid, fallback raw data URL.

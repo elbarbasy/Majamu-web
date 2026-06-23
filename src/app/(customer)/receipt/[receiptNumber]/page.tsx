@@ -125,16 +125,18 @@ export default function ReceiptPage() {
       <div className="print-area overflow-hidden rounded-modal bg-surface shadow-soft ring-1 ring-line">
         {/* Header */}
         <div className="relative bg-primary px-5 py-6 text-center text-primary-foreground">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
+          <div className="mx-auto">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={logoUrl}
                 alt="Logo"
-                className="h-10 max-w-[80px] object-contain"
+                className="mx-auto h-12 max-w-[120px] object-contain"
               />
             ) : (
-              <Sparkles className="h-6 w-6" />
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
+                <Sparkles className="h-6 w-6" />
+              </div>
             )}
           </div>
           <p className="mt-2 text-2xl font-extrabold tracking-tight">Majamu</p>

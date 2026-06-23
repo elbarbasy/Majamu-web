@@ -72,6 +72,7 @@ export function InfoPanel() {
               </span>
             )}
             <div>
+            <div>
               <p className="text-lg font-extrabold leading-none tracking-wide">
                 MAJAMU
               </p>
