@@ -71,9 +71,6 @@ export function InfoPanel() {
               </span>
             )}
             <div>
-              <p className="text-lg font-extrabold leading-none tracking-wide text-[#F6F1E6]">
-                MAJAMU
-              </p>
               <p className="mt-1 font-display text-sm italic text-[#5B3E2A]">{tagline}</p>
             </div>
           </div>
