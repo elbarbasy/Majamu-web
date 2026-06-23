@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Leaf, Mortar, Shield, X } from "lucide-react";
+import { FlaskConical, Leaf, Shield, X } from "lucide-react";
 import { createPortal } from "react-dom";
 
 import { getPublicSettings, type PublicSettings } from "@/services/settings.service";
@@ -116,7 +116,7 @@ export function AboutSheet({ open, onClose }: AboutSheetProps) {
                 title="Bahan Alami Pilihan"
               />
               <ValueCard
-                icon={<Mortar className="h-6 w-6" />}
+                icon={<FlaskConical className="h-6 w-6" />}
                 title="Diracik Saat Itu Juga"
               />
               <ValueCard
