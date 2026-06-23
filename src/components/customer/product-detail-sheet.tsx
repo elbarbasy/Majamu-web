@@ -18,6 +18,7 @@ import {
 import { cn, formatCurrency } from "@/lib/utils";
 import { getProductById } from "@/services/products.service";
 import { useCartStore } from "@/stores/cart-store";
+import { useStoreStatusStore } from "@/stores/store-status";
 import { useUiStore } from "@/stores/ui-store";
 import type { Product, SweetnessLevel, TemperatureLevel } from "@/types";
 
@@ -61,6 +62,8 @@ export function ProductDetailSheet() {
   }, [productId]);
 
   const soldOut = product?.stockStatus === "out_of_stock";
+  const isClosed = useStoreStatusStore((s) => s.isClosed);
+  const disabled = soldOut || isClosed;
 
   function handleAdd() {
     if (!product || soldOut) return;
@@ -86,10 +89,12 @@ export function ProductDetailSheet() {
       onClose={close}
       footer={
         product ? (
-          <Button block size="lg" onClick={handleAdd} disabled={soldOut}>
-            {soldOut
-              ? "Stok Habis"
-              : `Tambah ke Keranjang • ${formatCurrency(product.price * quantity)}`}
+          <Button block size="lg" onClick={handleAdd} disabled={disabled}>
+            {isClosed
+              ? "Toko Sedang Tutup"
+              : soldOut
+                ? "Stok Habis"
+                : `Tambah ke Keranjang • ${formatCurrency(product.price * quantity)}`}
           </Button>
         ) : null
       }

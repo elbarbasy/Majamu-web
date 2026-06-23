@@ -5,6 +5,7 @@ import { Leaf, Plus } from "lucide-react";
 import { DEFAULT_SWEETNESS, DEFAULT_TEMPERATURE } from "@/constants";
 import { formatCurrency } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
+import { useStoreStatusStore } from "@/stores/store-status";
 import { useUiStore } from "@/stores/ui-store";
 import type { Product } from "@/types";
 
@@ -22,6 +23,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
 
   const soldOut = product.stockStatus === "out_of_stock";
+  const isClosed = useStoreStatusStore((s) => s.isClosed);
+  const disabled = soldOut || isClosed;
   const benefit = product.filterChips.find(
     (c) => c !== "Semua" && c !== "Rekomendasi"
   );
@@ -80,7 +83,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
           <button
             aria-label={`Tambah ${product.name}`}
-            disabled={soldOut}
+            disabled={disabled}
             onClick={() =>
               addItem(
                 {

@@ -11,6 +11,7 @@ import { QuizResultBanner } from "@/components/customer/quiz-result-banner";
 import { FILTER_ALL } from "@/constants";
 import { getBanners, getProducts } from "@/services/products.service";
 import { getStoreStatus } from "@/services/settings.service";
+import { useStoreStatusStore } from "@/stores/store-status";
 import type { Banner, Product } from "@/types";
 
 /**
@@ -24,6 +25,7 @@ export default function CustomerHomePage() {
   const [loading, setLoading] = React.useState(true);
   const [activeFilter, setActiveFilter] = React.useState<string>(FILTER_ALL);
   const [storeClosed, setStoreClosed] = React.useState(false);
+  const setGlobalClosed = useStoreStatusStore((s) => s.setIsClosed);
 
   React.useEffect(() => {
     let active = true;
@@ -34,12 +36,16 @@ export default function CustomerHomePage() {
       setLoading(false);
     });
     getStoreStatus().then((s) => {
-      if (active) setStoreClosed(s === "closed");
+      if (active) {
+        const closed = s === "closed";
+        setStoreClosed(closed);
+        setGlobalClosed(closed);
+      }
     });
     return () => {
       active = false;
     };
-  }, []);
+  }, [setGlobalClosed]);
 
   const filtered = React.useMemo(() => {
     if (activeFilter === FILTER_ALL) return products;

@@ -9,6 +9,7 @@ import { CartItemRow } from "@/components/customer/cart-item-row";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
+import { useStoreStatusStore } from "@/stores/store-status";
 
 /**
  * Keranjang (CUSTOMER_UI.md / WIREFRAMES.md):
@@ -21,6 +22,7 @@ export default function CartPage() {
   const setNotes = useCartStore((s) => s.setNotes);
 
   const [mounted, setMounted] = React.useState(false);
+  const isClosed = useStoreStatusStore((s) => s.isClosed);
   React.useEffect(() => setMounted(true), []);
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -101,8 +103,8 @@ export default function CartPage() {
           {/* Aksi sticky */}
           <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-black/5 bg-surface">
             <div className="mx-auto max-w-screen-sm px-4 py-3">
-              <Button block size="lg" onClick={() => router.push("/checkout")}>
-                Checkout • {formatCurrency(totalPrice)}
+              <Button block size="lg" onClick={() => router.push("/checkout")} disabled={isClosed}>
+                {isClosed ? "Toko Sedang Tutup" : `Checkout • ${formatCurrency(totalPrice)}`}
               </Button>
             </div>
           </div>
