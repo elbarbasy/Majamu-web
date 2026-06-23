@@ -59,9 +59,18 @@ export function InfoPanel() {
         {/* Header */}
         <div className="flex items-center justify-between bg-primary px-5 pb-5 pt-6 text-primary-foreground">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15">
-              <Leaf className="h-6 w-6" />
-            </span>
+            {settings?.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={settings.logoUrl}
+                alt="Majamu"
+                className="h-10 max-w-[100px] object-contain"
+              />
+            ) : (
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15">
+                <Leaf className="h-6 w-6" />
+              </span>
+            )}
             <div>
               <p className="text-lg font-extrabold leading-none tracking-wide">
                 MAJAMU

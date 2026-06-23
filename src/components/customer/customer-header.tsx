@@ -1,21 +1,28 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { Menu, Search, ShoppingBag } from "lucide-react";
 
+import { getPublicSettings } from "@/services/settings.service";
 import { useCartStore } from "@/stores/cart-store";
 import { useUiStore } from "@/stores/ui-store";
 
 /**
  * Header Customer — sticky, 56px, premium.
- * Layout: ☰ (kiri) · MAJAMU (tengah) · 🔍 🛒 (kanan).
- * Logika dipertahankan: hamburger→drawer, search→SearchSheet, cart→/cart.
+ * Logo dari settings (upload) ditampilkan jika ada; fallback teks "MAJAMU".
  */
 export function CustomerHeader() {
   const openInfoPanel = useUiStore((s) => s.openInfoPanel);
   const openSearch = useUiStore((s) => s.openSearch);
   const items = useCartStore((s) => s.items);
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
+
+  const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    getPublicSettings().then((s) => setLogoUrl(s.logoUrl));
+  }, []);
 
   return (
     <header className="no-print sticky top-0 z-30 border-b border-line/70 bg-background/85 backdrop-blur-xl">
@@ -32,9 +39,20 @@ export function CustomerHeader() {
         {/* Tengah: logo */}
         <Link
           href="/"
-          className="absolute left-1/2 -translate-x-1/2 select-none text-lg font-extrabold tracking-[0.18em] text-primary"
+          className="absolute left-1/2 -translate-x-1/2 select-none"
         >
-          MAJAMU
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt="Majamu"
+              className="h-8 max-w-[120px] object-contain"
+            />
+          ) : (
+            <span className="text-lg font-extrabold tracking-[0.18em] text-primary">
+              MAJAMU
+            </span>
+          )}
         </Link>
 
         {/* Kanan */}

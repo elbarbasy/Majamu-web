@@ -13,6 +13,7 @@ export interface PublicSettings {
   tagline: string;
   brandStory: string;
   quizImageUrl: string | null;
+  logoUrl: string | null;
   whatsapp: string;
   instagram: string;
   address: string;
@@ -26,6 +27,7 @@ function fromOwnerStore(): PublicSettings {
     tagline: s.tagline,
     brandStory: s.brandStory,
     quizImageUrl: s.quizImageUrl,
+    logoUrl: s.logoUrl,
     whatsapp: s.storeWhatsapp,
     instagram: s.instagram,
     address: s.address,
@@ -39,7 +41,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
     const { data } = await supabase
       .from("store_settings")
       .select(
-        "store_name, tagline, brand_story, quiz_image_url, store_whatsapp, instagram, address, store_status"
+        "store_name, tagline, brand_story, quiz_image_url, logo_url, store_whatsapp, instagram, address, store_status"
       )
       .limit(1)
       .maybeSingle();
@@ -49,6 +51,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
       tagline: data.tagline ?? "",
       brandStory: data.brand_story ?? "",
       quizImageUrl: data.quiz_image_url ?? null,
+      logoUrl: data.logo_url ?? null,
       whatsapp: data.store_whatsapp ?? "",
       instagram: data.instagram ?? "",
       address: data.address ?? "",

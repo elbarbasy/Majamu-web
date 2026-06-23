@@ -21,6 +21,7 @@ import { PAYMENT_METHODS, statusLabel, sweetnessLabel, temperatureLabel } from "
 import { getOrderByReceipt } from "@/lib/order-cache";
 import { buildTrackingUrl, qrImageUrl } from "@/lib/qr";
 import { printPdf } from "@/lib/export";
+import { getPublicSettings } from "@/services/settings.service";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import type { OrderResult } from "@/services/orders.service";
 
@@ -40,10 +41,12 @@ export default function ReceiptPage() {
 
   const [order, setOrder] = React.useState<OrderResult | null>(null);
   const [mounted, setMounted] = React.useState(false);
+  const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
     if (receiptNumber) setOrder(getOrderByReceipt(receiptNumber));
+    getPublicSettings().then((s) => setLogoUrl(s.logoUrl));
   }, [receiptNumber]);
 
   const trackingUrl = order ? buildTrackingUrl(order.statusUrl) : "";
@@ -123,7 +126,16 @@ export default function ReceiptPage() {
         {/* Header */}
         <div className="relative bg-primary px-5 py-6 text-center text-primary-foreground">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
-            <Sparkles className="h-6 w-6" />
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="h-10 max-w-[80px] object-contain"
+              />
+            ) : (
+              <Sparkles className="h-6 w-6" />
+            )}
           </div>
           <p className="mt-2 text-2xl font-extrabold tracking-tight">Majamu</p>
           <p className="text-xs opacity-80">Struk Pembelian Digital</p>
