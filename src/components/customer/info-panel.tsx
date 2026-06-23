@@ -5,7 +5,9 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ChevronRight, ClipboardList, Info, Leaf, Phone, X } from "lucide-react";
 
+import { AboutSheet } from "@/components/customer/about-sheet";
 import { STORE_INFO } from "@/constants";
+import { AboutSheet } from "@/components/customer/about-sheet";
 import { getPublicSettings, type PublicSettings } from "@/services/settings.service";
 import { useUiStore } from "@/stores/ui-store";
 
@@ -41,9 +43,16 @@ export function InfoPanel() {
     };
   }, [open, close]);
 
-  if (!mounted || !open) return null;
+  if (!mounted) return null;
 
-  return createPortal(
+  // AboutSheet bisa terbuka meskipun drawer tertutup.
+  if (!open) {
+    return <AboutSheet open={showAbout} onClose={() => setShowAbout(false)} />;
+  }
+
+  return (
+    <>
+      {createPortal(
     <div className="fixed inset-0 z-50">
       <div
         className="absolute inset-0 animate-fade-in bg-ink/40 backdrop-blur-[2px]"
@@ -106,22 +115,18 @@ export function InfoPanel() {
             </Link>
 
             <button
-              onClick={() => setShowAbout((v) => !v)}
+              onClick={() => {
+                close();
+                setShowAbout(true);
+              }}
               className="flex w-full items-center gap-3 rounded-card border border-[#F6F1E6]/20 bg-[#F6F1E6]/10 px-4 py-3.5 text-left text-sm font-semibold text-[#F6F1E6] transition active:scale-[0.99]"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F6F1E6]/15 text-[#F6F1E6]">
                 <Info className="h-5 w-5" />
               </span>
               <span className="flex-1">Tentang Majamu</span>
-              <ChevronRight
-                className={`h-4 w-4 text-[#F6F1E6]/60 transition-transform ${showAbout ? "rotate-90" : ""}`}
-              />
+              <ChevronRight className="h-4 w-4 text-[#F6F1E6]/60" />
             </button>
-            {showAbout && (
-              <p className="rounded-card bg-[#F6F1E6]/10 px-4 py-3 text-xs leading-relaxed text-[#F6F1E6]/80">
-                {brandStory}
-              </p>
-            )}
 
             <a
               href={`https://wa.me/${whatsapp}`}
@@ -163,5 +168,8 @@ export function InfoPanel() {
       </aside>
     </div>,
     document.body
+      )}
+      <AboutSheet open={showAbout} onClose={() => setShowAbout(false)} />
+    </>
   );
 }
