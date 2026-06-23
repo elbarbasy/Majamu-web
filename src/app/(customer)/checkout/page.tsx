@@ -141,7 +141,7 @@ export default function CheckoutPage() {
         }
       }
 
-      router.replace(`/receipt/${order.receiptNumber}`);
+      router.replace(`/order/${order.statusUrl}`);
     } catch {
       setSubmitting(false);
     }

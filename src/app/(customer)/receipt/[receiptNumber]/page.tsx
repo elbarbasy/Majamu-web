@@ -70,6 +70,34 @@ export default function ReceiptPage() {
     );
   }
 
+  // Struk hanya ditampilkan setelah pembayaran dikonfirmasi (bukan menunggu_bayar).
+  if (order.status === "menunggu_bayar") {
+    return (
+      <div className="px-4 py-10">
+        <div className="rounded-card bg-secondary/20 p-8 text-center shadow-sm">
+          <ReceiptIcon className="mx-auto mb-3 h-12 w-12 text-secondary" />
+          <h2 className="text-lg font-bold text-ink">Menunggu Pembayaran</h2>
+          <p className="mt-2 text-sm text-muted">
+            Struk akan tersedia setelah pembayaran dikonfirmasi oleh kasir atau berhasil via QRIS.
+          </p>
+        </div>
+        <div className="mt-4 flex flex-col gap-3">
+          <Link href={`/order/${order.statusUrl}`} className="block">
+            <Button block>Lihat Status Pesanan</Button>
+          </Link>
+          <Link href="/" className="block">
+            <Button block variant="outline">
+              Kembali ke Beranda
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+      </div>
+    );
+  }
+
   const totalQty = order.items.reduce((s, i) => s + i.quantity, 0);
   const showCashNotice =
     order.paymentMethod === "cash" && order.status === "menunggu_bayar";
