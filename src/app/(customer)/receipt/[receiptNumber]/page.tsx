@@ -3,17 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import {
-  CalendarDays,
-  Download,
-  Hash,
-  MapPin,
-  Receipt as ReceiptIcon,
-  Sparkles,
-} from "lucide-react";
+import { Check, Download, Receipt as ReceiptIcon } from "lucide-react";
 
-import { StatusTimeline } from "@/components/customer/status-timeline";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PAYMENT_METHODS, statusLabel, sweetnessLabel, temperatureLabel } from "@/constants";
 import { getOrderByReceipt } from "@/lib/order-cache";
@@ -27,10 +18,8 @@ function paymentLabel(method: string): string {
 }
 
 /**
- * Struk Digital (/receipt/[receiptNumber]) — RECEIPT_SYSTEM.md.
- * Header (logo, no struk, no pesanan, tanggal, meja) -> Items -> Summary ->
- * Status -> QR Tracking -> Actions (Download PDF, Bagikan WhatsApp, Lihat Status).
- * Desain modern, mobile-first; siap dicetak (print CSS).
+ * Struk Digital Premium — hanya tampil setelah pembayaran sukses.
+ * Desain: artisan receipt, calm, elegant, spacious. Bukan POS/fintech style.
  */
 export default function ReceiptPage() {
   const params = useParams<{ receiptNumber: string }>();
@@ -46,39 +35,33 @@ export default function ReceiptPage() {
     getPublicSettings().then((s) => setLogoUrl(s.logoUrl));
   }, [receiptNumber]);
 
-  function handleDownload() {
-    printPdf();
-  }
-
   if (!mounted) return null;
 
   if (!order) {
     return (
       <div className="px-4 py-10">
         <div className="rounded-card bg-surface p-8 text-center shadow-sm">
-          <ReceiptIcon className="mx-auto mb-3 h-12 w-12 text-secondary" />
-          <p className="text-sm text-black/60">
+          <ReceiptIcon className="mx-auto mb-3 h-12 w-12 text-muted" />
+          <p className="text-sm text-muted">
             Struk tidak ditemukan di perangkat ini.
           </p>
         </div>
         <Link href="/" className="mt-4 block">
-          <Button block variant="outline">
-            Kembali ke Beranda
-          </Button>
+          <Button block variant="outline">Kembali ke Beranda</Button>
         </Link>
       </div>
     );
   }
 
-  // Struk hanya ditampilkan setelah pembayaran dikonfirmasi (bukan menunggu_bayar).
+  // Struk hanya tampil setelah pembayaran dikonfirmasi.
   if (order.status === "menunggu_bayar") {
     return (
       <div className="px-4 py-10">
-        <div className="rounded-card bg-secondary/20 p-8 text-center shadow-sm">
-          <ReceiptIcon className="mx-auto mb-3 h-12 w-12 text-secondary" />
+        <div className="rounded-card bg-[#F6F1E6] p-8 text-center">
+          <ReceiptIcon className="mx-auto mb-3 h-12 w-12 text-[#E6AA2C]" />
           <h2 className="text-lg font-bold text-ink">Menunggu Pembayaran</h2>
           <p className="mt-2 text-sm text-muted">
-            Struk akan tersedia setelah pembayaran dikonfirmasi oleh kasir atau berhasil via QRIS.
+            Struk akan tersedia setelah pembayaran dikonfirmasi.
           </p>
         </div>
         <div className="mt-4 flex flex-col gap-3">
@@ -86,186 +69,186 @@ export default function ReceiptPage() {
             <Button block>Lihat Status Pesanan</Button>
           </Link>
           <Link href="/" className="block">
-            <Button block variant="outline">
-              Kembali ke Beranda
-            </Button>
+            <Button block variant="outline">Kembali ke Beranda</Button>
           </Link>
         </div>
       </div>
     );
   }
-      </div>
-    );
-  }
 
   const totalQty = order.items.reduce((s, i) => s + i.quantity, 0);
-  const showCashNotice =
-    order.paymentMethod === "cash" && order.status === "menunggu_bayar";
+  const isDineIn = order.orderType === "dine_in";
 
   return (
-    <div className="px-4 py-4">
-      {/* Peringatan pembayaran tunai */}
-      {showCashNotice && (
-        <div className="no-print mb-4 animate-rise-in overflow-hidden rounded-card bg-gold text-center shadow-soft">
-          <div className="px-5 py-5">
-            <p className="text-lg font-black tracking-wide text-[#3A2A12]">
-              TUNJUKKAN KE KASIR
-            </p>
-            <p className="mt-1 text-sm text-[#5B3A29]">
-              Silakan lakukan pembayaran di counter untuk memulai proses racik.
-            </p>
-            <p className="mt-3 font-display text-hero font-semibold tabular tracking-hero text-ink">
-              {formatCurrency(order.totalPrice)}
-            </p>
+    <div className="min-h-[100dvh] bg-[#F6F1E6]">
+      <div className="mx-auto max-w-md px-4 pb-32 pt-8">
+
+        {/* ===== Header: Logo + Tagline + Success ===== */}
+        <div className="text-center">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt="Majamu"
+              className="mx-auto h-10 max-w-[140px] object-contain"
+            />
+          ) : (
+            <p className="font-display text-2xl font-semibold text-[#5B3E2A]">Majamu</p>
+          )}
+          <p className="mt-2 font-display text-sm italic text-[#5B3E2A]/70">
+            Diracik Saat Itu Juga
+          </p>
+
+          {/* Gold decorative dot */}
+          <div className="mx-auto mt-4 flex items-center justify-center gap-1">
+            <span className="h-1 w-1 rounded-full bg-[#E6AA2C]" />
+            <span className="h-1 w-6 rounded-full bg-[#E6AA2C]" />
+            <span className="h-1 w-1 rounded-full bg-[#E6AA2C]" />
+          </div>
+
+          {/* Success indicator */}
+          <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-pill bg-[#E6AA2C]/15 px-4 py-2">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E6AA2C] text-[#5B3E2A]">
+              <Check className="h-3 w-3" strokeWidth={3} />
+            </span>
+            <span className="text-sm font-semibold text-[#5B3E2A]">Pembayaran Berhasil</span>
           </div>
         </div>
-      )}
 
-      {/* ===== Kartu Struk (print-area) ===== */}
-      <div className="print-area overflow-hidden rounded-modal bg-surface shadow-soft ring-1 ring-line">
-        {/* Header */}
-        <div className="relative bg-primary px-5 py-6 text-center text-primary-foreground">
-          <div className="mx-auto">
-            {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={logoUrl}
-                alt="Logo"
-                className="mx-auto h-12 max-w-[120px] object-contain"
-              />
-            ) : (
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
-                <Sparkles className="h-6 w-6" />
-              </div>
-            )}
-          </div>
-          <p className="mt-2 text-2xl font-extrabold tracking-tight">Majamu</p>
-          <p className="text-xs opacity-80">Struk Pembelian Digital</p>
-          {/* Tepi bergerigi */}
-          <div className="pointer-events-none absolute -bottom-2 left-0 right-0 h-4 bg-[radial-gradient(circle,transparent_70%,#fff_72%)] bg-[length:16px_16px]" />
+        {/* ===== Hero: Nomor Meja / Antrian ===== */}
+        <div className="mt-8 text-center">
+          <p className="text-sm font-semibold uppercase tracking-caps text-[#5B3E2A]/60">
+            {isDineIn ? "MEJA" : "ANTRIAN"}
+          </p>
+          <p className="mt-1 font-display text-[56px] font-semibold leading-none tracking-hero text-[#5B3E2A]">
+            {isDineIn
+              ? (order.displayNumber ?? "").replace(/\D/g, "") || order.displayNumber
+              : order.displayNumber}
+          </p>
         </div>
 
-        <div className="space-y-5 p-5">
-          {/* Info utama */}
-          <div className="grid grid-cols-2 gap-3">
-            <InfoRow icon={<Hash className="h-4 w-4" />} label="No. Struk">
-              {order.receiptNumber}
-            </InfoRow>
-            <InfoRow
-              icon={<ReceiptIcon className="h-4 w-4" />}
-              label="No. Pesanan"
-            >
-              {order.displayNumber}
-            </InfoRow>
-            <InfoRow
-              icon={<CalendarDays className="h-4 w-4" />}
-              label="Tanggal"
-            >
-              {formatDateTime(order.createdAt)}
-            </InfoRow>
-            <InfoRow icon={<MapPin className="h-4 w-4" />} label="Tipe">
-              {order.orderType === "dine_in" ? "Dine In" : "Take Away"}
-            </InfoRow>
+        {/* ===== Receipt paper ===== */}
+        <div className="mt-8 overflow-hidden rounded-card bg-white shadow-soft">
+
+          {/* Receipt info */}
+          <div className="space-y-4 px-6 pt-6">
+            <InfoLine label="No. Struk" value={order.receiptNumber} />
+            <InfoLine label="Tanggal" value={formatDateTime(order.createdAt)} />
+            <InfoLine label="Tipe Pesanan" value={isDineIn ? "Dine In" : "Take Away"} />
+            <InfoLine label="Metode Pembayaran" value={paymentLabel(order.paymentMethod)} />
           </div>
 
-          <div className="flex justify-center">
-            <Badge variant="primary">{statusLabel(order.status)}</Badge>
+          {/* Divider — perforation effect */}
+          <div className="relative my-6">
+            <div className="absolute left-0 top-1/2 h-5 w-2.5 -translate-y-1/2 rounded-r-full bg-[#F6F1E6]" />
+            <div className="absolute right-0 top-1/2 h-5 w-2.5 -translate-y-1/2 rounded-l-full bg-[#F6F1E6]" />
+            <div className="border-t border-dashed border-[#E8E0D0]" />
           </div>
 
           {/* Items */}
-          <div className="border-t border-dashed border-black/15 pt-4">
-            <ul className="space-y-3">
-              {order.items.map((i) => (
-                <li
-                  key={`${i.productId}-${i.sweetnessLevel}-${i.temperature}`}
-                  className="flex items-start justify-between gap-3 text-sm"
-                >
-                  <span className="min-w-0">
-                    <span className="font-semibold text-black/85">
-                      {i.name}
-                    </span>
-                    <span className="block text-xs text-black/45">
-                      {i.quantity} x {formatCurrency(i.price)}
-                      {i.temperature ? ` • ${temperatureLabel(i.temperature)}` : ""}
-                      {i.sweetnessLevel
-                        ? ` • ${sweetnessLabel(i.sweetnessLevel)}`
-                        : ""}
-                    </span>
-                  </span>
-                  <span className="shrink-0 font-semibold text-black/85">
-                    {formatCurrency(i.price * i.quantity)}
-                  </span>
+          <div className="px-6">
+            <p className="mb-4 text-center text-xs font-semibold uppercase tracking-caps text-[#5B3E2A]/50">
+              Item Pesanan
+            </p>
+            <ul className="space-y-4">
+              {order.items.map((i, idx) => (
+                <li key={idx}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-[#5B3E2A]">{i.name}</p>
+                      {(i.temperature || i.sweetnessLevel) && (
+                        <p className="text-sm text-[#5B3E2A]/60">
+                          {[
+                            i.temperature ? temperatureLabel(i.temperature) : null,
+                            i.sweetnessLevel ? sweetnessLabel(i.sweetnessLevel) : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" • ")}
+                        </p>
+                      )}
+                      <p className="mt-0.5 text-sm text-[#5B3E2A]/50">
+                        {i.quantity} × {formatCurrency(i.price)}
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-sm font-semibold tabular text-[#5B3E2A]">
+                      {formatCurrency(i.price * i.quantity)}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
           </div>
 
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute left-0 top-1/2 h-5 w-2.5 -translate-y-1/2 rounded-r-full bg-[#F6F1E6]" />
+            <div className="absolute right-0 top-1/2 h-5 w-2.5 -translate-y-1/2 rounded-l-full bg-[#F6F1E6]" />
+            <div className="border-t border-dashed border-[#E8E0D0]" />
+          </div>
+
           {/* Summary */}
-          <div className="space-y-1.5 border-t border-dashed border-black/15 pt-4 text-sm">
-            <div className="flex justify-between text-black/60">
+          <div className="space-y-2 px-6 text-sm">
+            <div className="flex justify-between text-[#5B3E2A]/60">
               <span>Total Item</span>
-              <span>{totalQty} item</span>
+              <span>{totalQty} Item</span>
             </div>
-            <div className="flex justify-between text-black/60">
-              <span>Metode Pembayaran</span>
+            <div className="flex justify-between text-[#5B3E2A]/60">
+              <span>Pembayaran</span>
               <span>{paymentLabel(order.paymentMethod)}</span>
-            </div>
-            <div className="flex items-center justify-between pt-1.5">
-              <span className="text-base font-bold text-black/85">
-                Total Pembayaran
-              </span>
-              <span className="text-xl font-extrabold text-primary">
-                {formatCurrency(order.totalPrice)}
-              </span>
             </div>
           </div>
 
-          <p className="text-center text-[11px] text-black/35">
-            Terima kasih telah memesan di Majamu 🌿
+          {/* Total */}
+          <div className="mt-6 px-6 pb-8 text-center">
+            <p className="text-xs font-semibold uppercase tracking-caps text-[#5B3E2A]/50">
+              Total Pembayaran
+            </p>
+            <p className="mt-2 font-display text-[44px] font-semibold leading-none tabular tracking-hero text-[#5B3E2A]">
+              {formatCurrency(order.totalPrice)}
+            </p>
+          </div>
+        </div>
+
+        {/* ===== Success message ===== */}
+        <div className="mt-6 rounded-card bg-[#E6AA2C]/10 px-5 py-4 text-center">
+          <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#E6AA2C]/20 text-[#5B3E2A]">
+            <Check className="h-4 w-4" strokeWidth={3} />
+          </div>
+          <p className="text-sm font-semibold text-[#5B3E2A]">Pembayaran Berhasil</p>
+          <p className="mt-1 text-sm text-[#5B3E2A]/70">
+            Pesanan sedang diracik dan akan segera disajikan.
           </p>
         </div>
+
+        {/* ===== Secondary action ===== */}
+        <button
+          onClick={printPdf}
+          className="mt-4 w-full text-center text-sm font-medium text-[#5B3E2A]/60 underline underline-offset-2"
+        >
+          <Download className="mr-1 inline h-3.5 w-3.5" />
+          Unduh Struk PDF
+        </button>
       </div>
 
-      {/* ===== Actions (tidak ikut tercetak) ===== */}
-      <div className="no-print mt-4 flex flex-col gap-4">
-        <Button block variant="outline" onClick={handleDownload}>
-          <Download className="h-4 w-4" />
-          Download PDF
-        </Button>
-        <Link href={`/order/${order.statusUrl}`} className="block">
-          <Button block>Lihat Status Pesanan</Button>
-        </Link>
-      </div>
-
-      {/* Ringkasan timeline status (mobile friendly, ikut tercetak) */}
-      <div className="mt-4 rounded-card bg-surface p-4 shadow-sm ring-1 ring-black/5">
-        <h2 className="mb-4 text-sm font-bold text-black/80">
-          Status Pesanan
-        </h2>
-        <StatusTimeline status={order.status} />
+      {/* ===== Sticky CTA ===== */}
+      <div className="no-print safe-bottom fixed inset-x-0 bottom-0 bg-[#F6F1E6]/90 backdrop-blur-sm">
+        <div className="mx-auto max-w-md px-4 py-3">
+          <Link href={`/order/${order.statusUrl}`} className="block">
+            <button className="flex h-14 w-full items-center justify-center rounded-btn bg-[#E6AA2C] text-base font-bold text-[#5B3E2A] shadow-soft transition active:scale-[0.99]">
+              Lihat Status Pesanan
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );
 }
 
-function InfoRow({
-  icon,
-  label,
-  children,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  children: React.ReactNode;
-}) {
+function InfoLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-card bg-background p-3">
-      <span className="flex items-center gap-1.5 text-xs text-black/45">
-        {icon}
-        {label}
-      </span>
-      <span className="mt-0.5 block text-sm font-semibold text-black/85">
-        {children}
-      </span>
+    <div>
+      <p className="text-xs text-[#5B3E2A]/50">{label}</p>
+      <p className="text-sm font-medium tabular text-[#5B3E2A]">{value}</p>
     </div>
   );
 }
