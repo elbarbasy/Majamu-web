@@ -18,8 +18,13 @@ function toDataUrl(file: File): Promise<string> {
     // PNG: langsung baca tanpa resize (pertahankan transparansi 100%).
     // Canvas sering merusak alpha channel di beberapa browser.
     if (file.type === "image/png") {
+      console.info("[storage] PNG detected, reading directly (no canvas)");
       const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
+      reader.onload = () => {
+        const result = String(reader.result);
+        console.info("[storage] PNG data URL starts with:", result.substring(0, 30));
+        resolve(result);
+      };
       reader.onerror = () => reject(reader.error);
       reader.readAsDataURL(file);
       return;

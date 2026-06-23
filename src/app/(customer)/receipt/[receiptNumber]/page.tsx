@@ -131,7 +131,7 @@ export default function ReceiptPage() {
               <img
                 src={logoUrl}
                 alt="Logo"
-                className="mx-auto h-12 max-w-[120px] object-contain brightness-0 invert"
+                className="mx-auto h-12 max-w-[120px] object-contain"
               />
             ) : (
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
