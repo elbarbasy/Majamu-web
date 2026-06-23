@@ -1126,6 +1126,7 @@ export async function updateStoreSettings(
   if (patch.tagline !== undefined) row.tagline = patch.tagline;
   if (patch.brandStory !== undefined) row.brand_story = patch.brandStory;
   if (patch.quizImageUrl !== undefined) row.quiz_image_url = patch.quizImageUrl;
+  if (patch.panelLogoUrl !== undefined) row.panel_logo_url = patch.panelLogoUrl;
   if (patch.storeWhatsapp !== undefined) row.store_whatsapp = patch.storeWhatsapp;
   if (patch.instagram !== undefined) row.instagram = patch.instagram;
   if (patch.address !== undefined) row.address = patch.address;

@@ -192,6 +192,7 @@ create table store_settings (
   tagline text,
   brand_story text,
   quiz_image_url text,
+  panel_logo_url text,
   logo_url text,                                    -- (#13)
   operational_hours jsonb,                          -- (#13) {"mon":{"open":"08:00","close":"21:00"}, ...}
   payment_methods jsonb default '["cash","qris"]'::jsonb,  -- (#13)

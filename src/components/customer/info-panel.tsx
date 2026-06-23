@@ -58,7 +58,14 @@ export function InfoPanel() {
         {/* Header — bg Cream, tagline Mocca Brown */}
         <div className="flex items-center justify-between bg-[#F6F1E6] px-5 pb-5 pt-6">
           <div className="flex items-center gap-3">
-            {settings?.logoUrl ? (
+            {settings?.panelLogoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={settings.panelLogoUrl}
+                alt="Majamu"
+                className="h-10 max-w-[120px] object-contain"
+              />
+            ) : settings?.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={settings.logoUrl}

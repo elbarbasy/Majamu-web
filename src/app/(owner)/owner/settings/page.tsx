@@ -150,6 +150,14 @@ export default function SettingsPage() {
               onChange={(url) => patch({ quizImageUrl: url })}
               hint="Unggah dari perangkat (maks 5MB). Kosongkan untuk gradient default."
             />
+            <ImageUpload
+              label="Logo Panel Informasi"
+              bucket="banners"
+              aspect="aspect-[3/1]"
+              value={settings.panelLogoUrl}
+              onChange={(url) => patch({ panelLogoUrl: url })}
+              hint="Logo khusus untuk panel/drawer (SVG/PNG transparan). Berbeda dari logo header."
+            />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-semibold text-black/80">
