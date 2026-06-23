@@ -30,7 +30,6 @@ export function InfoPanel() {
   const brandStory = settings?.brandStory || STORE_INFO.about;
   const whatsapp = settings?.whatsapp || STORE_INFO.whatsapp;
 
-  React.useEffect(() => setMounted(true), []);
   React.useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
@@ -71,7 +70,6 @@ export function InfoPanel() {
                 <Leaf className="h-6 w-6" />
               </span>
             )}
-            <div>
             <div>
               <p className="text-lg font-extrabold leading-none tracking-wide">
                 MAJAMU
