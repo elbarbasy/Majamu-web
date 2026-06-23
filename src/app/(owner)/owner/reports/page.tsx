@@ -46,7 +46,9 @@ export default function ReportsPage() {
     downloadCsv(`laporan-${range}.csv`, rows);
   }
 
-  const maxSeries = Math.max(1, ...(data?.series.map((s) => s.total) ?? [1]));
+  const maxSeries = data?.series?.length
+    ? Math.max(1, ...data.series.map((s) => s.total))
+    : 1;
 
   return (
     <div>
@@ -102,18 +104,26 @@ export default function ReportsPage() {
       {/* Grafik sederhana */}
       <SectionCard title="Tren Penjualan" className="mt-6">
         <div className="flex h-48 items-end gap-2">
-          {data?.series.map((s) => (
-            <div key={s.label} className="flex flex-1 flex-col items-center gap-2">
-              <div className="flex w-full flex-1 items-end">
-                <div
-                  className="w-full rounded-t-md bg-primary/80"
-                  style={{ height: `${(s.total / maxSeries) * 100}%` }}
-                  title={formatCurrency(s.total)}
-                />
+          {data?.series && data.series.length > 0 ? (
+            data.series.map((s) => (
+              <div key={s.label} className="flex flex-1 flex-col items-center gap-2">
+                <div className="flex w-full flex-1 items-end">
+                  <div
+                    className="w-full rounded-t-md bg-primary/80"
+                    style={{
+                      height: `${Math.max(2, (s.total / maxSeries) * 100)}%`,
+                    }}
+                    title={formatCurrency(s.total)}
+                  />
+                </div>
+                <span className="text-xs text-muted">{s.label}</span>
               </div>
-              <span className="text-xs text-black/50">{s.label}</span>
+            ))
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <p className="text-sm text-muted">Belum ada data penjualan.</p>
             </div>
-          ))}
+          )}
         </div>
       </SectionCard>
 
