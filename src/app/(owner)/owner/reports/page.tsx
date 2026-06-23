@@ -101,30 +101,54 @@ export default function ReportsPage() {
         />
       </div>
 
-      {/* Grafik sederhana */}
+      {/* Grafik Tren Penjualan */}
       <SectionCard title="Tren Penjualan" className="mt-6">
-        <div className="flex h-48 items-end gap-2">
-          {data?.series && data.series.length > 0 ? (
-            data.series.map((s) => (
-              <div key={s.label} className="flex flex-1 flex-col items-center gap-2">
-                <div className="flex w-full flex-1 items-end">
+        {data?.series && data.series.length > 0 ? (
+          <div>
+            {/* Chart area */}
+            <div className="flex items-end gap-1.5" style={{ height: "200px" }}>
+              {data.series.map((s) => {
+                const heightPx = Math.max(4, Math.round((s.total / maxSeries) * 180));
+                return (
                   <div
-                    className="w-full rounded-t-md bg-primary/80"
-                    style={{
-                      height: `${Math.max(2, (s.total / maxSeries) * 100)}%`,
-                    }}
-                    title={formatCurrency(s.total)}
-                  />
-                </div>
-                <span className="text-xs text-muted">{s.label}</span>
-              </div>
-            ))
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <p className="text-sm text-muted">Belum ada data penjualan.</p>
+                    key={s.label}
+                    className="group relative flex-1"
+                    style={{ height: "100%" }}
+                  >
+                    {/* Tooltip on hover */}
+                    <div className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-[#5B3E2A] px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                      {formatCurrency(s.total)}
+                    </div>
+                    {/* Bar */}
+                    <div
+                      className="absolute inset-x-0 bottom-0 rounded-t-md bg-[#6B4F3A] transition-all group-hover:bg-[#D4A373]"
+                      style={{ height: `${heightPx}px` }}
+                    />
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
+            {/* X-axis labels */}
+            <div className="mt-2 flex gap-1.5">
+              {data.series.map((s) => (
+                <div key={s.label} className="flex-1 text-center text-xs text-muted">
+                  {s.label}
+                </div>
+              ))}
+            </div>
+            {/* Summary line */}
+            <div className="mt-3 flex items-center justify-between border-t border-line pt-3 text-sm">
+              <span className="text-muted">Total periode ini</span>
+              <span className="font-bold tabular text-ink">
+                {formatCurrency(data.series.reduce((s, d) => s + d.total, 0))}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center py-16">
+            <p className="text-sm text-muted">Belum ada data penjualan.</p>
+          </div>
+        )}
       </SectionCard>
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
