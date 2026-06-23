@@ -15,14 +15,13 @@ import { createClient } from "@/lib/supabase/client";
 
 function toDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    // PNG: langsung baca tanpa resize (pertahankan transparansi 100%).
-    // Canvas sering merusak alpha channel di beberapa browser.
-    if (file.type === "image/png") {
-      console.info("[storage] PNG detected, reading directly (no canvas)");
+    // PNG & SVG: langsung baca tanpa resize (pertahankan transparansi & vektor).
+    if (file.type === "image/png" || file.type === "image/svg+xml") {
+      console.info("[storage] PNG/SVG detected, reading directly (no canvas)");
       const reader = new FileReader();
       reader.onload = () => {
         const result = String(reader.result);
-        console.info("[storage] PNG data URL starts with:", result.substring(0, 30));
+        console.info("[storage] data URL starts with:", result.substring(0, 30));
         resolve(result);
       };
       reader.onerror = () => reject(reader.error);

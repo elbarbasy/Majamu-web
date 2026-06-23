@@ -195,7 +195,7 @@ export default function SettingsPage() {
               aspect="aspect-[3/1]"
               value={settings.logoUrl}
               onChange={(url) => patch({ logoUrl: url })}
-              hint="Upload file PNG dengan latar transparan agar menyatu dengan warna app. Maks 5MB."
+              hint="Upload file SVG atau PNG transparan agar menyatu dengan warna app. Maks 5MB."
             />
             <Link
               href="/owner/banners"

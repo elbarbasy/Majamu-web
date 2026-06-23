@@ -35,8 +35,8 @@ export function ImageUpload({
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setError("File harus berupa gambar.");
+    if (!file.type.startsWith("image/") && file.type !== "image/svg+xml") {
+      setError("File harus berupa gambar (PNG, JPG, SVG).");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
@@ -120,7 +120,7 @@ export function ImageUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.svg"
         className="hidden"
         onChange={handleFile}
       />

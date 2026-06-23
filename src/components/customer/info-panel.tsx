@@ -55,8 +55,8 @@ export function InfoPanel() {
         aria-modal="true"
         className="absolute right-0 top-0 flex h-full w-[84%] max-w-sm animate-panel-in-right flex-col bg-background shadow-soft-lg"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between bg-primary px-5 pb-5 pt-6 text-primary-foreground">
+        {/* Header — bg Mocca Brown, teks Cream, tagline Brown */}
+        <div className="flex items-center justify-between bg-primary px-5 pb-5 pt-6">
           <div className="flex items-center gap-3">
             {settings?.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -66,21 +66,21 @@ export function InfoPanel() {
                 className="h-10 max-w-[100px] object-contain"
               />
             ) : (
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15">
-                <Leaf className="h-6 w-6" />
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F6F1E6]/15">
+                <Leaf className="h-6 w-6 text-[#F6F1E6]" />
               </span>
             )}
             <div>
-              <p className="text-lg font-extrabold leading-none tracking-wide">
+              <p className="text-lg font-extrabold leading-none tracking-wide text-[#F6F1E6]">
                 MAJAMU
               </p>
-              <p className="mt-1 font-display text-sm italic text-white/85">{tagline}</p>
+              <p className="mt-1 font-display text-sm italic text-[#5B3E2A]">{tagline}</p>
             </div>
           </div>
           <button
             onClick={close}
             aria-label="Tutup"
-            className="touch-target flex items-center justify-center rounded-full text-white/90 hover:bg-white/10"
+            className="touch-target flex items-center justify-center rounded-full text-[#F6F1E6] hover:bg-[#F6F1E6]/10"
           >
             <X className="h-5 w-5" />
           </button>
