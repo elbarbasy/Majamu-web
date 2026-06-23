@@ -65,7 +65,7 @@ export function AboutSheet({ open, onClose }: AboutSheetProps) {
           <X className="h-5 w-5" />
         </button>
 
-        <div className="h-full overflow-y-auto pb-28">
+        <div className="h-full overflow-y-auto pb-8">
           {/* ===== Hero ===== */}
           <div className="px-6 pb-8 pt-12 text-center">
             {logoUrl ? (
@@ -163,18 +163,6 @@ export function AboutSheet({ open, onClose }: AboutSheetProps) {
               <span className="h-0.5 w-6 rounded-full bg-[#E6AA2C]/30" />
               <span className="h-0.5 w-0.5 rounded-full bg-[#E6AA2C]/60" />
             </div>
-          </div>
-        </div>
-
-        {/* Sticky CTA */}
-        <div className="safe-bottom absolute inset-x-0 bottom-0 bg-[#F6F1E6]/90 backdrop-blur-sm">
-          <div className="px-4 py-3">
-            <button
-              onClick={onClose}
-              className="flex h-14 w-full items-center justify-center rounded-btn bg-[#5B3E2A] text-base font-bold text-[#F6F1E6] shadow-soft transition active:scale-[0.99]"
-            >
-              Lihat Menu Jamu
-            </button>
           </div>
         </div>
       </div>
