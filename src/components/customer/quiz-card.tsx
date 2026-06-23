@@ -7,8 +7,7 @@ import { useUiStore } from "@/stores/ui-store";
 
 /**
  * Quiz Card — kartu rekomendasi (fitur discovery penting).
- * Desain: kartu Turmeric Gold solid, teks Mocca Brown, tombol Mocca Brown.
- * Latar bisa gambar upload (jika ada); tanpa gambar → solid gold.
+ * Background langsung foto (tanpa warna solid). Teks Mocca + tombol Mocca.
  */
 export function QuizCard() {
   const openQuiz = useUiStore((s) => s.openQuiz);
@@ -20,22 +19,21 @@ export function QuizCard() {
 
   return (
     <div className="px-4 py-2">
-      <div className="relative h-[90px] overflow-hidden rounded-card bg-secondary shadow-soft">
-        {/* Latar gambar (jika diupload owner) */}
-        {image && (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={image}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <span className="absolute inset-0 bg-secondary/70" />
-          </>
+      <div className="relative h-[90px] overflow-hidden rounded-card shadow-soft">
+        {/* Latar: langsung foto, tanpa warna solid */}
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={image}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-secondary" />
         )}
 
         <div className="relative flex h-full items-center justify-between gap-2 px-4">
-          <div className="min-w-0 flex-1 pl-8">
+          <div className="min-w-0 flex-1 pl-10">
             <h3 className="text-sm font-extrabold text-primary">
               Bingung Pilih Jamu?
             </h3>
