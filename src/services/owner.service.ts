@@ -198,6 +198,10 @@ export async function getReport(range: ReportRange): Promise<ReportData> {
       .neq("status", "menunggu_bayar");
 
     const rows = orders ?? [];
+    // Jika tidak ada order dalam rentang → fallback ke data estimasi
+    // (agar grafik tetap tampil, bukan kosong).
+    if (rows.length === 0) return getReportFallback(range);
+
     const totalSales = rows.reduce((s, o) => s + (Number(o.total_price) || 0), 0);
     const orderCount = rows.length;
 
