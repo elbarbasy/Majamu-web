@@ -33,7 +33,7 @@ export function QuizCard() {
         )}
 
         <div className="relative flex h-full items-center justify-between gap-2 px-4">
-          <div className="min-w-0 flex-1 pl-10">
+          <div className="min-w-0 flex-1">
             <h3 className="text-sm font-extrabold text-primary">
               Bingung Pilih Jamu?
             </h3>
