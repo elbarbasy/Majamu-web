@@ -199,14 +199,16 @@ export default function ReceiptPage() {
       </div>
 
       {/* ===== Actions (tidak ikut tercetak) ===== */}
-      <div className="no-print mt-4 space-y-3">
+      <div className="no-print mt-4">
         <Button block variant="outline" onClick={handleDownload}>
           <Download className="h-4 w-4" />
           Download PDF
         </Button>
-        <Link href={`/order/${order.statusUrl}`}>
-          <Button block>Lihat Status Pesanan</Button>
-        </Link>
+        <div className="mt-3">
+          <Link href={`/order/${order.statusUrl}`}>
+            <Button block>Lihat Status Pesanan</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Ringkasan timeline status (mobile friendly, ikut tercetak) */}
