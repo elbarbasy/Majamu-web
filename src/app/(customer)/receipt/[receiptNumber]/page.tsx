@@ -86,7 +86,7 @@ export default function ReceiptPage() {
             <p className="mt-1 text-sm text-[#5B3A29]">
               Silakan lakukan pembayaran di counter untuk memulai proses racik.
             </p>
-            <p className="mt-3 text-3xl font-black text-primary">
+            <p className="mt-3 font-display text-hero font-semibold tabular tracking-hero text-ink">
               {formatCurrency(order.totalPrice)}
             </p>
           </div>

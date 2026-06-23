@@ -84,7 +84,7 @@ export default function HistoryPage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-bold text-primary">Riwayat Pesanan</h1>
+          <h1 className="font-display text-lead font-medium tracking-tight text-ink">Riwayat Pesanan</h1>
         </div>
         {mounted && orders.length > 0 && (
           <button

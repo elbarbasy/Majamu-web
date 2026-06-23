@@ -74,7 +74,7 @@ export function InfoPanel() {
               <p className="text-lg font-extrabold leading-none tracking-wide">
                 MAJAMU
               </p>
-              <p className="mt-1 text-xs text-white/80">{tagline}</p>
+              <p className="mt-1 font-display text-sm italic text-white/85">{tagline}</p>
             </div>
           </div>
           <button

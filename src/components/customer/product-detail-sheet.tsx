@@ -117,10 +117,10 @@ export function ProductDetailSheet() {
 
           {/* Nama & harga */}
           <div>
-            <h3 className="text-xl font-extrabold leading-snug text-ink">
+            <h3 className="font-display text-title font-medium leading-[1.25] tracking-tight text-ink">
               {product.name}
             </h3>
-            <p className="mt-1 text-xl font-extrabold text-primary">
+            <p className="mt-1 text-lead font-semibold tabular text-ink">
               {formatCurrency(product.price)}
             </p>
           </div>

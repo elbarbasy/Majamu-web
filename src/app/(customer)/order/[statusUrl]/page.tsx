@@ -105,7 +105,7 @@ export default function OrderTrackingPage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold text-primary">Status Pesanan</h1>
+        <h1 className="font-display text-page font-medium tracking-tight text-ink">Status Pesanan</h1>
       </div>
 
       {!order ? (
@@ -119,7 +119,7 @@ export default function OrderTrackingPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-black/50">Nomor Pesanan</p>
-                <p className="text-lead font-semibold text-primary">
+                <p className="font-display text-hero font-semibold tracking-hero text-ink">
                   {order.displayNumber}
                 </p>
               </div>

@@ -160,7 +160,7 @@ export default function CheckoutPage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-extrabold text-ink">Checkout</h1>
+        <h1 className="font-display text-page font-medium tracking-tight text-ink">Checkout</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">

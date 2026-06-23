@@ -60,19 +60,19 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         <button
           onClick={() => openDetail(product.id)}
-          className="clamp-2 min-h-[2.5rem] text-left text-sm font-bold leading-snug text-ink"
+          className="clamp-2 min-h-[2.5rem] text-left text-lead font-semibold leading-[1.4] tracking-tight text-ink"
         >
           {product.name}
         </button>
 
-        <span className="text-base font-extrabold text-primary">
+        <span className="text-base font-semibold tabular text-ink">
           {formatCurrency(product.price)}
         </span>
 
         {/* Benefit chip + tombol tambah */}
         <div className="mt-auto flex items-center justify-between gap-2 pt-1.5">
           {benefit ? (
-            <span className="clamp-1 max-w-[70%] rounded-pill bg-accent/12 px-2.5 py-1 text-[11px] font-semibold text-accent">
+            <span className="clamp-1 max-w-[70%] rounded-pill bg-gold/15 px-2.5 py-1 text-sm font-medium text-ink/70">
               {benefit}
             </span>
           ) : (

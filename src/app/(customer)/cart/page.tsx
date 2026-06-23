@@ -37,7 +37,7 @@ export default function CartPage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold text-primary">Keranjang</h1>
+        <h1 className="font-display text-page font-medium tracking-tight text-ink">Keranjang</h1>
       </div>
 
       {!mounted ? null : items.length === 0 ? (

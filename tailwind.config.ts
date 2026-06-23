@@ -1,9 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   safelist: [
     "bg-amber-50", "bg-blue-50", "bg-orange-50", "bg-green-50", "bg-gray-50", "bg-red-50",
     "bg-amber-100", "bg-blue-100", "bg-orange-100", "bg-green-100", "bg-gray-100", "bg-red-100",
@@ -21,18 +19,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Brand Majamu — identitas final.
-        primary: { DEFAULT: "#5B3E2A", foreground: "#FFFFFF" },       // Mocca Brown
-        secondary: { DEFAULT: "#E6AA2C", foreground: "#3A2A12" },     // Turmeric Gold
-        accent: { DEFAULT: "#7E9F6E", foreground: "#FFFFFF" },        // Herbal Green
-        background: "#F6F1E6",                                         // Milk Cream
+        primary: { DEFAULT: "#5B3E2A", foreground: "#FFFFFF" },
+        secondary: { DEFAULT: "#E6AA2C", foreground: "#5B3E2A" },
+        accent: { DEFAULT: "#7E9F6E", foreground: "#FFFFFF" },
+        background: "#F6F1E6",
         surface: "#FFFFFF",
-        gold: "#E6AA2C",                                               // Turmeric Gold
+        gold: "#E6AA2C",
         success: "#6B9A63",
         warning: "#E6AA2C",
         danger: "#C86A5A",
         error: "#C86A5A",
-        ink: "#2D2D2D",
+        ink: "#5B3E2A",
         muted: "#8C8C8C",
         line: "#E8E0D0",
       },
@@ -40,21 +37,31 @@ const config: Config = {
         sans: [
           "var(--font-body)",
           "Hanken Grotesk",
-          "ui-sans-serif",
           "system-ui",
           "-apple-system",
-          "Segoe UI",
-          "Roboto",
-          "Arial",
           "sans-serif",
         ],
         display: [
           "var(--font-display)",
           "Fraunces",
-          "ui-serif",
           "Georgia",
           "serif",
         ],
+      },
+      fontSize: {
+        micro: ["0.75rem", { lineHeight: "1.3" }],         // 12px
+        sm: ["0.875rem", { lineHeight: "1.3" }],           // 14px
+        base: ["1rem", { lineHeight: "1.5" }],             // 16px
+        lead: ["1.1875rem", { lineHeight: "1.4" }],        // 19px
+        title: ["1.4375rem", { lineHeight: "1.25" }],      // 23px
+        page: ["1.75rem", { lineHeight: "1.2" }],          // 28px
+        "display-lg": ["2.125rem", { lineHeight: "1.2" }], // 34px
+        hero: ["2.75rem", { lineHeight: "1.1" }],          // 44px
+      },
+      letterSpacing: {
+        tight: "-0.01em",
+        hero: "-0.015em",
+        caps: "0.06em",
       },
       borderRadius: {
         card: "24px",
@@ -69,23 +76,11 @@ const config: Config = {
         "soft-lg": "0 24px 60px -24px rgba(91, 62, 42, 0.30)",
       },
       keyframes: {
-        "sheet-in": {
-          from: { transform: "translateY(100%)" },
-          to: { transform: "translateY(0)" },
-        },
-        "panel-in-right": {
-          from: { transform: "translateX(100%)" },
-          to: { transform: "translateX(0)" },
-        },
+        "sheet-in": { from: { transform: "translateY(100%)" }, to: { transform: "translateY(0)" } },
+        "panel-in-right": { from: { transform: "translateX(100%)" }, to: { transform: "translateX(0)" } },
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
-        "pop-in": {
-          from: { opacity: "0", transform: "scale(0.97)" },
-          to: { opacity: "1", transform: "scale(1)" },
-        },
-        "rise-in": {
-          from: { opacity: "0", transform: "translateY(8px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
+        "pop-in": { from: { opacity: "0", transform: "scale(0.97)" }, to: { opacity: "1", transform: "scale(1)" } },
+        "rise-in": { from: { opacity: "0", transform: "translateY(8px)" }, to: { opacity: "1", transform: "translateY(0)" } },
       },
       animation: {
         "sheet-in": "sheet-in 0.32s cubic-bezier(0.22,1,0.36,1)",
