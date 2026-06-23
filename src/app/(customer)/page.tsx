@@ -7,6 +7,7 @@ import { FilterChips } from "@/components/customer/filter-chips";
 import { ProductGrid } from "@/components/customer/product-grid";
 import { PromoBanner } from "@/components/customer/promo-banner";
 import { QuizCard } from "@/components/customer/quiz-card";
+import { QuizResultBanner } from "@/components/customer/quiz-result-banner";
 import { FILTER_ALL } from "@/constants";
 import { getBanners, getProducts } from "@/services/products.service";
 import { getStoreStatus } from "@/services/settings.service";
@@ -55,6 +56,8 @@ export default function CustomerHomePage() {
       )}
 
       <PromoBanner banners={banners} />
+
+      <QuizResultBanner />
 
       <FilterChips active={activeFilter} onSelect={setActiveFilter} />
 
