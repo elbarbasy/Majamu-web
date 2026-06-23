@@ -15,6 +15,17 @@ import { createClient } from "@/lib/supabase/client";
 
 function toDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
+    // PNG: langsung baca tanpa resize (pertahankan transparansi 100%).
+    // Canvas sering merusak alpha channel di beberapa browser.
+    if (file.type === "image/png") {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // Non-PNG (JPG dll): resize + kompres via canvas.
     const img = new Image();
     img.onload = () => {
       const MAX = 600;
@@ -34,7 +45,6 @@ function toDataUrl(file: File): Promise<string> {
       canvas.height = h;
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        // Fallback tanpa resize.
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result));
         reader.onerror = () => reject(reader.error);
@@ -42,12 +52,10 @@ function toDataUrl(file: File): Promise<string> {
         return;
       }
       ctx.drawImage(img, 0, 0, w, h);
-      // Pertahankan transparansi untuk PNG; JPEG untuk lainnya.
-      const isPng = file.type === "image/png";
-      resolve(canvas.toDataURL(isPng ? "image/png" : "image/jpeg", isPng ? undefined : 0.6));
+      resolve(canvas.toDataURL("image/jpeg", 0.6));
+      URL.revokeObjectURL(img.src);
     };
     img.onerror = () => {
-      // Jika bukan gambar valid, fallback raw data URL.
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result));
       reader.onerror = () => reject(reader.error);
