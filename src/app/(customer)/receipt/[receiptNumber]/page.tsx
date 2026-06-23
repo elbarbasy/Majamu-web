@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -10,7 +9,6 @@ import {
   Hash,
   MapPin,
   Receipt as ReceiptIcon,
-  Share2,
   Sparkles,
 } from "lucide-react";
 
@@ -19,7 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PAYMENT_METHODS, statusLabel, sweetnessLabel, temperatureLabel } from "@/constants";
 import { getOrderByReceipt } from "@/lib/order-cache";
-import { buildTrackingUrl, qrImageUrl } from "@/lib/qr";
 import { printPdf } from "@/lib/export";
 import { getPublicSettings } from "@/services/settings.service";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
@@ -49,33 +46,8 @@ export default function ReceiptPage() {
     getPublicSettings().then((s) => setLogoUrl(s.logoUrl));
   }, [receiptNumber]);
 
-  const trackingUrl = order ? buildTrackingUrl(order.statusUrl) : "";
-
   function handleDownload() {
     printPdf();
-  }
-
-  function handleShare() {
-    if (!order) return;
-    const receiptUrl =
-      typeof window !== "undefined" ? window.location.href : "";
-    const lines = [
-      `Halo${order.customerName ? " " + order.customerName : ""},`,
-      "",
-      "Pesanan Anda di Majamu berhasil dibuat.",
-      `No Order: ${order.displayNumber}`,
-      `No Struk: ${order.receiptNumber}`,
-      `Total: ${formatCurrency(order.totalPrice)}`,
-      "",
-      `Struk: ${receiptUrl}`,
-      `Status Pesanan: ${trackingUrl}`,
-    ];
-    const text = encodeURIComponent(lines.join("\n"));
-    const phone = (order.whatsapp || "").replace(/[^0-9]/g, "");
-    const url = phone
-      ? `https://wa.me/${phone}?text=${text}`
-      : `https://wa.me/?text=${text}`;
-    window.open(url, "_blank");
   }
 
   if (!mounted) return null;
@@ -220,23 +192,6 @@ export default function ReceiptPage() {
             </div>
           </div>
 
-          {/* QR Tracking Pesanan */}
-          <div className="flex flex-col items-center gap-2 border-t border-dashed border-black/15 pt-5">
-            <div className="rounded-card bg-white p-2 ring-1 ring-black/10">
-              <Image
-                src={qrImageUrl(trackingUrl, 200)}
-                alt="QR Lacak Pesanan"
-                width={140}
-                height={140}
-                unoptimized
-                className="h-[140px] w-[140px]"
-              />
-            </div>
-            <p className="text-xs font-medium text-black/55">
-              Scan untuk lacak status pesanan
-            </p>
-          </div>
-
           <p className="text-center text-[11px] text-black/35">
             Terima kasih telah memesan di Majamu 🌿
           </p>
@@ -244,17 +199,11 @@ export default function ReceiptPage() {
       </div>
 
       {/* ===== Actions (tidak ikut tercetak) ===== */}
-      <div className="no-print mt-4 space-y-2">
-        <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" onClick={handleDownload}>
-            <Download className="h-4 w-4" />
-            Download PDF
-          </Button>
-          <Button variant="accent" onClick={handleShare}>
-            <Share2 className="h-4 w-4" />
-            Bagikan WA
-          </Button>
-        </div>
+      <div className="no-print mt-4 space-y-3">
+        <Button block variant="outline" onClick={handleDownload}>
+          <Download className="h-4 w-4" />
+          Download PDF
+        </Button>
         <Link href={`/order/${order.statusUrl}`}>
           <Button block>Lihat Status Pesanan</Button>
         </Link>
