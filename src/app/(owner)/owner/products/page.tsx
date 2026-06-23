@@ -6,6 +6,7 @@ import { Leaf, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/owner/page-header";
 import { SectionCard } from "@/components/owner/section-card";
 import { ImageUpload } from "@/components/owner/image-upload";
+import { ConfirmDeleteDialog } from "@/components/owner/confirm-delete-dialog";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
@@ -47,6 +48,7 @@ export default function ProductsPage() {
   const [open, setOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<OwnerProduct | null>(null);
   const [form, setForm] = React.useState<Omit<OwnerProduct, "id">>(EMPTY);
+  const [deleteTarget, setDeleteTarget] = React.useState<string | null>(null);
 
   const reload = React.useCallback(() => {
     listProducts().then(setProducts);
@@ -82,6 +84,7 @@ export default function ProductsPage() {
   async function remove(id: string) {
     setProducts((prev) => prev.filter((p) => p.id !== id));
     await deleteProduct(id);
+    invalidateProductsCache();
   }
 
   async function toggleStock(p: OwnerProduct) {
@@ -248,7 +251,7 @@ export default function ProductsPage() {
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => remove(p.id)}
+                        onClick={() => setDeleteTarget(p.id)}
                         aria-label="Hapus"
                         className="flex h-8 w-8 items-center justify-center rounded-full text-black/50 hover:bg-error/10 hover:text-error"
                       >
@@ -507,6 +510,17 @@ export default function ProductsPage() {
           </div>
         </div>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) remove(deleteTarget);
+          setDeleteTarget(null);
+        }}
+        title="Hapus Produk"
+        message="Apakah Anda yakin ingin menghapus produk ini? Data tidak dapat dikembalikan."
+      />
     </div>
   );
 }

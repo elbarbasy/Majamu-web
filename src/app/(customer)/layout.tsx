@@ -1,3 +1,4 @@
+import { AddToCartToast } from "@/components/customer/add-to-cart-toast";
 import { CustomerHeader } from "@/components/customer/customer-header";
 import { CustomerOverlays } from "@/components/customer/customer-overlays";
 import { FloatingDock } from "@/components/customer/floating-dock";
@@ -12,10 +13,10 @@ export default function CustomerLayout({
   return (
     <div className="mx-auto flex min-h-[100dvh] max-w-screen-sm flex-col bg-background">
       <CustomerHeader />
-      {/* padding bawah memberi ruang untuk floating dock */}
       <main className="flex-1 pb-36">{children}</main>
       <FloatingDock />
       <CustomerOverlays />
+      <AddToCartToast />
     </div>
   );
 }
