@@ -64,7 +64,7 @@ export function InfoPanel() {
               <img
                 src={settings.logoUrl}
                 alt="Majamu"
-                className="h-10 max-w-[100px] object-contain"
+                className="h-10 max-w-[100px] object-contain brightness-0 invert"
               />
             ) : (
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15">

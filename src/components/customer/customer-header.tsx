@@ -46,7 +46,7 @@ export function CustomerHeader() {
             <img
               src={logoUrl}
               alt="Majamu"
-              className="h-8 max-w-[120px] object-contain"
+              className="h-9 max-w-[130px] object-contain"
             />
           ) : (
             <span className="text-lg font-extrabold tracking-[0.18em] text-primary">
