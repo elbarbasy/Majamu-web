@@ -100,6 +100,7 @@ export interface CashierOrder {
   customerName: string | null;
   whatsapp: string | null;
   notes: string | null;
+  paymentMethod: PaymentMethod | null;
   status: OrderStatus;
   totalPrice: number;
   createdAt: string;

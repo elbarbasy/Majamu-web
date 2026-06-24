@@ -150,17 +150,26 @@ export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps
           </span>
         </div>
 
-        {action && (
-          <button
-            disabled={busy}
-            onClick={() => onAdvance(order, action.next)}
-            className={cn(
-              "flex h-12 w-full items-center justify-center rounded-btn border text-sm font-bold shadow-soft-sm transition active:scale-[0.99] disabled:opacity-50",
-              style.solid
-            )}
-          >
-            {action.label}
-          </button>
+        {/* Untuk QRIS: status menunggu_bayar hanya sementara (menunggu callback Midtrans).
+            Kasir tidak perlu konfirmasi manual — tampilkan info saja. */}
+        {order.status === "menunggu_bayar" &&
+        (order.paymentMethod === "qris" || order.paymentMethod === "midtrans") ? (
+          <div className="flex h-12 w-full items-center justify-center rounded-btn border border-amber-300 bg-amber-50 text-sm font-semibold text-amber-700">
+            ⏳ Menunggu pembayaran QRIS...
+          </div>
+        ) : (
+          action && (
+            <button
+              disabled={busy}
+              onClick={() => onAdvance(order, action.next)}
+              className={cn(
+                "flex h-12 w-full items-center justify-center rounded-btn border text-sm font-bold shadow-soft-sm transition active:scale-[0.99] disabled:opacity-50",
+                style.solid
+              )}
+            >
+              {action.label}
+            </button>
+          )
         )}
       </div>
     </div>

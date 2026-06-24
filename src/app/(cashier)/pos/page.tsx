@@ -68,6 +68,29 @@ export default function PosBoardPage() {
       }
     }
 
+    /** Notifikasi untuk order QRIS yang baru saja dikonfirmasi otomatis oleh webhook. */
+    function notifyQrisConfirmed(confirmedOrders: CashierOrder[]) {
+      const { soundEnabled, volume } = useCashierSettingsStore.getState();
+      if (soundEnabled) playNewOrderSound(volume);
+      if (confirmedOrders.length === 1) {
+        const o = confirmedOrders[0];
+        const qty = o.items.reduce((s, i) => s + i.quantity, 0);
+        push({
+          tone: "new",
+          title: "✅ QRIS Terbayar",
+          message: `${o.displayNumber ?? "-"}\n${qty} Item • ${formatCurrency(o.totalPrice)}`,
+          durationMs: 6000,
+        });
+      } else {
+        push({
+          tone: "new",
+          title: "✅ QRIS Terbayar",
+          message: `${confirmedOrders.length} pesanan QRIS terkonfirmasi`,
+          durationMs: 6000,
+        });
+      }
+    }
+
     async function load() {
       const data = await fetchActiveOrders();
       if (!alive) return;
@@ -78,6 +101,24 @@ export default function PosBoardPage() {
         incomingNew.forEach((o) => (newAt.current[o.id] = ts));
         notifyNew(incomingNew);
       }
+
+      // Deteksi order QRIS yang baru saja otomatis dikonfirmasi (menunggu_bayar → diterima via webhook).
+      // Order ini sudah dikenal (ada di knownIds) tapi statusnya berubah ke "diterima" secara otomatis.
+      if (initialized.current) {
+        const prevOrders = useCashierBoardStore.getState().orders;
+        const qrisAutoConfirmed = data.filter((o) => {
+          if (o.status !== "diterima") return false;
+          if (o.paymentMethod !== "qris" && o.paymentMethod !== "midtrans") return false;
+          const prev = prevOrders.find((p) => p.id === o.id);
+          return prev && prev.status === "menunggu_bayar";
+        });
+        if (qrisAutoConfirmed.length > 0) {
+          const ts = Date.now();
+          qrisAutoConfirmed.forEach((o) => (newAt.current[o.id] = ts));
+          notifyQrisConfirmed(qrisAutoConfirmed);
+        }
+      }
+
       knownIds.current = new Set(data.map((o) => o.id));
       initialized.current = true;
       setOrders(data);
