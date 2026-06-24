@@ -26,6 +26,7 @@ type OrderRow = {
   customer_name: string | null;
   whatsapp: string | null;
   notes: string | null;
+  payment_method: string | null;
   status: string;
   total_price: number | null;
   created_at: string | null;
@@ -57,6 +58,7 @@ function mapOrder(row: OrderRow): CashierOrder {
     customerName: row.customer_name,
     whatsapp: row.whatsapp,
     notes: row.notes,
+    paymentMethod: row.payment_method ?? null,
     status: row.status as OrderStatus,
     totalPrice: Number(row.total_price) || 0,
     createdAt: row.created_at ?? new Date().toISOString(),
@@ -65,7 +67,7 @@ function mapOrder(row: OrderRow): CashierOrder {
 }
 
 const ORDER_SELECT = `id, status_url, receipt_number, display_number, order_type, customer_name,
-  whatsapp, notes, status, total_price, created_at,
+  whatsapp, notes, payment_method, status, total_price, created_at,
   order_items ( product_name_snapshot, quantity, sweetness_level, temperature, price_snapshot )`;
 
 /** Order aktif (belum selesai) untuk board. */
@@ -79,7 +81,10 @@ export async function fetchActiveOrders(): Promise<CashierOrder[]> {
       .order("created_at", { ascending: true });
     if (error) throw error;
     if (!data) return SAMPLE_CASHIER_ORDERS;
-    return (data as unknown as OrderRow[]).map(mapOrder);
+    // Filter: QRIS menunggu_bayar tidak ditampilkan (otomatis muncul setelah callback set ke diracik)
+    return (data as unknown as OrderRow[]).map(mapOrder).filter(
+      (o) => !(o.status === "menunggu_bayar" && o.paymentMethod === "qris")
+    );
   } catch (err) {
     console.warn("[cashier.service] fallback sample orders:", err);
     return SAMPLE_CASHIER_ORDERS;
