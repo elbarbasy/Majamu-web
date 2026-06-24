@@ -1,17 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ChefHat, RefreshCw, Wallet } from "lucide-react";
+import { ArrowRight, ChefHat, Wallet } from "lucide-react";
 
 import { useActiveOrderStore } from "@/stores/active-order-store";
-import type { OrderStatus } from "@/types";
+import { getOrderByStatusUrl } from "@/lib/order-cache";
 
 /**
- * Sticky bottom card — alur berbeda per status pesanan:
- * - menunggu_bayar: "Pembayaran Tunai — Tunjukkan ke Kasir →"
- * - diterima/diracik/siap_diambil: "Pesanan Sedang Diproses — Lihat Status →"
- * - selesai: "Pesan Lagi →"
- * Konsisten dengan branding Majamu.
+ * Sticky bottom card:
+ * - Tunai + menunggu_bayar: "Pembayaran Tunai — Tunjukkan ke Kasir →"
+ * - QRIS + menunggu_bayar: TIDAK tampil (QRIS bayar sendiri, tidak perlu ke kasir)
+ * - diterima/diracik/siap_diambil: "Pesanan Diproses — Lihat Status →"
+ * - selesai: TIDAK tampil
  */
 export function ActiveOrderBadge() {
   const statusUrl = useActiveOrderStore((s) => s.statusUrl);
@@ -20,31 +20,18 @@ export function ActiveOrderBadge() {
 
   if (!statusUrl || !currentStatus) return null;
 
-  // Selesai → "Pesan Lagi"
-  if (currentStatus === "selesai") {
-    return (
-      <Link
-        href="/"
-        className="flex items-center justify-between gap-3 rounded-card border border-[rgba(107,79,58,0.15)] bg-white px-5 py-4 shadow-soft transition active:scale-[0.99]"
-      >
-        <span className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#A3B18A]/15 text-[#A3B18A]">
-            <RefreshCw className="h-5 w-5" />
-          </span>
-          <span className="text-sm font-semibold text-[#4E342E]">
-            Pesanan Selesai
-          </span>
-        </span>
-        <span className="flex items-center gap-1 text-sm font-semibold text-[#6B4F3A]">
-          Pesan Lagi
-          <ArrowRight className="h-4 w-4" />
-        </span>
-      </Link>
-    );
-  }
+  // Selesai → tidak tampil
+  if (currentStatus === "selesai") return null;
 
-  // Menunggu Bayar → "Pembayaran Tunai"
-  if (currentStatus === "menunggu_bayar") {
+  // Cek metode bayar dari cache order
+  const cached = statusUrl ? getOrderByStatusUrl(statusUrl) : null;
+  const paymentMethod = cached?.paymentMethod ?? "cash";
+
+  // QRIS + menunggu_bayar → tidak perlu tunjukkan ke kasir
+  if (currentStatus === "menunggu_bayar" && paymentMethod === "qris") return null;
+
+  // Tunai + menunggu_bayar → "Tunjukkan ke Kasir"
+  if (currentStatus === "menunggu_bayar" && paymentMethod === "cash") {
     return (
       <Link
         href={`/order/${statusUrl}`}
@@ -69,8 +56,8 @@ export function ActiveOrderBadge() {
     );
   }
 
-  // Diterima / Diracik / Siap Diambil → "Pesanan Sedang Diproses"
-  const STATUS_LABEL: Partial<Record<OrderStatus, string>> = {
+  // Diterima / Diracik / Siap Diambil → "Lihat Status"
+  const STATUS_LABEL: Record<string, string> = {
     diterima: "Pesanan Diterima",
     diracik: "Sedang Diracik",
     siap_diambil: "Siap Diambil",
