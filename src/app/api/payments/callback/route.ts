@@ -72,10 +72,12 @@ export async function POST(request: Request) {
     .eq("order_id", order.id);
 
   if (paymentStatus === "paid" && order.status === "menunggu_bayar") {
-    await supabase.from("orders").update({ status: "diterima" }).eq("id", order.id);
+    // QRIS sukses → langsung "diracik" (skip diterima, tidak perlu konfirmasi kasir)
+    const nextStatus = "diracik";
+    await supabase.from("orders").update({ status: nextStatus }).eq("id", order.id);
     await supabase
       .from("order_status_history")
-      .insert({ order_id: order.id, status: "diterima" });
+      .insert({ order_id: order.id, status: nextStatus });
 
     if (fonnteConfigured() && order.whatsapp) {
       const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
