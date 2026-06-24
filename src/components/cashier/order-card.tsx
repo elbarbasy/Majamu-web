@@ -93,6 +93,9 @@ export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps
             <Utensils className="h-3 w-3" />
             {orderTypeLabel(order.orderType)}
           </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-[#E6AA2C]/15 px-2.5 py-0.5 text-xs font-semibold text-[#5B3E2A]">
+            {order.paymentMethod === "qris" ? "QRIS" : "Tunai"}
+          </span>
         </div>
       </div>
 
