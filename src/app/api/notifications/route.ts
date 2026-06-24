@@ -31,6 +31,7 @@ export async function POST(request: Request) {
     total?: string;
     receiptUrl?: string;
     statusUrl?: string;
+    paymentMethod?: string;
   };
   try {
     body = await request.json();
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ sent: false, reason: "invalid body" }, { status: 400 });
   }
 
-  const { whatsapp, customerName, orderNumber, receiptNumber, total, receiptUrl, statusUrl } = body;
+  const { whatsapp, customerName, orderNumber, receiptNumber, total, receiptUrl, statusUrl, paymentMethod } = body;
   if (!whatsapp) {
     return NextResponse.json({ sent: false, reason: "no whatsapp number" });
   }
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
     total: total ?? "",
     receiptUrl: receiptUrl ?? "",
     statusUrl: statusUrl ?? "",
+    paymentMethod: paymentMethod ?? undefined,
   });
 
   const result = await sendWhatsApp(whatsapp, message);

@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, status, status_url, receipt_number, customer_name, whatsapp, total_price, display_number"
+      "id, status, status_url, receipt_number, customer_name, whatsapp, total_price, display_number, payment_method"
     )
     .eq("receipt_number", payload.order_id)
     .maybeSingle();
@@ -76,19 +76,22 @@ export async function POST(request: Request) {
     await supabase
       .from("order_status_history")
       .insert({ order_id: order.id, status: "diterima" });
+  }
 
-    if (fonnteConfigured() && order.whatsapp) {
-      const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
-      const message = buildOrderWhatsApp({
-        name: order.customer_name ?? "",
-        orderNumber: order.display_number ?? "",
-        receiptNumber: order.receipt_number ?? "",
-        total: rupiah(Number(order.total_price) || 0),
-        receiptUrl: `${base}/receipt/${order.receipt_number}`,
-        statusUrl: `${base}/order/${order.status_url}`,
-      });
-      await sendWhatsApp(order.whatsapp, message);
-    }
+  // Kirim struk WhatsApp otomatis untuk pembayaran QRIS yang berhasil.
+  // Dikirim selama payment sukses (paid), terlepas dari status order sebelumnya.
+  if (paymentStatus === "paid" && fonnteConfigured() && order.whatsapp) {
+    const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
+    const message = buildOrderWhatsApp({
+      name: order.customer_name ?? "",
+      orderNumber: order.display_number ?? "",
+      receiptNumber: order.receipt_number ?? "",
+      total: rupiah(Number(order.total_price) || 0),
+      receiptUrl: `${base}/receipt/${order.receipt_number}`,
+      statusUrl: `${base}/order/${order.status_url}`,
+      paymentMethod: order.payment_method ?? undefined,
+    });
+    await sendWhatsApp(order.whatsapp, message);
   }
 
   return NextResponse.json({ received: true });
