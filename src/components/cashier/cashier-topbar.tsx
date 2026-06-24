@@ -15,6 +15,7 @@ import {
 import { StockSheet } from "@/components/cashier/stock-sheet";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { getPublicSettings } from "@/services/settings.service";
 import {
   useCashierSettingsStore,
   type Volume,
@@ -31,6 +32,18 @@ const VOLUMES: { value: Volume; label: string }[] = [
   { value: "medium", label: "Sedang" },
   { value: "high", label: "Tinggi" },
 ];
+
+function CashierLogo() {
+  const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    getPublicSettings().then((s) => setLogoUrl(s.logoUrl));
+  }, []);
+  if (logoUrl) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={logoUrl} alt="Majamu" className="h-8 max-w-[100px] object-contain" />;
+  }
+  return <span className="text-lg font-extrabold tracking-tight text-primary">Majamu</span>;
+}
 
 /**
  * Top bar kasir: navigasi board/riwayat/shift + toggle Stok Habis +
@@ -50,9 +63,7 @@ export function CashierTopbar() {
     <header className="sticky top-0 z-30 border-b border-black/5 bg-surface/95 backdrop-blur">
       <div className="flex h-16 items-center justify-between gap-3 px-4">
         <div className="flex items-center gap-2">
-          <span className="text-lg font-extrabold tracking-tight text-primary">
-            Majamu
-          </span>
+          <CashierLogo />
           <span className="hidden rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary sm:inline">
             Kasir
           </span>
