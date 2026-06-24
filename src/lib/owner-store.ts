@@ -79,7 +79,6 @@ export interface StoreSettingsData {
   tagline: string;
   brandStory: string;
   quizImageUrl: string | null;
-  panelLogoUrl: string | null;
   storeWhatsapp: string;
   instagram: string;
   address: string;
@@ -224,7 +223,6 @@ function seed(): OwnerDb {
     brandStory:
       "Majamu menghadirkan jamu modern yang diracik saat itu juga dengan bahan alami pilihan. Untuk keluarga profesional dan anak muda yang peduli kesehatan alami.",
     quizImageUrl: null,
-    panelLogoUrl: null,
     storeWhatsapp: "628000000000",
     instagram: "@majamu.id",
     address: "Jl. Herbal No. 1, Indonesia",

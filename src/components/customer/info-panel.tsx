@@ -61,22 +61,15 @@ export function InfoPanel() {
             aria-modal="true"
             className="absolute right-0 top-0 flex h-full w-[84%] max-w-sm animate-panel-in-right flex-col bg-[#5B3E2A] shadow-soft-lg"
           >
-            {/* Header — bg Cream, tagline Mocca Brown */}
+            {/* Header — bg Cream, logo + tagline di bawah logo */}
             <div className="flex items-center justify-between bg-[#F6F1E6] px-5 pb-5 pt-6">
-              <div className="flex items-center gap-3">
-                {settings?.panelLogoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={settings.panelLogoUrl}
-                    alt="Majamu"
-                    className="h-10 max-w-[120px] object-contain"
-                  />
-                ) : settings?.logoUrl ? (
+              <div className="flex flex-col gap-1.5">
+                {settings?.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={settings.logoUrl}
                     alt="Majamu"
-                    className="h-10 max-w-[100px] object-contain"
+                    className="h-10 max-w-[120px] object-contain"
                   />
                 ) : (
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#5B3E2A]/10">
