@@ -34,10 +34,37 @@ export default function CashPaymentPage() {
   } | null>(null);
   const [timeLeft, setTimeLeft] = React.useState(EXPIRY_MINUTES * 60);
 
-  // Fetch order by payment_code
+  // Fetch order by payment_code (Supabase + localStorage fallback)
   React.useEffect(() => {
     if (!paymentCode) return;
 
+    // Coba dari localStorage cache dulu (pasti ada karena saveOrder di checkout)
+    try {
+      const raw = localStorage.getItem("majamu-orders");
+      if (raw) {
+        const map = JSON.parse(raw) as Record<string, unknown>;
+        const cached = map[`payment:${paymentCode}`] as {
+          displayNumber?: string;
+          totalPrice?: number;
+          statusUrl?: string;
+          createdAt?: string;
+          status?: string;
+        } | undefined;
+        if (cached) {
+          setOrder({
+            displayNumber: cached.displayNumber ?? null,
+            totalPrice: cached.totalPrice ?? 0,
+            statusUrl: cached.statusUrl ?? "",
+            createdAt: cached.createdAt ?? "",
+          });
+          if (cached.status && cached.status !== "menunggu_bayar") {
+            setState("paid");
+          }
+        }
+      }
+    } catch { /* ignore */ }
+
+    // Juga fetch dari Supabase (untuk realtime status)
     async function fetchOrder() {
       try {
         const supabase = createClient();
@@ -59,20 +86,7 @@ export default function CashPaymentPage() {
         if (data.status !== "menunggu_bayar") {
           setState("paid");
         }
-      } catch {
-        // Fallback: cek dari cache lokal
-        const cached = Object.values(localStorage)
-          .map((v) => { try { return JSON.parse(v); } catch { return null; } })
-          .find((o) => o?.paymentCode === paymentCode);
-        if (cached) {
-          setOrder({
-            displayNumber: cached.displayNumber,
-            totalPrice: cached.totalPrice,
-            statusUrl: cached.statusUrl,
-            createdAt: cached.createdAt,
-          });
-        }
-      }
+      } catch { /* Supabase belum dikonfigurasi / kolom belum ada */ }
     }
     fetchOrder();
   }, [paymentCode]);

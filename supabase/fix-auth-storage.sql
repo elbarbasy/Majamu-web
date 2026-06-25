@@ -116,3 +116,9 @@ ON CONFLICT DO NOTHING;
 -- a) UNCOMMENT & jalankan INSERT users (langkah 2) dengan UUID Anda.
 -- b) Redeploy Vercel (agar middleware menggunakan env terbaru).
 -- c) Hard refresh browser (Ctrl+Shift+R) untuk bypass cache.
+
+
+-- =========================================================
+-- FIX: Kolom payment_code untuk QR scan pembayaran tunai
+-- =========================================================
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_code text UNIQUE;
