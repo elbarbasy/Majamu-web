@@ -114,5 +114,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, newStatus: "diracik" });
   }
 
+  // Action: cancel (auto-cancel when payment countdown expires)
+  if (action === "cancel") {
+    if (order.status !== "menunggu_bayar") {
+      return NextResponse.json({ error: "not_cancellable", status: order.status });
+    }
+
+    await supabase.from("orders").update({ status: "dibatalkan" }).eq("id", String(order.id));
+    await supabase.from("order_status_history").insert({ order_id: String(order.id), status: "dibatalkan" });
+
+    return NextResponse.json({ success: true, newStatus: "dibatalkan" });
+  }
+
   return NextResponse.json({ error: "invalid_action" }, { status: 400 });
 }

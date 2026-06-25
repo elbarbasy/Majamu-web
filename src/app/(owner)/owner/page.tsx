@@ -9,6 +9,7 @@ import {
   Store,
   TrendingUp,
   Users,
+  XCircle,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/owner/page-header";
@@ -73,7 +74,7 @@ export default function OwnerDashboardPage() {
       </SectionCard>
 
       {/* Metrik */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
           label="Omzet Hari Ini"
           value={formatCurrency(data?.omzetToday ?? 0)}
@@ -92,6 +93,13 @@ export default function OwnerDashboardPage() {
           icon={<Coffee className="h-5 w-5" />}
           hint="Sedang diproses kasir"
           tone="secondary"
+        />
+        <StatCard
+          label="Dibatalkan"
+          value={data?.cancelledToday ?? 0}
+          icon={<XCircle className="h-5 w-5" />}
+          hint="Pesanan dibatalkan hari ini"
+          tone="error"
         />
         <StatCard
           label="Kasir Aktif"

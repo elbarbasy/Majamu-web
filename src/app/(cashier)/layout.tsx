@@ -11,9 +11,11 @@ export default function CashierLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="min-h-[100dvh] bg-background">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-background">
       <CashierTopbar />
-      <main className="mx-auto w-full max-w-screen-2xl">{children}</main>
+      <main className="mx-auto w-full max-w-screen-2xl flex-1 overflow-y-auto">
+        {children}
+      </main>
       <CashierToaster />
       <AudioUnlocker />
     </div>

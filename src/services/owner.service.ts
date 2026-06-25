@@ -52,6 +52,7 @@ export interface DashboardSummary {
   omzetToday: number;
   ordersToday: number;
   activeOrders: number;
+  cancelledToday: number;
   topProduct: { name: string; qty: number } | null;
   outOfStock: { id: string; name: string }[];
   storeStatus: "open" | "closed";
@@ -72,6 +73,7 @@ export async function getDashboard(): Promise<DashboardSummary> {
       omzetToday: incomeToday || 250000,
       ordersToday: 12,
       activeOrders: 3,
+      cancelledToday: 0,
       topProduct: popular ? { name: popular.name, qty: 8 } : null,
       outOfStock: db.products
         .filter((p) => p.stockStatus === "out_of_stock")
@@ -93,7 +95,8 @@ export async function getDashboard(): Promise<DashboardSummary> {
         supabase
           .from("orders")
           .select("id", { count: "exact", head: true })
-          .neq("status", "selesai"),
+          .neq("status", "selesai")
+          .neq("status", "dibatalkan"),
         supabase
           .from("products")
           .select("id, name")
@@ -116,6 +119,17 @@ export async function getDashboard(): Promise<DashboardSummary> {
       0
     );
 
+    // Count cancelled orders today
+    let cancelledCount = 0;
+    try {
+      const { count } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "dibatalkan")
+        .gte("created_at", todayStart);
+      cancelledCount = count ?? 0;
+    } catch { /* ignore */ }
+
     // Produk terlaris hari ini (tally order_items dari order hari ini).
     let topProduct: { name: string; qty: number } | null = null;
     const todayIds = ordersToday.map((o) => o.id);
@@ -137,6 +151,7 @@ export async function getDashboard(): Promise<DashboardSummary> {
       omzetToday,
       ordersToday: ordersToday.length,
       activeOrders: activeRes.count ?? 0,
+      cancelledToday: cancelledCount,
       topProduct,
       outOfStock: (outRes.data ?? []).map((p) => ({ id: p.id, name: p.name })),
       storeStatus:
@@ -155,6 +170,7 @@ function getDashboardFallback(): DashboardSummary {
     omzetToday: 250000,
     ordersToday: 12,
     activeOrders: 3,
+    cancelledToday: 0,
     topProduct: db.products[0] ? { name: db.products[0].name, qty: 8 } : null,
     outOfStock: db.products
       .filter((p) => p.stockStatus === "out_of_stock")
@@ -174,6 +190,7 @@ export interface ReportData {
   range: ReportRange;
   totalSales: number;
   orderCount: number;
+  cancelledCount: number;
   byPayment: { method: string; total: number }[];
   topProducts: { name: string; qty: number; total: number }[];
   series: { label: string; total: number }[];
@@ -202,12 +219,17 @@ export async function getReport(range: ReportRange): Promise<ReportData> {
     // (agar grafik tetap tampil, bukan kosong).
     if (rows.length === 0) return getReportFallback(range);
 
-    const totalSales = rows.reduce((s, o) => s + (Number(o.total_price) || 0), 0);
-    const orderCount = rows.length;
+    // Separate cancelled from successful orders
+    const cancelledRows = rows.filter((o) => o.status === "dibatalkan");
+    const successRows = rows.filter((o) => o.status !== "dibatalkan");
+
+    const totalSales = successRows.reduce((s, o) => s + (Number(o.total_price) || 0), 0);
+    const orderCount = successRows.length;
+    const cancelledCount = cancelledRows.length;
 
     // Breakdown metode pembayaran.
     const payTally = new Map<string, number>();
-    rows.forEach((o) => {
+    successRows.forEach((o) => {
       const key = (o.payment_method as string) ?? "cash";
       payTally.set(key, (payTally.get(key) ?? 0) + (Number(o.total_price) || 0));
     });
@@ -223,7 +245,7 @@ export async function getReport(range: ReportRange): Promise<ReportData> {
 
     // Produk terlaris dari order_items.
     let topProducts: ReportData["topProducts"] = [];
-    const ids = rows.map((o) => o.id);
+    const ids = successRows.map((o) => o.id);
     if (ids.length > 0) {
       const { data: items } = await supabase
         .from("order_items")
@@ -246,13 +268,13 @@ export async function getReport(range: ReportRange): Promise<ReportData> {
 
     const series = buildSeries(
       range,
-      rows.map((o) => ({
+      successRows.map((o) => ({
         createdAt: o.created_at ?? now.toISOString(),
         total: Number(o.total_price) || 0,
       }))
     );
 
-    return { range, totalSales, orderCount, byPayment, topProducts, series };
+    return { range, totalSales, orderCount, cancelledCount, byPayment, topProducts, series };
   } catch (err) {
     console.warn("[owner.service] getReport fallback:", err);
     return getReportFallback(range);
@@ -335,6 +357,7 @@ function getReportFallback(range: ReportRange): ReportData {
     range,
     totalSales,
     orderCount,
+    cancelledCount: 0,
     byPayment: [
       { method: "Tunai", total: Math.round(totalSales * 0.5) },
       { method: "QRIS", total: Math.round(totalSales * 0.35) },
