@@ -69,6 +69,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
   const statusUrl = randomToken(12);
   const seq = Math.floor(Math.random() * 9999) + 1;
   const receiptNumber = `MJM-${todayStamp()}-${pad(seq, 4)}`;
+  const paymentCode = input.paymentMethod === "cash" ? `MJM-${todayStamp()}-${pad(seq, 6)}` : null;
   const displayNumber =
     input.orderType === "dine_in" && input.tableNumber != null
       ? `Meja ${input.tableNumber}`
@@ -102,7 +103,6 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
     if (!seqError && typeof seqData === "number") seqNum = seqData;
 
     const finalReceipt = `MJM-${todayStamp()}-${pad(seqNum, 4)}`;
-    const paymentCode = `MJM-${todayStamp()}-${pad(seqNum, 6)}`;
     const finalDisplay =
       input.orderType === "dine_in" && input.tableNumber != null
         ? `Meja ${input.tableNumber}`
@@ -113,7 +113,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
       .insert({
         status_url: statusUrl,
         receipt_number: finalReceipt,
-        payment_code: input.paymentMethod === "cash" ? paymentCode : null,
+        payment_code: input.paymentMethod === "cash" ? finalPaymentCode : null,
         order_type: input.orderType,
         display_number: finalDisplay,
         customer_name: input.customerName || null,
@@ -158,7 +158,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
       ...base,
       orderId,
       receiptNumber: finalReceipt,
-      paymentCode: input.paymentMethod === "cash" ? paymentCode : null,
+      paymentCode: input.paymentMethod === "cash" ? finalPaymentCode : null,
       displayNumber: finalDisplay,
     };
   } catch (err) {

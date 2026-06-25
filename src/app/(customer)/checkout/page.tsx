@@ -263,17 +263,34 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-          {/* 3. WhatsApp (+ nama opsional) */}
+          {/* 3. Data Pemesan */}
           <section className="rounded-card border border-line bg-surface p-4 shadow-soft-sm">
-            <SectionTitle step={3} title="Nomor WhatsApp" />
+            <SectionTitle step={3} title="Data Pemesan" />
             <div className="space-y-3">
+              <div>
+                <input
+                  {...register("customerName")}
+                  placeholder="Nama Anda"
+                  className={cn(
+                    "h-11 w-full rounded-input border px-3.5 text-base outline-none",
+                    errors.customerName
+                      ? "border-error"
+                      : "border-line focus:border-primary"
+                  )}
+                />
+                {errors.customerName && (
+                  <p className="mt-1 text-xs text-error">
+                    {errors.customerName.message}
+                  </p>
+                )}
+              </div>
               <div>
                 <input
                   {...register("whatsapp")}
                   inputMode="tel"
-                  placeholder="08xxxxxxxxxx"
+                  placeholder="Nomor WhatsApp"
                   className={cn(
-                    "h-11 w-full rounded-input border px-3.5 text-sm outline-none",
+                    "h-11 w-full rounded-input border px-3.5 text-base outline-none",
                     errors.whatsapp
                       ? "border-error"
                       : "border-line focus:border-primary"
@@ -285,16 +302,6 @@ export default function CheckoutPage() {
                   </p>
                 )}
               </div>
-              <input
-                {...register("customerName")}
-                placeholder="Nama Anda (wajib)"
-                className="h-11 w-full rounded-input border border-line px-3.5 text-sm outline-none focus:border-primary"
-              />
-              {errors.customerName && (
-                <p className="mt-1 text-xs text-error">
-                  {errors.customerName.message}
-                </p>
-              )}
             </div>
           </section>
 
