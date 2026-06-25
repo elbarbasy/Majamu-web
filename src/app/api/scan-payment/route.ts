@@ -34,34 +34,50 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "server_not_configured" }, { status: 501 });
   }
 
-  // Lookup order
-  const { data: order, error } = await supabase
+  // Lookup order by payment_code OR receipt_number (fallback jika kolom belum ada)
+  let order: Record<string, unknown> | null = null;
+  let lookupError: unknown = null;
+
+  // Coba payment_code dulu
+  const { data: d1, error: e1 } = await supabase
     .from("orders")
     .select("id, display_number, customer_name, whatsapp, total_price, status, status_url, receipt_number, payment_method")
     .eq("payment_code", paymentCode)
     .maybeSingle();
 
-  if (error || !order) {
+  if (d1) {
+    order = d1 as Record<string, unknown>;
+  } else {
+    // Fallback: cari by receipt_number (payment code = receipt number)
+    const { data: d2, error: e2 } = await supabase
+      .from("orders")
+      .select("id, display_number, customer_name, whatsapp, total_price, status, status_url, receipt_number, payment_method")
+      .eq("receipt_number", paymentCode)
+      .maybeSingle();
+    if (d2) order = d2 as Record<string, unknown>;
+    lookupError = e1 || e2;
+  }
+
+  if (!order) {
     return NextResponse.json({ found: false, error: "not_found" }, { status: 404 });
   }
 
   // Action: lookup
   if (action === "lookup" || !action) {
-    // Ambil items
     const { data: items } = await supabase
       .from("order_items")
       .select("product_name_snapshot, quantity, price_snapshot, sweetness_level, temperature")
-      .eq("order_id", order.id);
+      .eq("order_id", String(order.id));
 
     return NextResponse.json({
       found: true,
       order: {
-        id: order.id,
-        displayNumber: order.display_number,
-        customerName: order.customer_name,
+        id: String(order.id),
+        displayNumber: order.display_number ?? null,
+        customerName: order.customer_name ?? null,
         totalPrice: Number(order.total_price) || 0,
-        status: order.status,
-        paymentMethod: order.payment_method,
+        status: order.status ?? "menunggu_bayar",
+        paymentMethod: order.payment_method ?? "cash",
         items: (items ?? []).map((i) => ({
           name: i.product_name_snapshot,
           quantity: i.quantity,
@@ -79,22 +95,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "already_confirmed", status: order.status });
     }
 
-    // Update status → diracik (tunai langsung racik setelah bayar)
-    await supabase.from("orders").update({ status: "diracik" }).eq("id", order.id);
-    await supabase.from("order_status_history").insert({ order_id: order.id, status: "diracik" });
+    await supabase.from("orders").update({ status: "diracik" }).eq("id", String(order.id));
+    await supabase.from("order_status_history").insert({ order_id: String(order.id), status: "diracik" });
 
-    // Kirim WA
     if (fonnteConfigured() && order.whatsapp) {
       const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
       const message = buildOrderWhatsApp({
-        name: order.customer_name ?? "",
-        orderNumber: order.display_number ?? "",
-        receiptNumber: order.receipt_number ?? "",
+        name: String(order.customer_name ?? ""),
+        orderNumber: String(order.display_number ?? ""),
+        receiptNumber: String(order.receipt_number ?? ""),
         total: rupiah(Number(order.total_price) || 0),
         receiptUrl: `${base}/receipt/${order.receipt_number}`,
         statusUrl: `${base}/order/${order.status_url}`,
       });
-      await sendWhatsApp(order.whatsapp, message);
+      await sendWhatsApp(String(order.whatsapp), message);
     }
 
     return NextResponse.json({ success: true, newStatus: "diracik" });

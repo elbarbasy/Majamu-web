@@ -68,8 +68,8 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
   const total = totalOf(input.items);
   const statusUrl = randomToken(12);
   const seq = Math.floor(Math.random() * 9999) + 1;
-  const receiptNumber = `MJM-${todayStamp()}-${pad(seq, 4)}`;
-  const paymentCode = input.paymentMethod === "cash" ? `MJM-${todayStamp()}-${pad(seq, 6)}` : null;
+  const paymentCode = `MJM-${todayStamp()}-${pad(seq, 4)}`; // sama dengan receipt number
+  const receiptNumber = paymentCode;
   const displayNumber =
     input.orderType === "dine_in" && input.tableNumber != null
       ? `Meja ${input.tableNumber}`
@@ -80,7 +80,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
     orderId: "",
     statusUrl,
     receiptNumber,
-    paymentCode: input.paymentMethod === "cash" ? paymentCode : null,
+    paymentCode,
     displayNumber,
     orderType: input.orderType,
     status: "menunggu_bayar",
@@ -113,7 +113,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
       .insert({
         status_url: statusUrl,
         receipt_number: finalReceipt,
-        payment_code: input.paymentMethod === "cash" ? finalPaymentCode : null,
+        payment_code: input.paymentMethod === "cash" ? finalReceipt : null,
         order_type: input.orderType,
         display_number: finalDisplay,
         customer_name: input.customerName || null,
@@ -158,7 +158,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
       ...base,
       orderId,
       receiptNumber: finalReceipt,
-      paymentCode: input.paymentMethod === "cash" ? finalPaymentCode : null,
+      paymentCode: input.paymentMethod === "cash" ? finalReceipt : null,
       displayNumber: finalDisplay,
     };
   } catch (err) {
