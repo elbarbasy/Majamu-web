@@ -148,7 +148,7 @@ export const STORE_INFO = {
 /** Ambang urgensi waktu tunggu (store_settings.urgency_threshold_minutes default). */
 export const URGENCY_THRESHOLD_MINUTES = 7;
 
-/** Tab status board kasir: "Semua" + 4 status aktif (tanpa "Selesai"). */
+/** Tab status board kasir. */
 export const CASHIER_STATUS_TABS: { value: OrderStatus | "all"; label: string }[] =
   [
     { value: "all", label: "Semua" },
@@ -156,11 +156,12 @@ export const CASHIER_STATUS_TABS: { value: OrderStatus | "all"; label: string }[
     { value: "diterima", label: "Diterima" },
     { value: "diracik", label: "Diracik" },
     { value: "siap_diambil", label: "Siap Diambil" },
+    { value: "dibatalkan", label: "Dibatalkan" },
   ];
 
 /**
- * Aksi kasir per status: status berikutnya + label tombol (CASHIER_UI.md).
- * menunggu_bayar -> Konfirmasi Terima Bayar -> diterima
+ * Aksi kasir per status:
+ * menunggu_bayar → TIDAK ADA TOMBOL (bayar via scan QR / otomatis QRIS)
  * diterima       -> Mulai Racik             -> diracik
  * diracik        -> Siap Diambil            -> siap_diambil
  * siap_diambil   -> Selesai                 -> selesai
@@ -168,7 +169,6 @@ export const CASHIER_STATUS_TABS: { value: OrderStatus | "all"; label: string }[
 export const CASHIER_ACTION: Partial<
   Record<OrderStatus, { next: OrderStatus; label: string }>
 > = {
-  menunggu_bayar: { next: "diterima", label: "Konfirmasi Terima Bayar" },
   diterima: { next: "diracik", label: "Mulai Racik" },
   diracik: { next: "siap_diambil", label: "Siap Diambil" },
   siap_diambil: { next: "selesai", label: "Selesai" },
@@ -257,5 +257,14 @@ export const CASHIER_STATUS_STYLE: Record<
     dot: "bg-gray-500",
     border: "border-gray-300",
     tint: "bg-gray-50",
+  },
+  dibatalkan: {
+    label: "Dibatalkan",
+    badge: "bg-red-100 text-red-700",
+    bar: "bg-red-500",
+    solid: "bg-red-600 text-white border-red-600",
+    dot: "bg-red-600",
+    border: "border-red-300",
+    tint: "bg-red-50",
   },
 };

@@ -99,6 +99,7 @@ export default function PosBoardPage() {
       diracik: 0,
       siap_diambil: 0,
       selesai: 0,
+      dibatalkan: 0,
     };
     orders.forEach((o) => {
       base[o.status] = (base[o.status] ?? 0) + 1;

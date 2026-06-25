@@ -153,8 +153,9 @@ export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps
           </span>
         </div>
 
-        {action && (
+        {action ? (
           <button
+            type="button"
             disabled={busy}
             onClick={() => onAdvance(order, action.next)}
             className={cn(
@@ -164,7 +165,19 @@ export function OrderCard({ order, now, onAdvance, isNew, busy }: OrderCardProps
           >
             {action.label}
           </button>
-        )}
+        ) : order.status === "menunggu_bayar" ? (
+          <div className="rounded-card bg-[#E6AA2C]/10 p-3 text-center">
+            <p className="text-sm font-semibold text-[#5B3E2A]">
+              {order.paymentMethod === "qris"
+                ? "Menunggu verifikasi pembayaran QRIS"
+                : "Menunggu pelanggan bayar ke kasir"}
+            </p>
+          </div>
+        ) : order.status === "dibatalkan" ? (
+          <div className="rounded-card bg-red-50 p-3 text-center">
+            <p className="text-sm font-semibold text-red-700">Pesanan Dibatalkan</p>
+          </div>
+        ) : null}
       </div>
     </div>
   );

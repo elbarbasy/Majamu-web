@@ -94,7 +94,7 @@ create table orders (
   notes text,
   payment_method text check (payment_method in ('cash','qris','midtrans')),
   status text not null default 'menunggu_bayar'
-    check (status in ('menunggu_bayar','diterima','diracik','siap_diambil','selesai')),
+    check (status in ('menunggu_bayar','diterima','diracik','siap_diambil','selesai','dibatalkan')),
   total_price numeric(12,2),
   created_at timestamptz default now()
 );

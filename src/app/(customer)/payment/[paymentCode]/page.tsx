@@ -91,20 +91,26 @@ export default function CashPaymentPage() {
     fetchOrder();
   }, [paymentCode]);
 
-  // Countdown timer
+  // Countdown timer — auto-cancel order when expired
   React.useEffect(() => {
     if (state !== "waiting") return;
     const interval = setInterval(() => {
       setTimeLeft((t) => {
         if (t <= 1) {
           setState("expired");
+          // Call API to cancel the order in the database
+          fetch("/api/scan-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentCode, action: "cancel" }),
+          }).catch(() => {/* fire-and-forget */});
           return 0;
         }
         return t - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [state]);
+  }, [state, paymentCode]);
 
   // Realtime: listen for status change
   React.useEffect(() => {
