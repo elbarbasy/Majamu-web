@@ -1,3 +1,4 @@
+"use client";
 /**
  * useNow — mengembalikan timestamp sekarang yang diperbarui berkala.
  * Dipakai untuk timer "Waktu Tunggu" pada setiap order card (CASHIER_UI.md).
