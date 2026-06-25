@@ -19,7 +19,7 @@ interface StatusTabsProps {
  */
 export function StatusTabs({ active, counts, onSelect }: StatusTabsProps) {
   return (
-    <div className="sticky top-16 z-20 border-b border-black/5 bg-background/95 backdrop-blur">
+    <div className="sticky top-0 z-20 border-b border-black/5 bg-background/95 backdrop-blur">
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3">
         {CASHIER_STATUS_TABS.map((tab) => {
           const isActive = tab.value === active;
