@@ -7,7 +7,7 @@ interface StatCardProps {
   value: React.ReactNode;
   icon: React.ReactNode;
   hint?: string;
-  tone?: "primary" | "accent" | "secondary" | "warning" | "error";
+  tone?: "primary" | "accent" | "secondary" | "warning";
 }
 
 const TONE: Record<NonNullable<StatCardProps["tone"]>, string> = {
@@ -15,7 +15,6 @@ const TONE: Record<NonNullable<StatCardProps["tone"]>, string> = {
   accent: "bg-accent/15 text-accent",
   secondary: "bg-secondary/40 text-secondary-foreground",
   warning: "bg-warning/10 text-warning",
-  error: "bg-red-100 text-red-600",
 };
 
 /** Kartu metrik dashboard Owner. */

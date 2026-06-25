@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Download, FileText, Receipt, TrendingUp, XCircle } from "lucide-react";
+import { Download, FileText, Receipt, TrendingUp } from "lucide-react";
 
 import { PageHeader } from "@/components/owner/page-header";
 import { SectionCard } from "@/components/owner/section-card";
@@ -87,7 +87,7 @@ export default function ReportsPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <StatCard
           label="Total Penjualan"
           value={formatCurrency(data?.totalSales ?? 0)}
@@ -98,12 +98,6 @@ export default function ReportsPage() {
           value={data?.orderCount ?? 0}
           icon={<Receipt className="h-5 w-5" />}
           tone="accent"
-        />
-        <StatCard
-          label="Dibatalkan"
-          value={data?.cancelledCount ?? 0}
-          icon={<XCircle className="h-5 w-5" />}
-          tone="error"
         />
       </div>
 
