@@ -34,6 +34,7 @@ export function saveOrder(order: OrderResult): void {
   const map = readMap();
   map[`receipt:${order.receiptNumber}`] = order;
   map[`status:${order.statusUrl}`] = order;
+  if (order.paymentCode) map[`payment:${order.paymentCode}`] = order;
   writeMap(map);
 }
 

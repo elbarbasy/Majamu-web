@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Camera,
   LayoutGrid,
   PackageX,
   ScrollText,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { StockSheet } from "@/components/cashier/stock-sheet";
+import { ScanPaymentModal } from "@/components/cashier/scan-payment-modal";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { getPublicSettings } from "@/services/settings.service";
@@ -52,6 +54,7 @@ function CashierLogo() {
 export function CashierTopbar() {
   const pathname = usePathname();
   const [stockOpen, setStockOpen] = React.useState(false);
+  const [scanOpen, setScanOpen] = React.useState(false);
   const [soundOpen, setSoundOpen] = React.useState(false);
 
   const soundEnabled = useCashierSettingsStore((s) => s.soundEnabled);
@@ -92,6 +95,14 @@ export function CashierTopbar() {
               </Link>
             );
           })}
+
+          <button
+            onClick={() => setScanOpen(true)}
+            className="flex items-center gap-2 rounded-btn bg-[#1B5E20] px-4 py-2 text-sm font-bold text-white shadow-soft-sm hover:bg-[#2E7D32]"
+          >
+            <Camera className="h-4 w-4" />
+            <span className="hidden md:inline">Scan Pembayaran</span>
+          </button>
 
           <button
             onClick={() => setStockOpen(true)}
@@ -168,6 +179,7 @@ export function CashierTopbar() {
       </div>
 
       <StockSheet open={stockOpen} onClose={() => setStockOpen(false)} />
+      <ScanPaymentModal open={scanOpen} onClose={() => setScanOpen(false)} />
     </header>
   );
 }

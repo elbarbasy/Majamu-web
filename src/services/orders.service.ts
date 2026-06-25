@@ -29,6 +29,7 @@ export interface OrderResult {
   orderId: string;
   statusUrl: string;
   receiptNumber: string;
+  paymentCode: string | null;
   displayNumber: string;
   orderType: OrderType;
   status: OrderStatus;
@@ -78,6 +79,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
     orderId: "",
     statusUrl,
     receiptNumber,
+    paymentCode: input.paymentMethod === "cash" ? paymentCode : null,
     displayNumber,
     orderType: input.orderType,
     status: "menunggu_bayar",
@@ -100,6 +102,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
     if (!seqError && typeof seqData === "number") seqNum = seqData;
 
     const finalReceipt = `MJM-${todayStamp()}-${pad(seqNum, 4)}`;
+    const paymentCode = `MJM-${todayStamp()}-${pad(seqNum, 6)}`;
     const finalDisplay =
       input.orderType === "dine_in" && input.tableNumber != null
         ? `Meja ${input.tableNumber}`
@@ -110,6 +113,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
       .insert({
         status_url: statusUrl,
         receipt_number: finalReceipt,
+        payment_code: input.paymentMethod === "cash" ? paymentCode : null,
         order_type: input.orderType,
         display_number: finalDisplay,
         customer_name: input.customerName || null,
@@ -154,6 +158,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderResult>
       ...base,
       orderId,
       receiptNumber: finalReceipt,
+      paymentCode: input.paymentMethod === "cash" ? paymentCode : null,
       displayNumber: finalDisplay,
     };
   } catch (err) {

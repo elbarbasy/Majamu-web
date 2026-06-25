@@ -85,6 +85,7 @@ create table orders (
   status_url text unique,
   receipt_number text unique,                       -- (#2) format MJM-YYYYMMDD-XXXX
   receipt_url text,                                 -- (#2)
+  payment_code text unique,                         -- Kode pembayaran tunai (QR scan)
   order_type text check (order_type in ('dine_in','take_away')),  -- (#12)
   table_id uuid references tables(id) on delete set null,
   display_number text,                              -- nomor meja (dine_in) / antrian (take_away)

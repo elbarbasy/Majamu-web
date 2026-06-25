@@ -141,7 +141,12 @@ export default function CheckoutPage() {
         }
       }
 
-      router.replace(`/order/${order.statusUrl}`);
+      // Tunai → halaman QR pembayaran, QRIS → tracking
+      if (order.paymentMethod === "cash" && order.paymentCode) {
+        router.replace(`/payment/${order.paymentCode}`);
+      } else {
+        router.replace(`/order/${order.statusUrl}`);
+      }
     } catch {
       setSubmitting(false);
     }
