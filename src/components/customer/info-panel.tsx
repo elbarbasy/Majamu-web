@@ -11,7 +11,9 @@ import { getPublicSettings, type PublicSettings } from "@/services/settings.serv
 import { useUiStore } from "@/stores/ui-store";
 
 /**
- * Drawer menu — slide dari KANAN.
+ * Drawer menu — full-height, slide dari KIRI, radius pada sisi kanan.
+ * Layout flex column: header + navigasi di atas, info brand selalu di bawah.
+ * Tutup via: klik overlay, tombol X, tombol ESC, atau swipe ke kiri (mobile).
  * Tap "Tentang Majamu" → menutup drawer, membuka AboutSheet (floating brand page).
  */
 export function InfoPanel() {
@@ -40,6 +42,23 @@ export function InfoPanel() {
     };
   }, [open, close]);
 
+  // Swipe ke kiri untuk menutup (mobile).
+  const touchStartX = React.useRef<number | null>(null);
+  const touchDX = React.useRef(0);
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    touchDX.current = 0;
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    if (touchStartX.current == null) return;
+    touchDX.current = e.touches[0].clientX - touchStartX.current;
+  }
+  function onTouchEnd() {
+    if (touchDX.current < -60) close(); // geser kiri > 60px → tutup
+    touchStartX.current = null;
+    touchDX.current = 0;
+  }
+
   if (!mounted) return null;
 
   // AboutSheet tetap bisa terbuka meskipun drawer tertutup.
@@ -52,46 +71,50 @@ export function InfoPanel() {
       {createPortal(
         <div className="fixed inset-0 z-50">
           <div
-            className="absolute inset-0 animate-fade-in bg-ink/40 backdrop-blur-[2px]"
+            className="absolute inset-0 animate-fade-in bg-ink/40 backdrop-blur-[8px]"
             onClick={close}
             aria-hidden
           />
           <aside
             role="dialog"
             aria-modal="true"
-            className="absolute right-0 top-0 flex h-full w-[84%] max-w-sm animate-panel-in-right flex-col bg-[#5B3E2A] shadow-soft-lg"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            className="absolute inset-y-0 left-0 flex w-[84%] max-w-sm animate-panel-in-left flex-col overflow-hidden rounded-r-[28px] bg-[#5B3E2A] shadow-soft-lg"
           >
-            {/* Header — bg Cream, logo + tagline di bawah logo */}
-            <div className="flex items-center justify-between bg-[#F6F1E6] px-5 pb-5 pt-6">
-              <div className="flex flex-col gap-1.5">
-                {settings?.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={settings.logoUrl}
-                    alt="Majamu"
-                    className="h-10 max-w-[120px] object-contain"
-                  />
-                ) : (
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#5B3E2A]/10">
-                    <Leaf className="h-6 w-6 text-[#5B3E2A]" />
-                  </span>
-                )}
-                <p className="font-display text-sm italic text-[#5B3E2A]">
-                  {tagline}
-                </p>
+            {/* ===== TOP: Header + Navigation ===== */}
+            <div className="flex flex-col">
+              {/* Header — bg Cream, logo + tagline di bawah logo, padding 24px */}
+              <div className="flex items-start justify-between bg-[#F6F1E6] p-6">
+                <div className="flex flex-col gap-1.5">
+                  {settings?.logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={settings.logoUrl}
+                      alt="Majamu"
+                      className="h-10 max-w-[120px] object-contain"
+                    />
+                  ) : (
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#5B3E2A]/10">
+                      <Leaf className="h-6 w-6 text-[#5B3E2A]" />
+                    </span>
+                  )}
+                  <p className="font-display text-sm italic text-[#5B3E2A]">
+                    {tagline}
+                  </p>
+                </div>
+                <button
+                  onClick={close}
+                  aria-label="Tutup"
+                  className="touch-target -mr-1 flex items-center justify-center rounded-full text-[#5B3E2A] hover:bg-[#5B3E2A]/10"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <button
-                onClick={close}
-                aria-label="Tutup"
-                className="touch-target flex items-center justify-center rounded-full text-[#5B3E2A] hover:bg-[#5B3E2A]/10"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
 
-            {/* Body — bg Mocca Brown */}
-            <div className="flex-1 overflow-y-auto p-4">
-              <nav className="space-y-2">
+              {/* Navigation — tepat di bawah header */}
+              <nav className="space-y-3 p-5">
                 <Link
                   href="/history"
                   onClick={close}
@@ -132,28 +155,27 @@ export function InfoPanel() {
                   <ChevronRight className="h-4 w-4 text-[#F6F1E6]/60" />
                 </a>
               </nav>
-
-              {/* Mini section herbal */}
-              <div className="mt-6 overflow-hidden rounded-card border border-[#F6F1E6]/20 bg-[#F6F1E6]/10">
-                <div className="flex items-center gap-3 p-4">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F6F1E6]/15 text-[#F6F1E6]">
-                    <Leaf className="h-6 w-6" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-extrabold text-[#F6F1E6]">
-                      Jamu Modern Indonesia
-                    </p>
-                    <p className="clamp-2 text-xs leading-relaxed text-[#F6F1E6]/70">
-                      Ramuan herbal warisan nusantara untuk kesehatan keluarga.
-                    </p>
-                  </div>
-                </div>
-                <div className="h-1.5 w-full bg-gradient-to-r from-[#E6AA2C] via-[#7E9F6E] to-[#F6F1E6]" />
-              </div>
             </div>
 
-            <div className="safe-bottom border-t border-[#F6F1E6]/20 p-4 text-center text-[11px] text-[#F6F1E6]/60">
-              Majamu • Jamu Modern Indonesia
+            {/* ===== BOTTOM: Brand info (selalu di bawah) ===== */}
+            <div className="mt-auto px-6 pb-[calc(env(safe-area-inset-bottom)+24px)] pt-6">
+              <div className="h-px w-full bg-[#F6F1E6]/15" />
+              <div className="mt-5 flex items-start gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F6F1E6]/15 text-[#F6F1E6]">
+                  <Leaf className="h-6 w-6" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-extrabold text-[#F6F1E6]">
+                    Jamu Modern Indonesia
+                  </p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-[#F6F1E6]/70">
+                    Ramuan herbal warisan nusantara untuk gaya hidup modern.
+                  </p>
+                </div>
+              </div>
+              <p className="mt-4 text-[11px] font-medium text-[#F6F1E6]/50">
+                © 2026 Majamu
+              </p>
             </div>
           </aside>
         </div>,

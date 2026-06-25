@@ -78,6 +78,7 @@ const config: Config = {
       keyframes: {
         "sheet-in": { from: { transform: "translateY(100%)" }, to: { transform: "translateY(0)" } },
         "panel-in-right": { from: { transform: "translateX(100%)" }, to: { transform: "translateX(0)" } },
+        "panel-in-left": { from: { transform: "translateX(-100%)" }, to: { transform: "translateX(0)" } },
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
         "pop-in": { from: { opacity: "0", transform: "scale(0.97)" }, to: { opacity: "1", transform: "scale(1)" } },
         "rise-in": { from: { opacity: "0", transform: "translateY(8px)" }, to: { opacity: "1", transform: "translateY(0)" } },
@@ -85,7 +86,8 @@ const config: Config = {
       animation: {
         "sheet-in": "sheet-in 0.32s cubic-bezier(0.22,1,0.36,1)",
         "panel-in-right": "panel-in-right 0.3s cubic-bezier(0.22,1,0.36,1)",
-        "fade-in": "fade-in 0.2s ease-out",
+        "panel-in-left": "panel-in-left 0.28s ease-out",
+        "fade-in": "fade-in 0.28s ease-out",
         "pop-in": "pop-in 0.25s cubic-bezier(0.22,1,0.36,1)",
         "rise-in": "rise-in 0.35s cubic-bezier(0.22,1,0.36,1)",
       },
