@@ -256,10 +256,16 @@ alter table store_settings enable row level security;
 alter table daily_sequences enable row level security;
 
 -- Helper: peran user yang sedang login berdasarkan auth.uid()
+-- PENTING: SECURITY DEFINER agar fungsi membaca tabel `users` dengan hak
+-- pemilik (melewati RLS). Tanpa ini, policy `users` yang memanggil
+-- current_user_role() akan memicu rekursi tak terbatas
+-- ("stack depth limit exceeded") saat ada operasi (mis. UPDATE orders).
 create or replace function current_user_role()
 returns text
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select role from users where auth_user_id = auth.uid() and is_active = true limit 1;
 $$;
