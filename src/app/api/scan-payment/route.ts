@@ -1,21 +1,74 @@
 /**
  * POST /api/scan-payment — kasir scan QR / input payment code.
- * Body: { paymentCode: string, action: "lookup" | "confirm" }
+ * Body: { paymentCode: string, action: "lookup" | "confirm" | "cancel" }
  *
- * lookup: cari order by payment_code, return info.
- * confirm: update status → diracik + kirim WA.
+ * lookup : cari order by payment_code / receipt_number, kembalikan info.
+ * confirm: kasir terima pembayaran tunai → status "diterima" + kirim WA.
+ * cancel : pembayaran kedaluwarsa → status "dibatalkan".
+ *
+ * Strategi klien:
+ * - Operasi tulis (update status) memakai SESI LOGIN KASIR (cookie-based),
+ *   karena RLS sudah mengizinkan role cashier/owner meng-update orders.
+ *   Ini membuat konfirmasi pembayaran TIDAK bergantung pada service_role.
+ * - Bila sesi tidak berwenang (mis. cancel dari halaman pelanggan anonim),
+ *   otomatis fallback ke service_role (bila dikonfigurasi).
  */
 import { NextResponse } from "next/server";
 
 import { buildOrderWhatsApp, fonnteConfigured, sendWhatsApp } from "@/lib/fonnte";
-import { createServiceRoleClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
+
+type AnyClient = {
+  from: (table: string) => {
+    update: (v: Record<string, unknown>) => {
+      eq: (c: string, val: string) => { select: (s: string) => Promise<{ data: unknown[] | null; error: { message: string } | null }> };
+    };
+    insert: (v: Record<string, unknown>) => Promise<{ error: { message: string } | null }>;
+  };
+};
 
 function rupiah(v: number): string {
   return new Intl.NumberFormat("id-ID", {
     style: "currency", currency: "IDR", minimumFractionDigits: 0,
   }).format(v || 0);
+}
+
+/**
+ * Update status order, coba via sesi kasir dulu lalu fallback service_role.
+ * Mengembalikan client yang berhasil agar dipakai untuk insert history.
+ */
+async function updateStatus(
+  sessionClient: AnyClient,
+  orderId: string,
+  newStatus: string
+): Promise<{ ok: boolean; client?: AnyClient; error?: string }> {
+  // 1) Coba dengan sesi login (kasir/owner) — RLS mengizinkan.
+  const r1 = await sessionClient
+    .from("orders")
+    .update({ status: newStatus })
+    .eq("id", orderId)
+    .select("id");
+  if (!r1.error && r1.data && r1.data.length > 0) {
+    return { ok: true, client: sessionClient };
+  }
+
+  // 2) Fallback: service_role (bypass RLS) — untuk aksi anonim (cancel).
+  try {
+    const svc = createServiceRoleClient() as unknown as AnyClient;
+    const r2 = await svc
+      .from("orders")
+      .update({ status: newStatus })
+      .eq("id", orderId)
+      .select("id");
+    if (!r2.error && r2.data && r2.data.length > 0) {
+      return { ok: true, client: svc };
+    }
+    return { ok: false, error: r2.error?.message || r1.error?.message || "no_rows" };
+  } catch {
+    return { ok: false, error: r1.error?.message || "no_rows" };
+  }
 }
 
 export async function POST(request: Request) {
@@ -29,17 +82,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "payment_code_required" }, { status: 400 });
   }
 
-  let supabase: ReturnType<typeof createServiceRoleClient>;
-  try { supabase = createServiceRoleClient(); } catch {
+  // Klien berbasis sesi (cookie). Untuk SELECT publik & UPDATE oleh kasir.
+  let supabase: Awaited<ReturnType<typeof createClient>>;
+  try {
+    supabase = await createClient();
+  } catch {
     return NextResponse.json({ error: "server_not_configured" }, { status: 501 });
   }
 
   // Lookup order by payment_code OR receipt_number (fallback jika kolom belum ada)
   let order: Record<string, unknown> | null = null;
-  let lookupError: unknown = null;
 
-  // Coba payment_code dulu
-  const { data: d1, error: e1 } = await supabase
+  const { data: d1 } = await supabase
     .from("orders")
     .select("id, display_number, customer_name, whatsapp, total_price, status, status_url, receipt_number, payment_method")
     .eq("payment_code", paymentCode)
@@ -48,14 +102,12 @@ export async function POST(request: Request) {
   if (d1) {
     order = d1 as Record<string, unknown>;
   } else {
-    // Fallback: cari by receipt_number (payment code = receipt number)
-    const { data: d2, error: e2 } = await supabase
+    const { data: d2 } = await supabase
       .from("orders")
       .select("id, display_number, customer_name, whatsapp, total_price, status, status_url, receipt_number, payment_method")
       .eq("receipt_number", paymentCode)
       .maybeSingle();
     if (d2) order = d2 as Record<string, unknown>;
-    lookupError = e1 || e2;
   }
 
   if (!order) {
@@ -95,33 +147,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "already_confirmed", status: order.status });
     }
 
-    const { data: updated, error: updErr } = await supabase
-      .from("orders")
-      .update({ status: "diterima" })
-      .eq("id", String(order.id))
-      .select("id, status");
-
-    if (updErr) {
-      return NextResponse.json(
-        { error: "update_failed", detail: updErr.message },
-        { status: 500 }
-      );
-    }
-
-    // 0 baris ter-update = RLS memblokir (kemungkinan SUPABASE_SERVICE_ROLE_KEY
-    // salah/diisi anon key, sehingga tidak melewati RLS).
-    if (!updated || updated.length === 0) {
+    const res = await updateStatus(supabase as unknown as AnyClient, String(order.id), "diterima");
+    if (!res.ok) {
       return NextResponse.json(
         {
           error: "update_no_rows",
           detail:
-            "Update tidak mengubah baris (RLS). Periksa SUPABASE_SERVICE_ROLE_KEY harus service_role asli, bukan anon key.",
+            "Update gagal/0 baris. Pastikan kasir sudah login (sesi aktif) atau SUPABASE_SERVICE_ROLE_KEY benar. " +
+            (res.error ?? ""),
         },
         { status: 403 }
       );
     }
 
-    await supabase
+    await res.client!
       .from("order_status_history")
       .insert({ order_id: String(order.id), status: "diterima" });
 
@@ -141,32 +180,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, newStatus: "diterima" });
   }
 
-  // Action: cancel (auto-cancel when payment countdown expires)
+  // Action: cancel (auto-cancel saat hitung mundur pembayaran habis)
   if (action === "cancel") {
     if (order.status !== "menunggu_bayar") {
       return NextResponse.json({ error: "not_cancellable", status: order.status });
     }
 
-    const { data: cancelled, error: cancelErr } = await supabase
-      .from("orders")
-      .update({ status: "dibatalkan" })
-      .eq("id", String(order.id))
-      .select("id");
-
-    if (cancelErr) {
+    const res = await updateStatus(supabase as unknown as AnyClient, String(order.id), "dibatalkan");
+    if (!res.ok) {
       return NextResponse.json(
-        { error: "update_failed", detail: cancelErr.message },
-        { status: 500 }
-      );
-    }
-    if (!cancelled || cancelled.length === 0) {
-      return NextResponse.json(
-        { error: "update_no_rows", detail: "RLS memblokir update (cek SERVICE_ROLE_KEY)." },
+        { error: "update_no_rows", detail: res.error ?? "RLS/service role" },
         { status: 403 }
       );
     }
 
-    await supabase
+    await res.client!
       .from("order_status_history")
       .insert({ order_id: String(order.id), status: "dibatalkan" });
 
