@@ -160,7 +160,11 @@ export function ScanPaymentModal({ open, onClose }: ScanPaymentModalProps) {
         setErrorMsg("Server Supabase belum dikonfigurasi (SERVICE_ROLE_KEY).");
         setStep("error");
       } else {
-        setErrorMsg("Gagal mengkonfirmasi. Coba lagi.");
+        // Tampilkan detail mentah agar penyebab pasti terlihat.
+        const raw = [data.error, data.detail, data.status]
+          .filter(Boolean)
+          .join(" — ");
+        setErrorMsg(raw ? `Gagal: ${raw}` : "Gagal mengkonfirmasi. Coba lagi.");
         setStep("error");
       }
     } catch {
