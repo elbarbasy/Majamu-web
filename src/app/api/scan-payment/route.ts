@@ -89,14 +89,14 @@ export async function POST(request: Request) {
     });
   }
 
-  // Action: confirm
+  // Action: confirm (tunai) → status "diterima" (kasir lalu klik "Mulai Racik")
   if (action === "confirm") {
     if (order.status !== "menunggu_bayar") {
       return NextResponse.json({ error: "already_confirmed", status: order.status });
     }
 
-    await supabase.from("orders").update({ status: "diracik" }).eq("id", String(order.id));
-    await supabase.from("order_status_history").insert({ order_id: String(order.id), status: "diracik" });
+    await supabase.from("orders").update({ status: "diterima" }).eq("id", String(order.id));
+    await supabase.from("order_status_history").insert({ order_id: String(order.id), status: "diterima" });
 
     if (fonnteConfigured() && order.whatsapp) {
       const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
       await sendWhatsApp(String(order.whatsapp), message);
     }
 
-    return NextResponse.json({ success: true, newStatus: "diracik" });
+    return NextResponse.json({ success: true, newStatus: "diterima" });
   }
 
   // Action: cancel (auto-cancel when payment countdown expires)

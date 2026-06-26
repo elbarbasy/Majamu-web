@@ -354,7 +354,7 @@ export function ScanPaymentModal({ open, onClose }: ScanPaymentModalProps) {
               <Check className="h-8 w-8" strokeWidth={3} />
             </div>
             <h3 className="mt-4 text-xl font-bold text-[#1B5E20]">Pembayaran Diterima!</h3>
-            <p className="mt-1 text-sm text-muted">Pesanan langsung masuk proses racik.</p>
+            <p className="mt-1 text-sm text-muted">Pesanan masuk ke daftar &ldquo;Diterima&rdquo;. Tekan &ldquo;Mulai Racik&rdquo; untuk memproses.</p>
             <Button block onClick={handleClose} className="mt-6 bg-[#1B5E20] hover:bg-[#2E7D32]">
               Selesai
             </Button>
