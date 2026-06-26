@@ -85,9 +85,21 @@ export default function PosBoardPage() {
 
     load();
     const unsub = subscribeOrders(load);
+
+    // Refresh segera setelah kasir konfirmasi pembayaran (scan modal),
+    // tanpa bergantung pada Realtime.
+    const onManualRefresh = () => load();
+    window.addEventListener("majamu:orders-refresh", onManualRefresh);
+
+    // Jaring pengaman: polling berkala agar board tetap sinkron meskipun
+    // Supabase Realtime belum diaktifkan.
+    const poll = setInterval(load, 8000);
+
     return () => {
       alive = false;
       unsub();
+      window.removeEventListener("majamu:orders-refresh", onManualRefresh);
+      clearInterval(poll);
     };
   }, [setOrders, push]);
 

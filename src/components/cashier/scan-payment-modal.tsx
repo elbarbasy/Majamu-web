@@ -145,6 +145,10 @@ export function ScanPaymentModal({ open, onClose }: ScanPaymentModalProps) {
       });
       const data = await res.json();
       if (data.success) {
+        // Beritahu board kasir agar segera refresh (tanpa menunggu realtime).
+        try {
+          window.dispatchEvent(new CustomEvent("majamu:orders-refresh"));
+        } catch { /* ignore */ }
         setStep("success");
       } else if (data.error === "already_confirmed") {
         setErrorMsg("Pesanan ini sudah dikonfirmasi sebelumnya.");
