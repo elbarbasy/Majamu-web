@@ -95,15 +95,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "already_confirmed", status: order.status });
     }
 
-    const { error: updErr } = await supabase
+    const { data: updated, error: updErr } = await supabase
       .from("orders")
       .update({ status: "diterima" })
-      .eq("id", String(order.id));
+      .eq("id", String(order.id))
+      .select("id, status");
 
     if (updErr) {
       return NextResponse.json(
         { error: "update_failed", detail: updErr.message },
         { status: 500 }
+      );
+    }
+
+    // 0 baris ter-update = RLS memblokir (kemungkinan SUPABASE_SERVICE_ROLE_KEY
+    // salah/diisi anon key, sehingga tidak melewati RLS).
+    if (!updated || updated.length === 0) {
+      return NextResponse.json(
+        {
+          error: "update_no_rows",
+          detail:
+            "Update tidak mengubah baris (RLS). Periksa SUPABASE_SERVICE_ROLE_KEY harus service_role asli, bukan anon key.",
+        },
+        { status: 403 }
       );
     }
 
@@ -133,8 +147,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "not_cancellable", status: order.status });
     }
 
-    await supabase.from("orders").update({ status: "dibatalkan" }).eq("id", String(order.id));
-    await supabase.from("order_status_history").insert({ order_id: String(order.id), status: "dibatalkan" });
+    const { data: cancelled, error: cancelErr } = await supabase
+      .from("orders")
+      .update({ status: "dibatalkan" })
+      .eq("id", String(order.id))
+      .select("id");
+
+    if (cancelErr) {
+      return NextResponse.json(
+        { error: "update_failed", detail: cancelErr.message },
+        { status: 500 }
+      );
+    }
+    if (!cancelled || cancelled.length === 0) {
+      return NextResponse.json(
+        { error: "update_no_rows", detail: "RLS memblokir update (cek SERVICE_ROLE_KEY)." },
+        { status: 403 }
+      );
+    }
+
+    await supabase
+      .from("order_status_history")
+      .insert({ order_id: String(order.id), status: "dibatalkan" });
 
     return NextResponse.json({ success: true, newStatus: "dibatalkan" });
   }
