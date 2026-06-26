@@ -95,8 +95,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "already_confirmed", status: order.status });
     }
 
-    await supabase.from("orders").update({ status: "diterima" }).eq("id", String(order.id));
-    await supabase.from("order_status_history").insert({ order_id: String(order.id), status: "diterima" });
+    const { error: updErr } = await supabase
+      .from("orders")
+      .update({ status: "diterima" })
+      .eq("id", String(order.id));
+
+    if (updErr) {
+      return NextResponse.json(
+        { error: "update_failed", detail: updErr.message },
+        { status: 500 }
+      );
+    }
+
+    await supabase
+      .from("order_status_history")
+      .insert({ order_id: String(order.id), status: "diterima" });
 
     if (fonnteConfigured() && order.whatsapp) {
       const base = process.env.NEXT_PUBLIC_APP_URL ?? "";

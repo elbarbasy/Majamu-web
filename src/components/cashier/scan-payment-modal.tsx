@@ -153,6 +153,12 @@ export function ScanPaymentModal({ open, onClose }: ScanPaymentModalProps) {
       } else if (data.error === "already_confirmed") {
         setErrorMsg("Pesanan ini sudah dikonfirmasi sebelumnya.");
         setStep("error");
+      } else if (data.error === "update_failed") {
+        setErrorMsg(`Gagal menyimpan ke database: ${data.detail ?? "coba lagi"}`);
+        setStep("error");
+      } else if (data.error === "server_not_configured") {
+        setErrorMsg("Server Supabase belum dikonfigurasi (SERVICE_ROLE_KEY).");
+        setStep("error");
       } else {
         setErrorMsg("Gagal mengkonfirmasi. Coba lagi.");
         setStep("error");
