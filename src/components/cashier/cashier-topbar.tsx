@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Camera,
   LayoutGrid,
   PackageX,
   ScrollText,
@@ -13,8 +14,10 @@ import {
 } from "lucide-react";
 
 import { StockSheet } from "@/components/cashier/stock-sheet";
+import { ScanPaymentModal } from "@/components/cashier/scan-payment-modal";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { getPublicSettings } from "@/services/settings.service";
 import {
   useCashierSettingsStore,
   type Volume,
@@ -32,6 +35,28 @@ const VOLUMES: { value: Volume; label: string }[] = [
   { value: "high", label: "Tinggi" },
 ];
 
+function CashierLogo() {
+  const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    getPublicSettings().then((s) => setLogoUrl(s.logoUrl));
+  }, []);
+  if (logoUrl) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img
+        src={logoUrl}
+        alt="Majamu"
+        className="h-7 max-w-[80px] object-contain sm:h-8 sm:max-w-[110px]"
+      />
+    );
+  }
+  return (
+    <span className="text-base font-extrabold tracking-tight text-primary sm:text-lg">
+      Majamu
+    </span>
+  );
+}
+
 /**
  * Top bar kasir: navigasi board/riwayat/shift + toggle Stok Habis +
  * pengaturan suara pesanan baru (ON/OFF & volume).
@@ -39,6 +64,7 @@ const VOLUMES: { value: Volume; label: string }[] = [
 export function CashierTopbar() {
   const pathname = usePathname();
   const [stockOpen, setStockOpen] = React.useState(false);
+  const [scanOpen, setScanOpen] = React.useState(false);
   const [soundOpen, setSoundOpen] = React.useState(false);
 
   const soundEnabled = useCashierSettingsStore((s) => s.soundEnabled);
@@ -48,17 +74,17 @@ export function CashierTopbar() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-black/5 bg-surface/95 backdrop-blur">
-      <div className="flex h-16 items-center justify-between gap-3 px-4">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-extrabold tracking-tight text-primary">
-            Majamu
-          </span>
+      <div className="flex h-16 items-center gap-2 px-3 sm:px-4">
+        {/* Brand (kiri, tidak menyusut) */}
+        <div className="flex shrink-0 items-center gap-2">
+          <CashierLogo />
           <span className="hidden rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary sm:inline">
             Kasir
           </span>
         </div>
 
-        <nav className="flex items-center gap-1">
+        {/* Aksi (kanan, bisa di-scroll horizontal bila sempit) */}
+        <nav className="no-scrollbar ml-auto flex items-center gap-1.5 overflow-x-auto">
           {NAV.map((item) => {
             const active =
               item.href === "/pos"
@@ -69,43 +95,58 @@ export function CashierTopbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                title={item.label}
                 className={cn(
-                  "flex items-center gap-2 rounded-btn px-3 py-2 text-sm font-semibold transition-colors",
+                  "flex h-10 shrink-0 items-center justify-center gap-2 rounded-btn px-2.5 text-sm font-semibold transition-colors lg:px-3",
                   active
                     ? "bg-primary text-primary-foreground"
                     : "text-black/60 hover:bg-primary/10"
                 )}
               >
-                <Icon className="h-4 w-4" />
-                <span className="hidden md:inline">{item.label}</span>
+                <Icon className="h-[18px] w-[18px]" />
+                <span className="hidden lg:inline">{item.label}</span>
               </Link>
             );
           })}
 
           <button
-            onClick={() => setStockOpen(true)}
-            className="flex items-center gap-2 rounded-btn border border-black/15 px-3 py-2 text-sm font-semibold text-black/70 hover:border-primary/40"
+            type="button"
+            onClick={() => setScanOpen(true)}
+            title="Scan Pembayaran"
+            className="flex h-10 shrink-0 items-center justify-center gap-2 rounded-btn bg-[#1B5E20] px-2.5 text-sm font-bold text-white shadow-soft-sm hover:bg-[#2E7D32] lg:px-4"
           >
-            <PackageX className="h-4 w-4" />
-            <span className="hidden md:inline">Stok Habis</span>
+            <Camera className="h-[18px] w-[18px]" />
+            <span className="hidden lg:inline">Scan Pembayaran</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStockOpen(true)}
+            title="Stok Habis"
+            className="flex h-10 shrink-0 items-center justify-center gap-2 rounded-btn border border-black/15 px-2.5 text-sm font-semibold text-black/70 hover:border-primary/40 lg:px-3"
+          >
+            <PackageX className="h-[18px] w-[18px]" />
+            <span className="hidden lg:inline">Stok Habis</span>
           </button>
 
           {/* Pengaturan suara */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
+              type="button"
               onClick={() => setSoundOpen((v) => !v)}
               aria-label="Pengaturan suara"
+              title="Pengaturan suara"
               className={cn(
-                "flex items-center justify-center rounded-btn border px-3 py-2 transition-colors",
+                "flex h-10 w-10 items-center justify-center rounded-btn border transition-colors",
                 soundEnabled
                   ? "border-primary/30 text-primary"
                   : "border-black/15 text-black/40"
               )}
             >
               {soundEnabled ? (
-                <Volume2 className="h-4 w-4" />
+                <Volume2 className="h-[18px] w-[18px]" />
               ) : (
-                <VolumeX className="h-4 w-4" />
+                <VolumeX className="h-[18px] w-[18px]" />
               )}
             </button>
 
@@ -136,6 +177,7 @@ export function CashierTopbar() {
                     {VOLUMES.map((v) => (
                       <button
                         key={v.value}
+                        type="button"
                         disabled={!soundEnabled}
                         onClick={() => setVolume(v.value)}
                         className={cn(
@@ -157,6 +199,7 @@ export function CashierTopbar() {
       </div>
 
       <StockSheet open={stockOpen} onClose={() => setStockOpen(false)} />
+      <ScanPaymentModal open={scanOpen} onClose={() => setScanOpen(false)} />
     </header>
   );
 }

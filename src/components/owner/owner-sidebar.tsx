@@ -1,5 +1,5 @@
 "use client";
-
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { getPublicSettings } from "@/services/settings.service";
 
 export const OWNER_NAV = [
   { href: "/owner", label: "Dashboard", icon: LayoutDashboard },
@@ -32,13 +33,23 @@ export const OWNER_NAV = [
 
 export function OwnerSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    getPublicSettings().then((s) => setLogoUrl(s.logoUrl));
+  }, []);
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2 px-5">
-        <span className="text-xl font-extrabold tracking-tight text-primary">
-          Majamu
-        </span>
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Majamu" className="h-8 max-w-[100px] object-contain" />
+        ) : (
+          <span className="text-xl font-extrabold tracking-tight text-primary">
+            Majamu
+          </span>
+        )}
         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
           Owner
         </span>

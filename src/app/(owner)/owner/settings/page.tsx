@@ -151,12 +151,12 @@ export default function SettingsPage() {
               hint="Unggah dari perangkat (maks 5MB). Kosongkan untuk gradient default."
             />
             <ImageUpload
-              label="Logo Panel Informasi"
+              label="Logo Toko"
               bucket="banners"
               aspect="aspect-[3/1]"
-              value={settings.panelLogoUrl}
-              onChange={(url) => patch({ panelLogoUrl: url })}
-              hint="Logo khusus untuk panel/drawer (SVG/PNG transparan). Berbeda dari logo header."
+              value={settings.logoUrl}
+              onChange={(url) => patch({ logoUrl: url })}
+              hint="Upload file SVG atau PNG transparan. Dipakai di header, panel, dan struk."
             />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
@@ -197,14 +197,6 @@ export default function SettingsPage() {
                 className="w-full resize-none rounded-card border border-black/15 p-3 text-sm outline-none focus:border-primary"
               />
             </div>
-            <ImageUpload
-              label="Logo Toko"
-              bucket="banners"
-              aspect="aspect-[3/1]"
-              value={settings.logoUrl}
-              onChange={(url) => patch({ logoUrl: url })}
-              hint="Upload file SVG atau PNG transparan agar menyatu dengan warna app. Maks 5MB."
-            />
             <Link
               href="/owner/banners"
               className="flex items-center justify-between rounded-card border border-black/15 px-4 py-3 text-sm font-semibold text-black/80 hover:border-primary/40"

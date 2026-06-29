@@ -85,6 +85,7 @@ create table orders (
   status_url text unique,
   receipt_number text unique,                       -- (#2) format MJM-YYYYMMDD-XXXX
   receipt_url text,                                 -- (#2)
+  payment_code text unique,                         -- Kode pembayaran tunai (QR scan)
   order_type text check (order_type in ('dine_in','take_away')),  -- (#12)
   table_id uuid references tables(id) on delete set null,
   display_number text,                              -- nomor meja (dine_in) / antrian (take_away)
@@ -93,7 +94,7 @@ create table orders (
   notes text,
   payment_method text check (payment_method in ('cash','qris','midtrans')),
   status text not null default 'menunggu_bayar'
-    check (status in ('menunggu_bayar','diterima','diracik','siap_diambil','selesai')),
+    check (status in ('menunggu_bayar','diterima','diracik','siap_diambil','selesai','dibatalkan')),
   total_price numeric(12,2),
   created_at timestamptz default now()
 );
@@ -255,10 +256,16 @@ alter table store_settings enable row level security;
 alter table daily_sequences enable row level security;
 
 -- Helper: peran user yang sedang login berdasarkan auth.uid()
+-- PENTING: SECURITY DEFINER agar fungsi membaca tabel `users` dengan hak
+-- pemilik (melewati RLS). Tanpa ini, policy `users` yang memanggil
+-- current_user_role() akan memicu rekursi tak terbatas
+-- ("stack depth limit exceeded") saat ada operasi (mis. UPDATE orders).
 create or replace function current_user_role()
 returns text
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select role from users where auth_user_id = auth.uid() and is_active = true limit 1;
 $$;

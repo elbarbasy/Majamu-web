@@ -26,7 +26,8 @@ export type OrderStatus =
   | "diterima"
   | "diracik"
   | "siap_diambil"
-  | "selesai";
+  | "selesai"
+  | "dibatalkan";
 export type PaymentMethod = "cash" | "qris" | "midtrans";
 export type SweetnessLevel = "normal" | "less" | "low" | "no_sugar";
 export type TemperatureLevel = "hot" | "ice";

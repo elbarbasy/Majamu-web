@@ -1,3 +1,4 @@
+"use client";
 /**
  * Hook untuk konfirmasi hapus (Owner Dashboard).
  * Menyimpan ID target + state open. Dipakai bersama ConfirmDeleteDialog.

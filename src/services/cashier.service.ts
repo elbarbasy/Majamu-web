@@ -81,7 +81,10 @@ export async function fetchActiveOrders(): Promise<CashierOrder[]> {
       .order("created_at", { ascending: true });
     if (error) throw error;
     if (!data) return SAMPLE_CASHIER_ORDERS;
-    return (data as unknown as OrderRow[]).map(mapOrder);
+    // Filter: QRIS menunggu_bayar tidak ditampilkan (otomatis muncul setelah callback set ke diracik)
+    return (data as unknown as OrderRow[]).map(mapOrder).filter(
+      (o) => !(o.status === "menunggu_bayar" && o.paymentMethod === "qris")
+    );
   } catch (err) {
     console.warn("[cashier.service] fallback sample orders:", err);
     return SAMPLE_CASHIER_ORDERS;
@@ -327,7 +330,8 @@ export async function computeExpectedCash(session: CashSession): Promise<number>
   return session.modalAwal + penjualanTunai + tambahModal - pengeluaran;
 }
 
-export async function fetchShiftNotes(): Promise<ShiftNote[]> {  try {
+export async function fetchShiftNotes(): Promise<ShiftNote[]> {
+  try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("shift_notes")
