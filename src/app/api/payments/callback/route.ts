@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, status, status_url, receipt_number, customer_name, whatsapp, total_price, display_number"
+      "id, status, status_url, receipt_number, customer_name, whatsapp, total_price, display_number, payment_method"
     )
     .eq("receipt_number", payload.order_id)
     .maybeSingle();
@@ -74,22 +74,70 @@ export async function POST(request: Request) {
   if (paymentStatus === "paid" && order.status === "menunggu_bayar") {
     // QRIS sukses → langsung "diracik" (skip diterima, tidak perlu konfirmasi kasir)
     const nextStatus = "diracik";
-    await supabase.from("orders").update({ status: nextStatus }).eq("id", order.id);
+    
+    // Update status order
+    await supabase
+      .from("orders")
+      .update({ status: nextStatus })
+      .eq("id", order.id);
+
+    // Catat riwayat status
+    await supabase
+      .from("order_status_history")
+      .insert({ order_id: order.id, status: "diterima" });
+    
+    // Catat riwayat status ke 'diracik' juga jika perlu, atau biarkan logic ini menangani transisi
     await supabase
       .from("order_status_history")
       .insert({ order_id: order.id, status: nextStatus });
 
-    if (fonnteConfigured() && order.whatsapp) {
-      const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
-      const message = buildOrderWhatsApp({
-        name: order.customer_name ?? "",
-        orderNumber: order.display_number ?? "",
-        receiptNumber: order.receipt_number ?? "",
-        total: rupiah(Number(order.total_price) || 0),
-        receiptUrl: `${base}/receipt/${order.receipt_number}`,
-        statusUrl: `${base}/order/${order.status_url}`,
-      });
-      await sendWhatsApp(order.whatsapp, message);
+    // Kirim struk WhatsApp otomatis untuk pembayaran QRIS yang berhasil.
+    // Dikirim selama payment sukses (paid), terlepas dari status order sebelumnya.
+    if (order.whatsapp) {
+      if (!fonnteConfigured()) {
+        console.warn(
+          "[callback] FONNTE_TOKEN tidak diset — struk WA tidak terkirim untuk order:",
+          order.receipt_number
+        );
+      } else {
+        // Cek apakah WA sudah dikirim (oleh client fallback yang lebih cepat).
+        const { data: payment } = await supabase
+          .from("payments")
+          .select("wa_sent_at")
+          .eq("order_id", order.id)
+          .maybeSingle();
+
+        if (payment?.wa_sent_at) {
+          console.info("[callback] WA sudah dikirim sebelumnya untuk:", order.receipt_number);
+        } else {
+          const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
+          const message = buildOrderWhatsApp({
+            name: order.customer_name ?? "",
+            orderNumber: order.display_number ?? "",
+            receiptNumber: order.receipt_number ?? "",
+            total: rupiah(Number(order.total_price) || 0),
+            receiptUrl: `${base}/receipt/${order.receipt_number}`,
+            statusUrl: `${base}/order/${order.status_url}`,
+            paymentMethod: order.payment_method ?? undefined,
+          });
+          const result = await sendWhatsApp(order.whatsapp, message);
+          console.info(
+            "[callback] WhatsApp struk untuk",
+            order.receipt_number,
+            "→",
+            result.sent ? "TERKIRIM" : "GAGAL",
+            result.response ?? ""
+          );
+
+          // Tandai wa_sent_at agar tidak dikirim ganda oleh client fallback.
+          if (result.sent) {
+            await supabase
+              .from("payments")
+              .update({ wa_sent_at: new Date().toISOString() })
+              .eq("order_id", order.id);
+          }
+        }
+      }
     }
   }
 

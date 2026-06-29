@@ -134,7 +134,30 @@ export default function CheckoutPage() {
           });
           if (res.ok) {
             const { token } = (await res.json()) as { token?: string };
-            if (token) await payWithSnap(token);
+            if (token) {
+              const snapResult = await payWithSnap(token);
+
+              // Jika QRIS sukses, langsung kirim struk WA sebagai backup
+              // (webhook Midtrans juga akan kirim, tapi ini fallback jika webhook lambat/gagal)
+              if (snapResult === "success") {
+                const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+                fetch("/api/notifications", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    whatsapp: values.whatsapp,
+                    customerName: values.customerName,
+                    orderNumber: order.displayNumber ?? "",
+                    receiptNumber: order.receiptNumber ?? "",
+                    total: formatCurrency(order.totalPrice),
+                    receiptUrl: `${appUrl}/receipt/${order.receiptNumber ?? order.statusUrl}`,
+                    statusUrl: `${appUrl}/order/${order.statusUrl}`,
+                    paymentMethod: "qris",
+                    orderId: order.orderId,
+                  }),
+                }).catch(() => {});
+              }
+            }
           }
         } catch {
           /* lanjut ke struk meski popup gagal */

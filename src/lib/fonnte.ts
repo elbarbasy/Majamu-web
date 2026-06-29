@@ -81,15 +81,24 @@ export function buildOrderWhatsApp(p: {
   total: string;
   receiptUrl: string;
   statusUrl: string;
+  paymentMethod?: string;
 }): string {
+  const paymentInfo =
+    p.paymentMethod === "qris" || p.paymentMethod === "midtrans"
+      ? "Pembayaran QRIS berhasil! Pesanan Anda di Majamu telah dikonfirmasi."
+      : "Pesanan Anda di Majamu telah dikonfirmasi.";
+
   return [
     `Halo ${p.name ?? ""}`.trim() + ",",
     "",
-    "Pesanan Anda di Majamu telah dikonfirmasi.",
+    paymentInfo,
     "",
     `No Order: ${p.orderNumber}`,
     `No Struk: ${p.receiptNumber}`,
     `Total: ${p.total}`,
+    ...(p.paymentMethod === "qris" || p.paymentMethod === "midtrans"
+      ? [`Pembayaran: QRIS (Lunas)`]
+      : []),
     "",
     `Struk: ${p.receiptUrl}`,
     "",

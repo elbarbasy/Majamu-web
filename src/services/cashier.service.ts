@@ -58,7 +58,7 @@ function mapOrder(row: OrderRow): CashierOrder {
     customerName: row.customer_name,
     whatsapp: row.whatsapp,
     notes: row.notes,
-    paymentMethod: row.payment_method ?? null,
+    paymentMethod: (row.payment_method as CashierOrder["paymentMethod"]) ?? null,
     status: row.status as OrderStatus,
     totalPrice: Number(row.total_price) || 0,
     createdAt: row.created_at ?? new Date().toISOString(),
@@ -330,7 +330,8 @@ export async function computeExpectedCash(session: CashSession): Promise<number>
   return session.modalAwal + penjualanTunai + tambahModal - pengeluaran;
 }
 
-export async function fetchShiftNotes(): Promise<ShiftNote[]> {  try {
+export async function fetchShiftNotes(): Promise<ShiftNote[]> {
+  try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("shift_notes")
